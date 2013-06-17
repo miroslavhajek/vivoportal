@@ -352,7 +352,9 @@ class Navigation extends Component
                 $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
             } catch (EntityNotFoundException $e) {
                 $events = new \Zend\EventManager\EventManager();
-                $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
+                $events->trigger('log', $this, array (
+                    'message' => $e->getMessage(), 
+                    'level' => \Zend\Log\Logger::WARN));
                 continue;
             }
             if (!$doc instanceof Document) {
@@ -389,7 +391,7 @@ class Navigation extends Component
                 $children   = $this->buildNavPages($docArray['children'], $limit);
                 $page->setPages($children);
             }
-            if($this->documentApi->isPublished($document)) {
+            if($this->documentApi->isPublished($doc)) {
                 $pages[]    = $page;
             }
         }
