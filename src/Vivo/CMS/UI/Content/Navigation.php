@@ -371,7 +371,7 @@ class Navigation extends Component
             }
             $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
         }
-        if($limit) {
+        if($limit && count($documents)) {
             $documents = array_slice($documents, 0, $limit, true);
         }
         foreach ($documents as $key => $docArray) { 
