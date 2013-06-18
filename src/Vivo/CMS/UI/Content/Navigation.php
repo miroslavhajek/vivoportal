@@ -354,7 +354,7 @@ class Navigation extends Component
                 $events = new \Zend\EventManager\EventManager();
                 $events->trigger('log', $this, array (
                     'message' => $e->getMessage(), 
-                    'level' => \Zend\Log\Logger::WARN));
+                    'level' => \VpLogger\Log\Logger::WARN));
                 continue;
             }
             if (!$doc instanceof Document) {
@@ -379,7 +379,7 @@ class Navigation extends Component
             $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
-                'label'         => $doc->getTitle(),
+                'label'         => $doc->getNavigationTitle(),
                 'active'        => $this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath,
                 'document'      => $doc,
             );
