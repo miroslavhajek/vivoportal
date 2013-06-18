@@ -4,7 +4,7 @@ namespace Vivo\CMS\Model;
 use DateTime;
 
 /**
- * The document represents a folder in tree. The document contains functions for working with content and sub-documents.
+ * The document represents a folder in tree. The document contains functions for working with content and sub-documents
  */
 class Document extends Folder
 {
@@ -14,19 +14,19 @@ class Document extends Folder
     const AVAILABLE = 2;
 
     /**
-     * URL of the document. If there is not specifically specified, URL is always a straight path to the document.
+     * URI of the document. If there is not specifically specified, URI is always a straight path to the document.
      * (relative to the root document ROOT).
      *
      * @var string
      */
-    protected $url;
+    protected $uri;
 
     /**
-     * @var bool URL takes precedence.
+     * @var bool URI takes precedence.
      *
-     * Specific URL takes precedence (is primary)
+     * Specific URI takes precedence (is primary)
      */
-    protected $urlPrecedence;
+    protected $uriPrecedence;
 
     /**
      * @var string Page header.
@@ -34,12 +34,18 @@ class Document extends Folder
     protected $heading;
 
     /**
-     * @var string Name in listings
+     * @var string Title which can be seen in overview
      */
     protected $overviewTitle;
+    
+    /**
+     * @var string Title which can be seen in navigation
+     */
+    protected $navigationTitle;
 
     /**
-     * Keywords are used to describe content of the document. Keywords could make fulltext searches faster and more effective.
+     * Keywords are used to describe content of the document. 
+     * Keywords could make fulltext searches faster and more effective.
      * Please separate each word by comma.
      *
      * @var string
@@ -68,7 +74,7 @@ class Document extends Folder
     protected $navigable;
 
     /**
-     * @var bool If it's set, changes in contents of the document is automatically saved as a new version of the content.
+     * @var bool If it's set, changes in contents of the document is automatically saved as a new version.
      */
     protected $autoVersioning = false;
 
@@ -91,8 +97,8 @@ class Document extends Folder
     /**
      * Expiration of the contents of the document - if set, the output display of the contents of the document
      * is saved to cache and will be displayed within the expiration period from there.
-     * It allows you to accelerate the display of documents containing programming which are time-consuming for processing
-     * (eg, presenting data from an external database).
+     * It allows you to accelerate the display of documents,
+     * containing programming which are time-consuming for processing (eg, presenting data from an external database).
      * @var int Expiration (in seconds)
      */
     protected $expiration;
@@ -113,7 +119,8 @@ class Document extends Folder
     protected $image;
 
     /**
-     * Date and time when the document was published. Typically it is used for articles, newsletters and press releases.
+     * Date and time when the document was published. 
+     * Typically it is used for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
      *
      * @var DateTime
@@ -121,7 +128,8 @@ class Document extends Folder
     protected $published;
 
     /**
-     * Name of the person who actually created the document. It is used typically for articles, newsletters and press releases.
+     * Name of the person who actually created the document. 
+     * It is used typically for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
      * @var string
      */
@@ -167,6 +175,15 @@ class Document extends Folder
     {
         return $this->heading ? $this->heading : $this->title;
     }
+    
+    /**
+     * Sets heading property which is the same as title by default
+     * 
+     * @param string $heading
+     */
+    public function setHeading($heading) {
+        $this->heading = $heading;
+    }
 
     /**
      * Document overview title. If overview title is not set, document title will be returned.
@@ -177,7 +194,35 @@ class Document extends Folder
     {
         return $this->overviewTitle ? $this->overviewTitle : $this->title;
     }
-
+    
+    /**
+     * Sets title which can be seen in overview
+     * 
+     * @param string $overviewTitle
+     */
+    public function setOverviewTitle($overviewTitle) {
+        $this->overviewTitle = $overviewTitle;
+    }
+    
+    /**
+     * Document navigation title. If navigation title is not set, document title will be returned.
+     *
+     * @return string
+     */
+    public function getNavigationTitle()
+    {
+        return $this->navigationTitle ? $this->navigationTitle : $this->title;
+    }
+    
+    /**
+     * Sets title which can be seen in overview
+     * 
+     * @param string $overviewTitle
+     */
+    public function setNavigationTitle($navigationTitle) {
+        $this->navigationTitle = $navigationTitle;
+    }
+    
     /**
      * @param string $keywords
      */
@@ -289,17 +334,17 @@ class Document extends Folder
     /**
      * @return string
      */
-    public function getUrl()
+    public function getUri()
     {
-        return $this->url;
+        return $this->uri;
     }
 
     /**
-     * @param string $url
+     * @param string $uri
      */
-    public function setUrl($url)
+    public function setUri($uri)
     {
-        $this->url = $url;
+        $this->uri = $uri;
     }
 
     public function getImage()
@@ -321,12 +366,13 @@ class Document extends Folder
     {
         $this->published = $published;
     }
-    public function getUrlPrecedence() {
-        return $this->urlPrecedence;
+    
+    public function getUriPrecedence() {
+        return $this->uriPrecedence;
     }
 
-    public function setUrlPrecedence($urlPrecedence) {
-        $this->urlPrecedence = $urlPrecedence;
+    public function setUriPrecedence($uriPrecedence) {
+        $this->uriPrecedence = $uriPrecedence;
     }
 
     public function getNavigable() {
@@ -438,7 +484,7 @@ class Document extends Folder
         }
         //URL
         if (array_key_exists('url', $data)) {
-            $this->setUrl($data['url']);
+            $this->setUri($data['url']);
         }
         parent::exchangeArraySymRef($data);
     }
@@ -452,7 +498,7 @@ class Document extends Folder
         $data                       = parent::getArrayCopySymRef();
         $data['layout']             = $this->getLayout();
         $data['internal_notice']    = $this->getInternalNotice();
-        $data['url']                = $this->getUrl();
+        $data['url']                = $this->getUri();
         return $data;
     }
 }

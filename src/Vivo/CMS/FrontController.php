@@ -403,10 +403,10 @@ class FrontController implements DispatchableInterface,
         }
 
         //redirect document with specific url
-        if ($document->getUrl()) {
-            if ($document->getUrlPrecedence() == true) {
-                if($document->getUrl() != $this->cmsEvent->getRequestedPath()) {
-                    $url = $this->urlHelper->fromRoute(null, array('path' => $document->getUrl()));
+        if ($document->getUri()) {
+            if ($document->getUriPrecedence() == true) {
+                if($document->getUri() != $this->cmsEvent->getRequestedPath()) {
+                    $url = $this->urlHelper->fromRoute(null, array('path' => $document->getUri()));
                     $this->events->trigger(new RedirectEvent($url));
                     return;
                 } else {
@@ -414,7 +414,7 @@ class FrontController implements DispatchableInterface,
                     return;
                 }
             } else {
-                if ($document->getUrl() == $this->cmsEvent->getRequestedPath()) {
+                if ($document->getUri() == $this->cmsEvent->getRequestedPath()) {
                     $path = $this->cmsApi->getEntityRelPath($document);
                     $url = $this->urlHelper->fromRoute(null, array('path' => $path));
                     $this->events->trigger(new RedirectEvent($url));

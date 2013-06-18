@@ -2,7 +2,7 @@
 <? if(count($children)) : ?>
 	<ul class="inline">
 	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a></li>
+		<li><a href="<?=$this->document($child)?>"><?=$child->getOverviewTitle();?></a></li>
 	<? endforeach; ?>
 	</ul>
 <? endif; ?>
