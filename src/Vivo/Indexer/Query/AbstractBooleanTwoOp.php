@@ -47,4 +47,22 @@ abstract class AbstractBooleanTwoOp implements BooleanTwoOpInterface
     {
         return $this->right;
     }
+    
+    /**
+     * Sets the query on the left side of the AND operand
+     * @param QueryInterface $left
+     */
+    public function setQueryLeft(QueryInterface $left)
+    {
+        $this->left = $left;
+    }
+
+    /**
+     * Sets the query on the right side of the AND operand
+     * @param QueryInterface $right
+     */
+    public function setQueryRight(QueryInterface $right)
+    {
+        $this->right = $right;
+    }
 }

@@ -88,15 +88,15 @@ class Repository implements RepositoryInterface
 
     /**
      * List of streams that are prepared to be persisted
-     * Map: path => stream
-     * @var IO\InputStreamInterface[]
+     * Map: path => array('stream' => IO\InputStreamInterface[], 'entity' => ...)
+     * @var array
      */
     protected $saveStreams          = array();
 
     /**
      * List of data items prepared to be persisted
-     * Map: path => data
-     * @var string[]
+     * Map: path => array('data' => ..., 'entity' => ...)
+     * @var array
      */
     protected $saveData             = array();
 
@@ -517,8 +517,8 @@ class Repository implements RepositoryInterface
 	{
         $entityPath                 = $this->getAndCheckPath($entity);
         $pathComponents             = array($entityPath, $name);
-		$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        $this->saveStreams[$path]   = $stream;
+	$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $this->saveStreams[$path]   = array('stream' => $stream, 'entity' => $entity);
 	}
 
     /**
@@ -529,10 +529,10 @@ class Repository implements RepositoryInterface
      */
     public function saveResource(PathInterface $entity, $name, $data)
 	{
-        $entityPath             = $this->getAndCheckPath($entity);
-        $pathComponents         = array($entityPath, $name);
-        $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
-        $this->saveData[$path]  = $data;
+        $entityPath                     = $this->getAndCheckPath($entity);
+        $pathComponents                 = array($entityPath, $name);
+        $path                           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $this->saveData[$path] = array('data' => $data, 'entity' => $entity);
 	}
 
 	/**
@@ -851,14 +851,14 @@ class Repository implements RepositoryInterface
             foreach ($this->saveData as $path => $data) {
                 $tmpPath                = $path . '.' . uniqid('tmp-');
                 $this->tmpFiles[$path]  = $tmpPath;
-                $this->storage->set($tmpPath, $data);
+                $this->storage->set($tmpPath, $data['data']);
             }
             //c) Streams
-            foreach ($this->saveStreams as $path => $stream) {
+            foreach ($this->saveStreams as $path => $data) {
                 $tmpPath                = $path . '.' . uniqid('tmp-');
                 $this->tmpFiles[$path]  = $tmpPath;
                 $output                 = $this->storage->write($tmpPath);
-                $this->ioUtil->copy($stream, $output, 4096);
+                $this->ioUtil->copy($data['stream'], $output, 4096);
                 $output->close();
             }
 

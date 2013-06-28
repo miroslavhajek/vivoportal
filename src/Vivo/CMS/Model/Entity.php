@@ -26,7 +26,7 @@ class Entity implements PathInterface
      * @see Vivo\CMS\Solr\Indexer
      * @var boolean
      */
-    protected $searchable;
+    protected $searchable = true;
 
     /**
      * Time of entity creation.
@@ -133,6 +133,24 @@ class Entity implements PathInterface
         return $this->created;
     }
 
+    /**
+     * Set searchable property, which determinates if entity will be indexed or not.
+     * @param bool $searchable
+     */
+    public function setSearchable($searchable = true)
+    {
+        $this->searchable = (bool) $searchable;
+    }
+
+    /**
+     * Returns searchable property, which determinates if entity will be indexed or not.
+     * @return bool
+     */
+    public function getSearchable()
+    {
+        return $this->searchable;
+    }
+    
     /**
      * Set username of creator.
      * @return string $userName

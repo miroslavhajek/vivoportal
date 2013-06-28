@@ -32,6 +32,7 @@ return array(
             'Vivo\CMS\UI\Content\Overview:CarouselTouch' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.CarouselTouch.phtml',
             'Vivo\CMS\UI\Content\Overview:Expandable' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Expandable.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
+            'Vivo\CMS\UI\Content\Search'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Search.phtml',
 
             // Content editor component
             'Vivo\CMS\UI\Content\Editor\Editor'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
@@ -42,6 +43,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Navigation' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Navigation.phtml',
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
+            'Vivo\CMS\UI\Content\Editor\Search'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Search.phtml',
 
             // Other UI
             'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
@@ -89,6 +91,7 @@ return array(
             'Vivo\CMS\Model\Content\Logon'      => 'Vivo\CMS\UI\Content\Logon',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Navigation',
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Fileboard',
+            'Vivo\CMS\Model\Content\Search'     => 'Vivo\CMS\UI\Content\Search',
         ),
         'editor_component' => array (
             'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
@@ -99,6 +102,7 @@ return array(
             'Vivo\CMS\Model\Content\Hyperlink'  => 'Vivo\CMS\UI\Content\Editor\Editor',
             'Vivo\CMS\Model\Content\Navigation' => 'Vivo\CMS\UI\Content\Editor\Navigation',
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\Fileboard',
+            'Vivo\CMS\Model\Content\Search'     => 'Vivo\CMS\UI\Content\Editor\Search',
         ),
     ),
     'contents' => array (
@@ -141,6 +145,10 @@ return array(
             'fileboard'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Fileboard',
                 'label'     => 'Vivo\CMS\Model\Content\Fileboard',
+            ),
+            'search'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Search',
+                'label'     => 'Vivo\CMS\Model\Content\Search',
             ),
         ),
         'restrictions' => array (
@@ -228,6 +236,7 @@ return array(
             'Vivo\CMS\UI\Content\Logon'      => 'Vivo\CMS\UI\Content\LogonFactory',
             'Vivo\CMS\UI\Content\Navigation' => 'Vivo\CMS\UI\Content\NavigationFactory',
             'Vivo\CMS\UI\Content\Fileboard'  => 'Vivo\CMS\UI\Content\FileboardFactory',
+            'Vivo\CMS\UI\Content\Search'     => 'Vivo\CMS\UI\Content\SearchFactory',
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
@@ -260,6 +269,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Layout'     => 'Vivo\CMS\UI\Content\Editor\LayoutFactory',
             'Vivo\CMS\UI\Content\Editor\Navigation' => 'Vivo\CMS\UI\Content\Editor\NavigationFactory',
             'Vivo\CMS\UI\Content\Editor\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\FileboardFactory',
+            'Vivo\CMS\UI\Content\Editor\Search'     => 'Vivo\CMS\UI\Content\Editor\SearchFactory',
 
             //Content editor adapters
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter'
@@ -432,5 +442,9 @@ return array(
             'published:desc' => 'publish_date_document_only_desc',
             'random'     => 'random'
         ),
+     ),
+    'defaultSearchableFields' => array (
+            '\title'           => 'title',
+            '\resourceContent' => 'resourceContent',
      ),
 );

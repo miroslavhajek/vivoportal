@@ -17,6 +17,7 @@ class IndexerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $adapter        = $serviceLocator->get('indexer_adapter');
+        $config         = $serviceLocator->get('cms_config');
         $indexer        = new \Vivo\Indexer\Indexer($adapter);
         return $indexer;
     }

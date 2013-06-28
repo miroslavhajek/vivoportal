@@ -18,16 +18,25 @@ class Field
      * @var mixed|array
      */
     protected $value;
+    
+    /**
+     * Field is extractable
+     * Determinates if field is extractable. Used for files like PDF, DOC and so on.
+     * @var bool
+     */
+    protected $extractable = false;
 
     /**
      * Constructor
      * @param string $name
      * @param mixed|array $value
+     * @param bool $extractable
      */
-    public function __construct($name, $value)
+    public function __construct($name, $value, $extractable = false)
     {
-        $this->name  = $name;
-        $this->value = $value;
+        $this->name        = $name;
+        $this->value       = $value;
+        $this->extractable = $extractable;
     }
 
     /**
@@ -48,6 +57,15 @@ class Field
         return $this->value;
     }
 
+    /**
+     * Returns if field is extractable
+     * @return bool
+     */
+    public function getExtractable()
+    {
+        return $this->extractable;
+    }
+    
     /**
      * Returns if the field is multivalued
      * @return bool

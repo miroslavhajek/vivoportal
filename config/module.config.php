@@ -840,7 +840,7 @@ return array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,
-                'tokenized'     => false,
+                'tokenized'     => true,
                 'multi'         => false,
             ),
             '\position'   => array(
@@ -851,6 +851,20 @@ return array(
                 'multi'         => false,
             ),
             '\allowListingInOverview'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            '\resourceContent'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => false,
+                'tokenized'     => true,
+                'multi'         => false,
+            ),
+            '\searchable'   => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,

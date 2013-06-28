@@ -9,7 +9,8 @@ use Vivo\Indexer\Query\Wildcard as WildcardQuery;
 use Vivo\Indexer\Query\BooleanOr;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\CMS\Model\Document as DocumentModel;
-use Vivo\CMS\Model\Content;
+use Vivo\CMS\Api\Content\File as FileApi;
+use Vivo\CMS\Model\Content\File;
 
 /**
  * IndexerHelper
@@ -22,15 +23,22 @@ class IndexerHelper implements IndexerHelperInterface
      * @var FieldHelperInterface
      */
     protected $indexerFieldHelper;
-
-
+    
+    /**
+     * File Api
+     * @var FileApi
+     */
+    protected $fileApi;
+    
     /**
      * Constructor
      * @param FieldHelperInterface $indexerFieldHelper
+     * @param FileApi $fileApi
      */
-    public function __construct(FieldHelperInterface $indexerFieldHelper)
+    public function __construct(FieldHelperInterface $indexerFieldHelper, FileApi $fileApi)
     {
         $this->indexerFieldHelper   = $indexerFieldHelper;
+        $this->fileApi              = $fileApi;
     }
 
     /**
@@ -53,6 +61,25 @@ class IndexerHelper implements IndexerHelperInterface
                 $field  = new Field('\publishedContents', $options['published_content_types']);
                 $doc->addField($field);
             }
+        } elseif($entity instanceof File) {
+            try {
+                $data = $this->fileApi->getResource($entity);
+            } catch(\Exception $e) {
+                //In the case of creation of the document, 
+                //the resource does not exist and is indexed after save to repository.
+            }
+            if(isset($data)) {
+                if (strpos($entity->getmimeType(), 'text/') === 0) {
+                    if ($entity->getmimeType() == 'text/html') {
+                        $data = html_entity_decode($data, ENT_COMPAT, 'UTF-8');
+                    }
+                    $field  = new Field('\resourceContent', $data);
+                    $doc->addField($field);
+                } else {
+                    $field  = new Field('\resourceContent', $data, $extractable = true);
+                    $doc->addField($field);
+                }
+            }
         }
         //Class field
         $field  = new Field('\class', $entityClass);
@@ -71,7 +98,7 @@ class IndexerHelper implements IndexerHelperInterface
             $doc->addField($field);
         }
         return $doc;
-    }
+    }  
 
     /**
      * Builds and returns a query returning a whole subtree of documents beginning at the $entity

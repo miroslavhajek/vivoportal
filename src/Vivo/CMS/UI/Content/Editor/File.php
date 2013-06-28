@@ -105,8 +105,7 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 
             if ($replaceContent && $data["tmp_name"] != "") {
                 $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
-            }
-            else {
+            } else {
                 $mimeType = $this->content->getMimeType();
                 $ext = $this->fileApi->getExt($mimeType);
 
@@ -117,7 +116,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
                 $adapter = $this->getAdapter();
                 if ($adapter instanceof ResourceEditorInterface && $adapter->dataChanged()) {
                     $data = $adapter->getData();
-
                     $this->content->setSize(mb_strlen($data, 'UTF-8'));
 
                     $this->saveContent($contentContainer);

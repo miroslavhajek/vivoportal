@@ -221,14 +221,34 @@ class Indexer implements IndexerInterface
      */
     protected function indexEntity(Model\Entity $entity, $suppressErrors = false)
     {
-        $event      = new IndexerEvent(null, $this);
-        $event->setEntity($entity);
-        $event->setEntityPath($entity->getPath());
-        if ($entity instanceof Model\Document) {
+        if($entity->getSearchable()) {
+            $event      = new IndexerEvent(null, $this);
+            $event->setEntity($entity);
+            $event->setEntityPath($entity->getPath());
+            if ($entity instanceof Model\Document) {
+                try {
+                    $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
+                } catch (\Exception $e) {
+                    //Cannot get published content types
+                    $event->setException($e);
+                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+                    if ($suppressErrors) {
+                        return false;
+                    } else {
+                        throw $e;
+                    }
+                }
+            } else {
+                $publishedContentTypes    = array();
+            }
+            $options    = array('published_content_types' => $publishedContentTypes);
             try {
-                $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
+                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);            
+                $event->setIdxDoc($idxDoc);
+                $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
+                $this->indexer->addDocument($idxDoc);
+                $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
             } catch (\Exception $e) {
-                //Cannot get published content types
                 $event->setException($e);
                 $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
                 if ($suppressErrors) {
@@ -237,26 +257,10 @@ class Indexer implements IndexerInterface
                     throw $e;
                 }
             }
+            return true;
         } else {
-            $publishedContentTypes    = array();
+            return false;
         }
-        $options    = array('published_content_types' => $publishedContentTypes);
-        try {
-            $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
-            $event->setIdxDoc($idxDoc);
-            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
-            $this->indexer->addDocument($idxDoc);
-            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
-        } catch (\Exception $e) {
-            $event->setException($e);
-            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-            if ($suppressErrors) {
-                return false;
-            } else {
-                throw $e;
-            }
-        }
-        return true;
     }
 
     /**
@@ -299,11 +303,19 @@ class Indexer implements IndexerInterface
         $saveEntities   = $event->getParam('save_entities');
         foreach ($saveEntities as $entity) {
             $this->saveEntity($entity);
+        }                
+        /** @var $saveResources array('data' => ..., 'entity' => ...) */
+        $saveResources   = $event->getParam('save_data');   
+        foreach ($saveResources as $key => $value) {
+            $this->saveEntity($value['entity']);
         }
-
-
+        /** @var $saveStreams array('stream' => IO\InputStreamInterface[], 'entity' => ...) */
+        $saveStreams   = $event->getParam('save_streams');
+        foreach ($saveStreams as $key => $value) {
+            $this->saveEntity($value['entity']);
+        }
+               
         //TODO - implement also support for other repository actions with resources etc.
-
 
         $this->indexer->commit();
     }
