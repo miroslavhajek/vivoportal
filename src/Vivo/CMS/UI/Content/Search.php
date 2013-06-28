@@ -180,7 +180,6 @@ class Search extends AbstractForm
                 $this->numRows -= 1;
                 continue;
             }
-
             if ($entity instanceof \Vivo\CMS\Model\Document) {
                 if (!$this->documentApi->isPublished($entity)) {
                     $this->numRows -= 1;
@@ -205,7 +204,7 @@ class Search extends AbstractForm
         }
         
         $this->paginator->setItemCount($this->numRows);
-        //Vyber stranky z vysledku
+        //Choose pages from result
         $resultPages = array_chunk($documentList, $this->content->getPageSize());
         $this->result = $resultPages[$this->paginator->getPage() - 1];
         $this->view->result = $this->result;

@@ -19,7 +19,7 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
      * Results count options
      * @var array
      */
-    static $PAGE_SIZE_OPTIONS = array(4 => 4, 10 => 10, 20 => 20, 40 => 40, 60 => 60);
+    protected $pagesizeOptions = array(4 => 4, 10 => 10, 20 => 20, 40 => 40, 60 => 60);
     
     /**
      * Operator
@@ -30,9 +30,11 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     /**
      * Operator options
      */
-    const EXACT_OP = 'exact_op';
-    const AND_OP = 'and_op';
-    const OR_OP = 'or_op';
+    protected $operatorOptions = array(
+        'exact_op' => 'exact_op',
+        'and_op' => 'and_op',
+        'or_op' => 'or_op'
+    );
 
     /**
      * Wildcards
@@ -43,10 +45,12 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     /** 
      * Wildcards options
      */
-    const AS_IS = 'as_is';
-    const START_ASTERISK = 'start_asterisk';
-    const END_ASTERISK = 'end_asterisk';
-    const START_END_ASTERISK = 'start_end_asterisk';
+    protected $wildcardsOptions = array(
+        'as_is' => 'as_is',
+        'start_asterisk' => 'start_asterisk',
+        'end_asterisk' => 'end_asterisk',
+        'start_end_asterisk' => 'start_end_asterisk'
+    );
 
     /**
      * @var bool Resource link in the results.
@@ -54,7 +58,7 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     protected $resourceLink;
     
     /**
-    * Limit the maximum number of results returned Solr. Too large a value may cause problems with power / memory
+    * Limit the maximum number of results returned Solr. Too large value may cause problems with power / memory
     * @var integer
     * @see Vivo\CMS\UI\Content\Search::doSearch()
     */
@@ -98,15 +102,11 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     
     /**
      * Returns operator options
-     * @return string
+     * @return array
      */
     public function getOperatorOptions()
     {
-        return array(
-            'exact_op' => 'exact_op',
-            'and_op' => 'and_op',
-            'or_op' => 'or_op'
-        );
+        return $this->operatorOptions;
     }
     
     /**
@@ -129,16 +129,11 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     
     /**
      * Returns wildcards options
-     * @return string
+     * @return array
      */
     public function getWildcardsOptions()
     {
-        return array(
-            'as_is' => 'as_is',
-            'start_asterisk' => 'start_asterisk',
-            'end_asterisk' => 'end_asterisk',
-            'start_end_asterisk' => 'start_end_asterisk',
-        );
+        return $this->wildcardsOptions;
     }
     
     /**
@@ -166,6 +161,15 @@ class Search extends Model\Content implements Model\SymRefDataExchangeInterface
     public function setResourceLink($resourceLink)
     {
         $this->resourceLink = $resourceLink;
+    }
+    
+    /**
+     * Returns search resource link
+     * @return int
+     */
+    public function getPagesizeOptions()
+    {
+        return $this->pagesizeOptions;
     }
 
     /**

@@ -221,34 +221,14 @@ class Indexer implements IndexerInterface
      */
     protected function indexEntity(Model\Entity $entity, $suppressErrors = false)
     {
-        if($entity->getSearchable()) {
-            $event      = new IndexerEvent(null, $this);
-            $event->setEntity($entity);
-            $event->setEntityPath($entity->getPath());
-            if ($entity instanceof Model\Document) {
-                try {
-                    $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
-                } catch (\Exception $e) {
-                    //Cannot get published content types
-                    $event->setException($e);
-                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-                    if ($suppressErrors) {
-                        return false;
-                    } else {
-                        throw $e;
-                    }
-                }
-            } else {
-                $publishedContentTypes    = array();
-            }
-            $options    = array('published_content_types' => $publishedContentTypes);
+        $event      = new IndexerEvent(null, $this);
+        $event->setEntity($entity);
+        $event->setEntityPath($entity->getPath());
+        if ($entity instanceof Model\Document) {
             try {
-                $idxDoc     = $this->indexerHelper->createDocument($entity, $options);            
-                $event->setIdxDoc($idxDoc);
-                $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
-                $this->indexer->addDocument($idxDoc);
-                $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
+                $publishedContentTypes  = $this->documentApi->getPublishedContentTypes($entity);
             } catch (\Exception $e) {
+                //Cannot get published content types
                 $event->setException($e);
                 $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
                 if ($suppressErrors) {
@@ -257,10 +237,26 @@ class Indexer implements IndexerInterface
                     throw $e;
                 }
             }
-            return true;
         } else {
-            return false;
+            $publishedContentTypes    = array();
         }
+        $options    = array('published_content_types' => $publishedContentTypes);
+        try {
+            $idxDoc     = $this->indexerHelper->createDocument($entity, $options);            
+            $event->setIdxDoc($idxDoc);
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
+            $this->indexer->addDocument($idxDoc);
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
+        } catch (\Exception $e) {
+            $event->setException($e);
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+            if ($suppressErrors) {
+                return false;
+            } else {
+                throw $e;
+            }
+        }
+        return true;
     }
 
     /**

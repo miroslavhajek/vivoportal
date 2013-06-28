@@ -57,6 +57,13 @@ class Indexer implements IndexerInterface
         return $this->adapter->find($query, $queryParams);
     }
     
+    /**
+     * Check for conditions with no field specified and rebuild query to search in common fields specified in conf
+     * @param Query\QueryInterface $query
+     * @param string $branch
+     * @param Query\QueryInterface $parent
+     * @return Query\QueryInterface $query
+     */
     protected function checkAndRebuildQuery($query, $branch = 'left', $parent = null)
     {
         if($query instanceof Query\BooleanInterface) {
@@ -80,6 +87,13 @@ class Indexer implements IndexerInterface
         return $query;
     }
     
+    /**
+     * Rebuilds query to search in common fields specified in conf
+     * @param Query\QueryInterface $query
+     * @param string $branch
+     * @param Query\QueryInterface $parent
+     * @return Query\QueryInterface $query
+     */
     protected function rebuildQuery($query, $branch, $parent = null)
     {
         $currentQuery = null;

@@ -3,7 +3,6 @@ namespace Vivo\CMS\UI\Content\Editor;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
-use Vivo\CMS\Model\Content\Search as SearchModel;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
@@ -72,7 +71,7 @@ class Search extends AbstractForm implements EditorInterface
             'type' => 'Vivo\Form\Element\Select',
             'options' => array('label' => 'Page size'),
             'attributes' => array(
-                'options' => SearchModel::$PAGE_SIZE_OPTIONS
+                'options' => $this->content->getPagesizeOptions()
             )
         ));
         $form->add(array(
@@ -80,11 +79,7 @@ class Search extends AbstractForm implements EditorInterface
             'type' => 'Vivo\Form\Element\Select',
             'options' => array('label' => 'Search results'),
             'attributes' => array(
-                'options' => array(
-                    SearchModel::EXACT_OP => SearchModel::EXACT_OP,
-                    SearchModel::AND_OP => SearchModel::AND_OP,
-                    SearchModel::OR_OP => SearchModel::OR_OP,
-                )
+                'options' => $this->content->getOperatorOptions()
             )
         ));
         $form->add(array(
@@ -92,12 +87,7 @@ class Search extends AbstractForm implements EditorInterface
             'type' => 'Vivo\Form\Element\Select',
             'options' => array('label' => 'Condition for words parts'),
             'attributes' => array(
-                'options' => array(
-                    SearchModel::AS_IS => SearchModel::AS_IS,
-                    SearchModel::START_ASTERISK => SearchModel::START_ASTERISK,
-                    SearchModel::END_ASTERISK => SearchModel::END_ASTERISK,
-                    SearchModel::START_END_ASTERISK => SearchModel::START_END_ASTERISK,
-                )
+                'options' => $this->content->getWildcardsOptions()
             )
         ));
         $form->add(array(

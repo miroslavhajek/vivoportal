@@ -98,7 +98,7 @@ class IndexerHelper implements IndexerHelperInterface
             $doc->addField($field);
         }
         return $doc;
-    }  
+    }
 
     /**
      * Builds and returns a query returning a whole subtree of documents beginning at the $entity
