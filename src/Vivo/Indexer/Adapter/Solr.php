@@ -584,7 +584,7 @@ class Solr implements AdapterInterface
             $idxConfig  = $this->fieldHelper->getIndexerConfigForFieldName($vivoFieldName);
             $solrSuffix = $this->getTypeSuffix($idxConfig);
             //Replace backslashes with underscores
-            $solrFieldName  = str_replace('\\', '_', $vivoFieldName);            
+            $solrFieldName  = str_replace('\\', '_', $vivoFieldName);
             $solrFieldName  .= $solrSuffix;
         }
         return $solrFieldName;
