@@ -1,0 +1,43 @@
+<? $i = 1; ?>
+<ul>
+    <? foreach ($data as $docData) :
+        $document = $docData['document']; /* @var $document \Vivo\CMS\Model\Document */
+        $isPublished = Util\Object::is_a($document, 'Vivo\CMS\Model\Document') ? ($document->isPublished() ? true : false) : false;
+    ?>
+    <li<?=($documentsCount == $i) ? ' class="last"' : '';?>>
+        <a href="<?=$this->actionURL('set', array($document->getURL())) ?>">
+            <?=htmlspecialchars($document->title) ?>
+            <span class="path" style="font-size: 13px; color: #606070"><?=$document->getURL()?></span>
+            <?if ($docData['published']): ?><span class="published"></span><? endif; ?>
+            <br>
+            <? if ($document->getDescription() || $document->getKeywords()): ?>
+                <div>
+                    <? if ($document->getDescription()) : ?>
+                        <div class="cell"><strong>Description:</strong> <?=$document->getDescription()?></div>
+                    <? endif ?>
+                    <? if ($document->getKeywords()) : ?>
+                        <div class="cell"><strong>Keywords:</strong> <?=$document->getKeywords()?></div>
+                    <? endif ?>
+                </div>
+                <div style="padding: 0; clear: both;"></div>
+            <? endif ?>
+            <div>
+                <div class="cell"><strong>Created:</strong> <?=$document->getCreated()->format('Y-m-d H:m:i')?></div>
+                <div class="cell"><strong>Created:</strong> <?=htmlspecialchars($document->getCreatedBy())?></div>
+                <div class="cell"><strong>Modified:</strong> <?=$document->getModified()->format('Y-m-d H:m:i')?></div>
+                <div class="cell"><strong>Edited:</strong> <?=htmlspecialchars($document->getModifiedBy())?></div>
+            </div>
+        </a>
+        <div style="padding: 0; clear: both;"></div>
+    </li>
+    <? $i++;
+    endforeach; ?>
+</ul>
+<div class="footer"><?
+    if($documentsCount == 10) {
+        echo sprintf('%s or more documents found', $documentsCount);
+    }
+    else {
+        echo sprintf('%s document(s) found', $documentsCount);
+    }
+    ?></div>
