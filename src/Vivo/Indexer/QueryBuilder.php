@@ -62,26 +62,72 @@ class QueryBuilder
     }
 
     /**
-     * Combines two queries into an AND query
-     * @param QueryInterface $left
+     * Prepares parameters for AND or OR operation
+     * @param QueryInterface|array $left
      * @param QueryInterface $right
+     * @throws \Vivo\Indexer\Exception\InvalidArgumentException
+     * @return array <\Vivo\Indexer\Query\QueryInterface>
+     */
+    private function prepareTwoX($left, QueryInterface $right = null)
+    {
+        if($left instanceof QueryInterface && $right instanceof QueryInterface) {
+            $left = array($left, $right);
+        }
+
+        if(!is_array($left)) {
+            throw new Exception\InvalidArgumentException(
+            sprintf('%s: First argument must be instance of Vivo\Indexer\Query\QueryInterface or array', __METHOD__));
+        }
+
+        if(count($left) < 2) {
+            throw new Exception\InvalidArgumentException(
+                    sprintf('%s: Array must have more than 2 elements', __METHOD__));
+        }
+
+        foreach ($left as $key=>$condition) {
+            if(!$condition instanceof QueryInterface) {
+                throw new Exception\InvalidArgumentException(
+                        sprintf('%s: Element at index %s is not instance of Vivo\Indexer\Query\QueryInterface; %s given',
+                                __METHOD__, $key, gettype($condition)));
+            }
+        }
+
+        return $left;
+    }
+
+    /**
+     * Combines two queries into an AND query
+     * @param QueryInterface|array $left
+     * @param QueryInterface $right
+     * @throws \Vivo\Indexer\Exception\InvalidArgumentException
      * @return BooleanAnd
      */
-    public function andX(QueryInterface $left, QueryInterface $right)
+    public function andX($left, QueryInterface $right = null)
     {
-        $query = new BooleanAnd($left, $right);
+        $left = $this->prepareTwoX($left, $right);
+        $query = array_shift($left);
+        foreach ($left as $condition) {
+            $query = new BooleanAnd($query, $condition);
+        }
+
         return $query;
     }
 
     /**
      * Combines two queries into an OR query
-     * @param QueryInterface $left
+     * @param QueryInterface|array $left
      * @param QueryInterface $right
-     * @return BooleanAnd
+     * @throws \Vivo\Indexer\Exception\InvalidArgumentException
+     * @return BooleanOr
      */
-    public function orX(QueryInterface $left, QueryInterface $right)
+    public function orX($left, QueryInterface $right = null)
     {
-        $query = new BooleanOr($left, $right);
+        $left = $this->prepareTwoX($left, $right);
+        $query = array_shift($left);
+        foreach ($left as $condition) {
+            $query = new BooleanOr($query, $condition);
+        }
+
         return $query;
     }
 }

@@ -1,12 +1,28 @@
 <?php
 $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-?>
-<?if (isset($logonError)):?>
-	<div class="alert alert-error">
-	<?=$this->translate($logonError)?>
-	</div>
-<?endif?>
 
+$formLabel = $this->plugin('formLabel');
+
+$form->setAttribute("class", "logoutForm");
+
+$username = $form->get('logon')->get('username');
+$username->setAttribute("id", "logon[username]");
+$username_err_class = $username->getMessages() ? "error" : "";
+$username->setAttribute("class", $username_err_class);
+$password = $form->get('logon')->get('password');
+$password->setAttribute("id", "logon[password]");
+$password_err_class = $password->getMessages() ? "error" : "";
+$password->setAttribute("class", $password_err_class);
+$domain = $form->get('logon')->get('domain');
+$domain->setAttribute("id", "logon[domain]");
+$domain_err_class = $domain->getMessages() ? "error" : "";
+$domain->setAttribute("class", $domain_err_class);
+$csrf = $form->get('csrf');
+$act = $form->get('act');
+$submit = $form->get('submit');
+$submit->setAttribute("class", "inputSubmit logon");
+
+?>
 <?if ($user):?>
 <a href="<?=$this->actionUrl('logoff');?>" class="user-logout"><span>X</span></a>
 <div class="user">
@@ -19,37 +35,47 @@ $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 	
 <div class="manager_content">
 	<div id="logoutDialog">
+		<?= $this->form()->openTag($form);?>
 		<table width="100%" class="tableGridForm fixed">
+			<col width="120">
+  			<col width="240">
 			<tr class="important">
 				<td colspan="2" class="logoutDialogHeader" id="logoutDialog-header"><span><?=$this->translate('Logon');?></span></td>
 			</tr>
 			<tr class="important">
 				<td colspan="2" class="logoutDialogLogo"><img src="<?= $this->resource('backend/img/manager/default/logon_theme.png','Vivo')?>" alt="VIVO logos" width="360" height="100" /></td>
 			</tr>
-
+			
+			<?/*=$this->formTwb($form, $formType);*/?>
 			<tr class="important">
-				<td colspan="2" class="logoutDialogForm">
-					<?=$this->formTwb($form, $formType);?>
+				<td colspan="2" class="logoutDialogError">
+					<?if (isset($logonError)):?>
+						<div class="alert alert-error">
+						<span><?=$this->translate($logonError)?></span>
+						</div>
+					<?endif?>
 				</td>
 			</tr>
+ 			<tr class="control-group <?=$username_err_class?> important first-row">
+				<td width="120"><?= $formLabel($username);?></td>
+				<td width="240"><?= $this->formInput($username) . $this->formElementErrors($username); ?></td>
+			</tr>
+			<tr class="control-group <?=$password_err_class?> important">
+				<td><?= $formLabel($password);?></td>
+				<td><?= $this->formInput($password) . $this->formElementErrors($password); ?></td>
+			</tr>
+			<tr class="control-group <?=$domain_err_class?> important">
+				<td><?= $formLabel($domain);?></td>
+				<td><?= $this->formInput($domain) . $this->formElementErrors($domain); ?></td>
+			</tr>
 
-<!-- 			<tr class="logoutForm important">
-				<td><label for="logonUsername"><?=$this->translate('username') ?></label></td>
-				<td></td>
-			</tr>
-			<tr class="logoutForm important">
-				<td><label for="logonPassword"><?=$this->translate('password') ?></label></td>
-				<td></td>
-			</tr>
-			<? if (1): ?>
-				<tr class="logoutForm important">
-					<td><label for="logonDomain"><?=$this->translate('domain') ?></label></td>
-					<td></td>
-				</tr>
-			<? endif ?> -->
 			<tr class="saveButtons">
-				<td><span class="browsersTrigger"><?=$this->translate('supported_browsers') ?></span></td>
-				<td><input type="submit" class="inputSubmit" value="<?=$this->translate('logon') ?>"/></td>
+				<td colspan="2">
+					<span class="browsersTrigger fLeft"><?=$this->translate('supported_browsers') ?></span>
+					<?= $this->formInput($csrf);?>
+					<?= $this->formInput($act);?>
+					<span class="fRight"><?= $this->formSubmit($submit);?></span>
+				</td>
 			</tr>
 			<tr class="saveButtons browsers">
 				<td colspan="2">
@@ -62,6 +88,7 @@ $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 				</td>
 			</tr>
 		</table>
+		<?= $this->form()->closeTag($form);?>
 	</div>
 </div>
 <?endif?>

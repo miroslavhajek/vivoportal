@@ -365,7 +365,11 @@ class FrontController implements DispatchableInterface,
         } else {
             $this->tree->init();
             if ($handleAction) {
-                $this->handleAction();
+                $result = $this->handleAction();
+                if($result != null) {
+                    throw new Exception\RuntimeException(sprintf("%s: Action returns not null result; returns '%s'",
+                            __METHOD__, gettype($result)));
+                }
             }
             if (!$this->redirector->isRedirect()) {
                 $result = $this->tree->view();

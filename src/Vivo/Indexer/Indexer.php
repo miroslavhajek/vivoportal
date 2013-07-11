@@ -131,4 +131,14 @@ class Indexer implements IndexerInterface
                 sprintf('%s: Cannot update document; Document has no ID', __METHOD__));
         }
     }
+
+    /**
+     * Returs query as string
+     * @param Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(Query\QueryInterface $query)
+    {
+        return $this->adapter->getQueryString($query);
+    }
 }

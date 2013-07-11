@@ -78,6 +78,17 @@ class Document implements DocumentInterface
     }
 
     /**
+     * Returns entity specified by path, UUID or symbolic reference
+     * @param string $ident Path, UUID or symbolic reference
+     * @throws Exception\InvalidArgumentException
+     * @return \Vivo\CMS\Model\Entity
+     */
+    public function getEntity($ident)
+    {
+        return $this->cmsApi->getEntity($ident);
+    }
+
+    /**
      * Returns (published) site document.
      *
      * @param string $relPath Document path.

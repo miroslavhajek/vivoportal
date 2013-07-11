@@ -431,52 +431,75 @@ body.manager a:hover {
 	vertical-align: middle;
 }
 
-.manager .message_info {
-	background: #c5ecca url("../img/manager/default/message_info_background.gif") top left repeat-x;
+.manager .alert {
+	width: 100%;
+	overflow: auto;
+}
+
+.manager .alert-info {
+	background: #b6e9ff;
+	border-top: 1px #5eb2d5 solid;
+	border-bottom: 1px #5eb2d5 solid;
+	color: #1e395b;
+	display: none;
+}
+
+.manager .alert-info span {
+	//background: url("/system/Images/manager/default/message_info_icon.gif") top left no-repeat;
+	padding: 4px 30px 4px 15px;
+	display: block;
+	float: left;
+}
+
+.manager .alert-success {
+	background: #c5ecca;
 	border-top: 1px #65a46f solid;
 	border-bottom: 1px #d9f5dc solid;
 	color: #1e395b;
 	display: none;
 }
 
-.manager .message_info span {
-	background: url("../img/manager/default/message_info_icon.gif") top left no-repeat;
-	padding: 4px 30px 4px 35px;
+.manager .alert-success span {
+	//background: url("/system/Images/manager/default/message_info_icon.gif") top left no-repeat;
+	padding: 4px 30px 4px 15px;
 	display: block;
 	float: left;
 }
 
-.manager .message_error {
-	background: #ffaebc url("../img/manager/default/message_error_background.gif") top left repeat-x;
+.manager .alert-error {
+	background: #ffaebc;
 	border-top: 1px #d53148 solid;
 	border-bottom: 1px #ffcbd5 solid;
 	color: #a70000;
 	display: none;
 }
 
-.manager .message_error span {
-	background: url("../img/manager/default/message_error_icon.gif") top left no-repeat;
-	padding: 4px 30px 4px 35px;
+.manager .alert-error span {
+	//background: url("/system/Images/manager/default/message_error_icon.gif") top left no-repeat;
+	padding: 4px 30px 4px 15px;
 	display: block;
 	float: left;
 }
 
-.manager .message_warning {
-	background: #faf58a url("../img/manager/default/message_warning_background.gif") top left repeat-x;
+.manager .alert-warning {
+	background: #faf58a;
 	border-top: 1px #adaf15 solid;
 	border-bottom: 1px #f9f9d3 solid;
 	color: #434200;
 	display: none;
 }
 
-.manager .message_warning span {
-	background: url("../img/manager/default/message_warning_icon.gif") top left no-repeat;
-	padding: 4px 30px 4px 35px;
+.manager .alert-warning span {
+	//background: url("/system/Images/manager/default/message_warning_icon.gif") top left no-repeat;
+	padding: 4px 30px 4px 15px;
 	display: block;
 	float: left;
 }
 
-.manager .message_info a, .manager .message_error a, .manager .message_warning a {
+.manager .alert-info a, 
+.manager .alert-success a, 
+.manager .alert-error a, 
+.manager .alert-warning a {
 	float: right;
 	padding: 4px;
 	width: 16px;
@@ -484,7 +507,10 @@ body.manager a:hover {
 	background: url("../img/manager/default/close.png") 0px 6px no-repeat;
 }
 
-.manager .message_info a span, .manager .message_error a span, .manager .message_warning a span {
+.manager .alert-info a span,
+.manager .alert-success a span,
+.manager .alert-error a span, 
+.manager .alert-warning a span {
 	display: none;
 }
 
@@ -688,7 +714,7 @@ body.manager a:hover {
 	//border-bottom: 1px #5C6A7E solid;
 	.background-image(~"linear-gradient(top, rgba(255,255,255,0) 0%, rgba(0,0,0,0.15) 100%)"); // gradient overlay
 	.box-shadow(~"inset 0 -1px 1px #F0F5FA, inset 0 -2px 1px #5C6A7E");
-	margin-bottom: 10px;
+	//margin-bottom: 10px;
 }
 
 .manager #tabs .tabsHolder {
@@ -783,6 +809,10 @@ body.manager a:hover {
 .manager .tabContent iframe {
 	padding: 0px;
 	margin: 0px;
+}
+
+.manager .tabContent-multi {
+	margin-top: 10px;
 }
 
 .manager .tabContentRibbon {
@@ -2367,29 +2397,67 @@ a img { border: none; }
 	.box-shadow(~"0 0 25px rgba(0,0,0,.65)"); // drop shadow
 }
 
-.manager #logoutDialog .logoutDialogHeader {
-	background:@background-color-content url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
+.manager #logoutDialog .logoutForm td {
+	vertical-align: top;
+	padding-top: 7px;
+	padding-bottom: 1px;
+}
+
+.manager #logoutDialog .logoutForm .first-row td {
+	padding-top: 12px;
+}
+
+.manager #logoutDialog .logoutForm label {
+	padding-top: 2px;
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogHeader {
+	background: @background-color-head url(../img/manager/default/tabs_background.gif) 0 -1px repeat-x;
 	color: #fff;
-  font-size: 1.4em;
-  font-weight: normal;
-  height: 33px;
-  overflow: hidden;
-  padding: 0px;
+	font-size: 1.4em;
+	font-weight: normal;
+	height: 33px;
+	overflow: hidden;
+	padding: 0px;
+}
+
+d.error {
+	border-color: #b94a48;
+	//#b94a48
 }
 
 .manager #logoutDialog .logoutDialogHeader span {
-  /*background: transparent url(../img/manager/default/tab_contentholder_background.gif) 0 1px repeat-y;*/
-  text-shadow: 0 1px 1px #5b7f9b;
-  display: block;
-  padding-bottom: 3px;
-  padding-left: 10px;
-  padding-top: 3px;
+	/*background: transparent url(../img/manager/default/tab_contentholder_background.gif) 0 1px repeat-y;*/
+	text-shadow: 0 1px 1px #5b7f9b;
+	display: block;
+	padding-bottom: 3px;
+	padding-left: 10px;
+	padding-top: 3px;
 }
 
-.manager #logoutDialog .logoutDialogLogo {
+.manager #logoutDialog .logoutForm td.logoutDialogLogo {
 	border-bottom: 1px #d6dde2 solid;
 	background: #fff;
 	padding: 0px;
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogError {
+	padding: 0px;	
+}
+
+.manager #logoutDialog .logoutForm td.logoutDialogError .alert-error {
+	border-top: 1px #ffcbd5 solid;
+	border-bottom: 1px #d53148 solid;	
+}
+
+
+.manager #logoutDialog .logoutForm .error td ul li {
+	font-size: 12px;
+	color: #b94a48;
+}
+
+.manager #logoutDialog .logoutDialogLogo img {
+	margin-bottom: -4px;
 }
 
 .manager #logoutDialog .logoutForm td {
@@ -2397,11 +2465,16 @@ a img { border: none; }
 }
 
 .manager #logoutDialog .logoutForm td input {
- width: 100% !important;
+	//width: 100% !important;
+}
+
+.manager #logoutDialog .logoutForm .inputSubmit.logon {
+	margin-left: 1px;
 }
 
 .manager #logoutDialog .saveButtons td {
   /*background: url(../img/manager/default/logon_savebuttons_background.gif) right bottom no-repeat; */
+  vertical-align: middle;
 }
 
 .manager #logoutDialog .saveButtons .browsersTrigger {
@@ -2410,6 +2483,7 @@ a img { border: none; }
 	font-size: 12px;
 	padding-left: 25px;
 	cursor: pointer;
+	margin-top: 17px;
 }
 .manager #logoutDialog .saveButtons .browsersTrigger.open {background-position: 0 -87px;}
 

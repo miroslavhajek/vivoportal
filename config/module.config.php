@@ -136,7 +136,7 @@ return array(
                         ),
                     ),
                     //route for site entity resources in backend view
-                    'backend_resource_entity' => array(
+                    'resource_entity' => array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'options' => array(
                             'regex'    => '/(?<host>.+)/view/\.entity(?<entity>.+?)((\.path/(?<path>.+)))',
@@ -292,7 +292,6 @@ return array(
             'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
-            'cli_util'                  => 'Vivo\Service\Controller\CLI\CLIUtilControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
             'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',

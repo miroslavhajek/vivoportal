@@ -405,6 +405,16 @@ class Solr implements AdapterInterface
     }
 
     /**
+     * Returns query as string
+     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(Query\QueryInterface $query)
+    {
+        return $this->buildSolrQuery($query);
+    }
+
+    /**
      * Builds and returns a Solr query from Vivo query
      * @param Query\QueryInterface $query
      * @return string

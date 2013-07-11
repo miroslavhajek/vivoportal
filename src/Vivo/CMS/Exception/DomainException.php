@@ -1,5 +1,5 @@
 <?php
-namespace  Vivo\CMS\Exception;
+namespace Vivo\CMS\Exception;
 
 class DomainException extends \DomainException implements ExceptionInterface
 {

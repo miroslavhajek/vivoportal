@@ -6,8 +6,7 @@ use Vivo\Indexer\Exception;
 use Vivo\Indexer\QueryHit;
 use Vivo\Indexer\Document;
 use Vivo\Indexer\Field;
-Use Vivo\Indexer\Term as IndexTerm;
-
+use Vivo\Indexer\Term as IndexTerm;
 use ZendSearch\Lucene as SearchLucene;
 
 /**
@@ -171,7 +170,7 @@ class Lucene implements AdapterInterface
         if ($this->isTransactionOpen()) {
             $this->commit();
         }
-        $this->transaction  = true;
+        $this->transaction = true;
     }
 
     /**
@@ -189,7 +188,7 @@ class Lucene implements AdapterInterface
         }
         //Add documents
         foreach ($this->addDocs as $addDoc) {
-            $luceneDoc  = $this->createLuceneDocFromDoc($addDoc);
+            $luceneDoc = $this->createLuceneDocFromDoc($addDoc);
             $this->index->addDocument($luceneDoc);
         }
         //Commit delete changes
@@ -266,7 +265,7 @@ class Lucene implements AdapterInterface
      */
     public function deleteDocument($docId)
     {
-        $this->deleteIds[]  = $docId;
+        $this->deleteIds[] = $docId;
         if (!$this->isTransactionOpen()) {
             $this->commit();
         }
@@ -279,7 +278,7 @@ class Lucene implements AdapterInterface
      */
     public function addDocument(Document $doc)
     {
-        $this->addDocs[]    = $doc;
+        $this->addDocs[] = $doc;
         if (!$this->isTransactionOpen()) {
             $this->commit();
         }
@@ -436,4 +435,36 @@ class Lucene implements AdapterInterface
         }
         return $isDel;
     }
+
+    public function findById(string $docId)
+    {
+        // TODO: Auto-generated method stub
+    }
+
+    public function update(Document $doc)
+    {
+        // TODO: Auto-generated method stub
+    }
+
+    public function delete(QueryInterface $query)
+    {
+        // TODO: Auto-generated method stub
+    }
+
+
+    public function deleteById(string $docId)
+    {
+        // TODO: Auto-generated method stub
+    }
+
+    /**
+     * Returns query as string
+     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(QueryInterface $query)
+    {
+        // TODO: Auto-generated method stub
+    }
+
 }

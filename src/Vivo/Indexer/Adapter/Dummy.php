@@ -99,4 +99,14 @@ class Dummy implements AdapterInterface
     public function update(Document $doc)
     {
     }
+
+    /**
+     * Returns query as string
+     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(Query\QueryInterface $query)
+    {
+    }
+
 }

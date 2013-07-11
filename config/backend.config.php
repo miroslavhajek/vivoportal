@@ -62,25 +62,25 @@ return array(
                     // ),
                     array(
                             'rel'  => 'stylesheet',
-                            'href' => '.Vivo.resource/backend/css/jquery-ui-vivo.css',
+                            'href' => '.Vivo.resource/backend/css/jquery-ui-vivo.css?v=1',
                             'type' => 'text/css',
                             'media' => 'screen'
                     ),
                     array(
                         'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/backend/css/manager.css',
+                        'href' => '.Vivo.resource/backend/css/manager.css?v=2',
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
                      array(
                         'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/backend/css/minimal/minimal.css',
+                        'href' => '.Vivo.resource/backend/css/minimal/minimal.css?v=1',
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
                      array(
                         'rel'  => 'stylesheet',
-                        'href' => '.Vivo.resource/backend/css/select2.css',
+                        'href' => '.Vivo.resource/backend/css/select2.css?v=1',
                         'type' => 'text/css',
                         'media' => 'screen'
                     ),
@@ -91,31 +91,31 @@ return array(
                     //     'type' => 'text/javascript',
                     // ),
                     array(
-                        'src' => '.Vivo.resource/js/jquery.js',
+                        'src' => '.Vivo.resource/js/jquery.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/jquery.icheck.js',
+                        'src' => '.Vivo.resource/backend/js/jquery.icheck.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/select2.js',
+                        'src' => '.Vivo.resource/backend/js/select2.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/jquery-ui.js',
+                        'src' => '.Vivo.resource/backend/js/jquery-ui.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/jquery.cookie.js',
+                        'src' => '.Vivo.resource/backend/js/jquery.cookie.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/manager.js',
+                        'src' => '.Vivo.resource/backend/js/manager.js?v=1',
                         'type' => 'text/javascript',
                     ),
                     array(
-                        'src' => '.Vivo.resource/backend/js/finder.js',
+                        'src' => '.Vivo.resource/backend/js/finder.js?v=1',
                         'type' => 'text/javascript',
                     ),
                 ),

@@ -23,6 +23,14 @@ $(document).ready(function() {
         //$(".treeViewCont").show();
     }
 
+    //system messages - error, warning, info
+    $(".alert-info").slideDown("slow", function() {checkHeight();}).find("a.alert-close").attr("href", "javascript: void(0)").click(function() {$(this).parents(".alert").slideUp("fast", function() {$(this).remove(); checkHeight();});});
+    $(".alert-success").slideDown("slow", function() {checkHeight();}).find("a.alert-close").attr("href", "javascript: void(0)").click(function() {$(this).parents(".alert").slideUp("fast", function() {$(this).remove(); checkHeight();});});
+    $(".alert-warning").slideDown("slow", function() {checkHeight();}).find("a.alert-close").attr("href", "javascript: void(0)").click(function() {$(this).parents(".alert").slideUp("fast", function() {$(this).remove(); checkHeight();});});
+    $(".alert-error").slideDown("slow", function() {checkHeight();}).find("a.alert-close").attr("href", "javascript: void(0)").click(function() {$(this).parents(".alert").slideUp("fast", function() {$(this).remove(); checkHeight();});});
+       
+
+
     //init treemenu
     initTreeMenu('#treeMenu');
 
@@ -85,7 +93,7 @@ $(document).ready(function() {
         width:"100%"
     });
     var contWidth = $('.select2-container').width();
-    console.log(contWidth);
+    //console.log(contWidth);
     
 
     /* $('.checkbox.hover').hover(function(){
@@ -162,6 +170,7 @@ function setFakeDialogPathWidth() {
 }
 
 function checkHeight() {
+
     var window_height = $(parent.window).height();
     var window_width = $(parent.window).width();
     var tabs_height = $("#tabs").height();
@@ -174,7 +183,7 @@ function checkHeight() {
     var finder_height = $("#finder").height() > 0 ? $("#finder").height() + 2 : 0;
     var footer_height = $("#footer").height();
     var default_view = window_height - $("#header").height() - footer_height - finder_height - 3;
-    var message_height = $(".main_message").height();
+    var message_height = $(".alerts").height();
     var h1_height = ($("h1.dialogTitle").height() > 0) ? $("h1.dialogTitle").height() + 1 : 0;
     var manager_panel_width = $(".manager_panel").width();
     message_height = (message_height === null || typeof message_height == 'undefined') ? 0 : message_height + 2;
@@ -247,7 +256,7 @@ function checkHeight() {
     //site
     $(".site").css({"height": window_height - $("#header").height() - $("#footer").height() - finder_height - message_height - 3});
 
-    checkInputWithIconWidth();
+    //checkInputWithIconWidth();
 }
 
 //--soupatko pro zalozky v multidocumentu - init
@@ -501,7 +510,7 @@ function action(act) {
         return result;
     }
 }
-
+/*
 //--build layout
 function checkHeight() {
     var window_height = $(parent.window).height();
@@ -548,7 +557,7 @@ function checkHeight() {
     if (dialog_height > 0) {//page with dialog options
         console.log(default_view + " " + tabs_height + " " + dialog_height + " " + message_height + " " + h1_height + " " + button_bar);
         if (location.pathname != "/system/Editors/browser/" || (location.pathname == "/system/Editors/browser/" && parent.window.location.pathname != "/system/Editors/editor/"))
-            $(".tabMainContent").css({"height": default_view - tabs_height - /*dialog_height -*/ message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden", "zoom": "1"});
+            $(".tabMainContent").css({"height": default_view - tabs_height -  message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden", "zoom": "1"});
     } else { //page without dialog options
         console.log("b");
         $(".tabContent").css({"height": default_view - tabs_height - message_height - h1_height - button_bar, "overflow-y": "auto", "overflow-x": "hidden"});
@@ -593,7 +602,7 @@ function checkHeight() {
 
     //checkInputWithIconWidth();
 }
-
+*/
 
 
 
