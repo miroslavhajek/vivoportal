@@ -3,6 +3,7 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
+use Vivo\CMS\Model\Folder;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Indexer\IndexerInterface;
@@ -119,7 +120,7 @@ class Finder extends Component implements TranslatorAwareInterface
      * JS support method for rewriting pats titles of documents.
      * @example /document/sub-document/ -> /Document name/Green subdocument/
      * @param string $path
-     * @return string
+     * @return \Zend\View\Model\JsonModel
      */
     public function getTitles($path = '/') {
         $path = explode('/', trim($path, '/'));
@@ -140,7 +141,38 @@ class Finder extends Component implements TranslatorAwareInterface
         }
 
         $view = new JsonModel();
-        $view->titles = $titles;
+        $view->data = $titles;
+
+        return $view;
+    }
+
+    /**
+     * Returns informations about subdocuments (folders) by URL
+     * @param string $path
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function getSubEntities($path) {
+        $info = array();
+//      if (substr($url, 0, 1) == '/') { //TODO: warum? jestli nic, smazat...
+            $document = $this->documentApi->getSiteDocument($path, $this->site);
+
+            /* @var $child \Vivo\CMS\Model\Folder */
+            foreach ($this->documentApi->getChildDocuments($document) as $child) {
+                $folder = ($child instanceof Folder);
+                $published = $folder ? false : $this->documentApi->isPublished($child);
+
+                $info[] = array(
+                    'title' => $child->getTitle(),
+                    'path' => $child->getPath(),
+                    'folder' => intval($folder),
+                    'published' => intval($published),
+                    'icon' => 'TODO', //TODO: icon
+                );
+            }
+//      }
+
+        $view = new JsonModel();
+        $view->data = $info;
 
         return $view;
     }

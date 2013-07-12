@@ -89,8 +89,9 @@ class CMS
     /**
      * Returns entity specified by path, UUID or symbolic reference
      * @param string $ident Path, UUID or symbolic reference
-     * @throws Exception\InvalidArgumentException
-     * @return Model\Entity
+     * @throws \Vivo\CMS\Exception\InvalidArgumentException
+     * @throws \Vivo\Repository\Exception\EntityNotFoundException
+     * @return \Vivo\CMS\Model\Entity
      */
     public function getEntity($ident)
     {
