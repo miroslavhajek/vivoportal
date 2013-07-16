@@ -11,7 +11,7 @@ $param = $viewAll ? '-all' : '';
                     $position++;
                 ?>
                 <li<?if (!$viewAll && $tab['name'] == $selected):?> class="selected"<?endif?> rel="tab<?=$position?>">
-                    <a href="<?=$this->actionUrl('select', array($tab['name']))?>"><?=$this->translate($tab['label'])?></a>
+                    <a href="<?=$this->actionUrl('select', array($tab['name']), true)?>"><?=$this->translate($tab['label'])?></a>
                 </li>
                <?endforeach?>
             </ul>

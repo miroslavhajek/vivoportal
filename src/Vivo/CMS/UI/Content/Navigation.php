@@ -7,9 +7,6 @@ use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
-use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
-use Vivo\CMS\UI\Component;
-use Vivo\Repository\Exception\EntityNotFoundException;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Navigation\Navigation as NavigationContainer;
@@ -18,50 +15,8 @@ use Zend\Cache\Storage\StorageInterface as Cache;
 /**
  * Navigation UI component
  */
-class Navigation extends Component
+class Navigation extends AbstractNavigation
 {
-    /**
-     * CMS Api
-     * @var CmsApi
-     */
-    protected $cmsApi;
-
-    /**
-     * Document API
-     * @var DocumentApi
-     */
-    protected $documentApi;
-
-    /**
-     * Site model
-     * @var Site
-     */
-    protected $site;
-
-    /**
-     * Navigation model (i.e. the content)
-     * @var NavigationModel
-     */
-    protected $navModel;
-
-    /**
-     * Navigation
-     * @var AbstractNavigationContainer
-     */
-    protected $navigation;
-
-    /**
-     * Cache for navigation view models
-     * @var Cache
-     */
-    protected $cache;
-    
-    /**
-     * Determinates if navigation have active document or not.
-     * @var bool 
-     */
-    protected $hasActiveDocument = false;
-
     /**
      * Constructor
      * @param CmsApi $cmsApi
@@ -71,10 +26,7 @@ class Navigation extends Component
      */
     public function __construct(CmsApi $cmsApi, DocumentApi $documentApi, Site $site, Cache $cache = null)
     {
-        $this->cmsApi       = $cmsApi;
-        $this->documentApi  = $documentApi;
-        $this->site         = $site;
-        $this->cache        = $cache;
+        parent::__construct($cmsApi, $documentApi, $site, $cache);
     }
 
     public function init()
@@ -84,45 +36,6 @@ class Navigation extends Component
                 sprintf("%s: Content model must be of type 'Vivo\\CMS\\Model\\Content\\Navigation'", __METHOD__));
         }
         $this->navModel = $this->content;
-    }
-
-    public function view()
-    {
-        $events = new \Zend\EventManager\EventManager();
-        $events->trigger('log', $this, array(
-            'message'   => sprintf('Navigation::view() %s PRE', $this->getPath()),
-            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
-
-        $viewModel  = $this->getViewModel();
-
-        $events->trigger('log', $this, array(
-            'message' => sprintf('Navigation::view() %s POST', $this->getPath()),
-            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
-        return $viewModel;
-    }
-
-    /**
-     * Returns view model
-     * @return \Zend\View\Model\ModelInterface
-     */
-    protected function getViewModel()
-    {
-        //Get navigation container either from cache or construct it
-        if ($this->cache) {
-            $key        = $this->getCacheKey();
-            $success    = null;
-            $navigation = $this->cache->getItem($key, $success);
-            if (!$success) {
-                $navigation  = $this->getNavigation();
-                $this->cache->setItem($key, $navigation);
-            }
-        } else {
-            $navigation = $this->getNavigation();
-        }
-        //Prepare view
-        $this->getView()->navigation    = $navigation;
-        $viewModel  = parent::view();
-        return $viewModel;
     }
 
     /**
@@ -226,7 +139,7 @@ class Navigation extends Component
             //Create the navigation container
             $this->navigation   = new NavigationContainer();
             $pages              = $this->buildNavPages($documents, $this->content->getLimit());
-            
+
             if($this->hasActiveDocument == false) {
                 $currentPage = $this->cmsEvent->getDocument();
                 $navigationContUuidTable = array();
@@ -243,10 +156,10 @@ class Navigation extends Component
         }
         return $this->navigation;
     }
-    
+
     /**
      * Returns flat navigation container pages.
-     * 
+     *
      * @param array $pages
      * @param array $navigationContUuidTable
      * @return array
@@ -255,7 +168,7 @@ class Navigation extends Component
     {
         foreach ($pages as $key => $page) {
             $navigationContUuidTable[$page->getUuid()] = $page;
-            if($page->hasChildren()) {        
+            if($page->hasChildren()) {
                 return $this->getFlatNavigationContainerPages($page->getPages(), $navigationContUuidTable);
             }
         }
@@ -301,45 +214,6 @@ class Navigation extends Component
     }
 
     /**
-     * Builds document array starting at $root
-     * @param Document $root Root document
-     * @param int $levels
-     * @param bool $includeRoot
-     * @return array
-     */
-    protected function buildDocArray(Document $root, $levels = null, $includeRoot = false)
-    {
-        $docArray   = array();
-        if (is_null($levels) || $levels > 0) {
-            if (!is_null($levels)) {
-                $levels--;
-            }
-            $children   = $this->documentApi->getChildDocuments($root);
-            foreach ($children as $key => $child) {
-                //TODO - Revise: Keep only documents, not folders
-                if (!$child instanceof Document) {
-                    unset($children[$key]);
-                    continue;
-                }
-                $rec    = array(
-                    'doc_path'  => $this->cmsApi->getEntityRelPath($child),
-                    'children'  => $this->buildDocArray($child, $levels, false),
-                );
-                $docArray[] = $rec;
-            }
-            if ($includeRoot) {
-                $docArray   = array(
-                    array(
-                        'doc_path'  => $root->getPath(),
-                        'children'  => $docArray,
-                    ),
-                );
-            }
-        }
-        return $docArray;
-    }
-
-    /**
      * Builds document array only from documents on the active branch
      * @param string $rootDocPath
      * @param bool $includeRoot
@@ -364,80 +238,38 @@ class Navigation extends Component
     }
 
     /**
-     * Builds navigation pages from the supplied documents structure
-     * @param array $documentsPaths
-     * @param int $limit Number of documents listed in the navigation per level
-     * @throws \Vivo\CMS\UI\Exception\UnexpectedValueException
-     * @throws \Vivo\CMS\UI\Exception\InvalidArgumentException
-     * @return CmsNavPage[]
+     * Method to be overriden.
+     * Provides additional page options to CmsNavPage constructor
+     * @return array
      */
-    protected function buildNavPages(array $documentsPaths = array(), $limit = null)
+    protected function getAdditionalPageOptions(Document $doc)
     {
-        $pages      = array();
+        return array();
+    }
+
+    /**
+     * Determines whether the document is allowed to be listed
+     * @param Document $doc
+     * @return bool
+     */
+    protected function allowListing(Document $doc)
+    {
+        return (bool) $doc->getAllowListingInNavigation() === false;
+    }
+
+    protected function sortDocuments($documents)
+    {
         $currentDoc = $this->cmsEvent->getDocument();
-        $documents  = array();
-        foreach($documentsPaths as $docArray) {
-            if (!is_array($docArray)) {
-                throw new Exception\InvalidArgumentException(
-                    sprintf("%s: Document record must be represented by an array", __METHOD__));
-            }
-            if (!array_key_exists('doc_path', $docArray)) {
-                throw new Exception\InvalidArgumentException(
-                    sprintf("%s: Document array must contain 'doc_path' key", __METHOD__));
-            }
-            $docPath    = $docArray['doc_path'];
-            try {
-                $doc    = $this->cmsApi->getSiteEntity($docPath, $this->site);
-            } catch (EntityNotFoundException $e) {
-                $events = new \Zend\EventManager\EventManager();
-                $events->trigger('log', $this, array (
-                    'message' => $e->getMessage(), 
-                    'level' => \VpLogger\Log\Logger::WARN));
-                continue;
-            }
-            if (!$doc instanceof Document) {
-                throw new Exception\UnexpectedValueException(
-                    sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
-            }
-            $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
-        }        
         if($this->navModel->getNavigationSorting() !== null) {
             $sorting = $this->navModel->getNavigationSorting();
             $parentSorting = $currentDoc->getSorting();
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;
             }
-            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);            
+            $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
         }
-        if($limit && count($documents) > 0) {
-            $documents = array_slice($documents, 0, $limit, true);
-        }
-        foreach ($documents as $key => $docArray) { 
-            $doc = $docArray['doc'];
-            $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
-            $pageOptions    = array(
-                'sitePath'      => $docRelPath,
-                'label'         => $doc->getNavigationTitle(),
-                'document'      => $doc,
-            );
-            if($this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath) {
-                $this->hasActiveDocument = true;
-                $pageOptions['active']   = true;
-            }
-            $page              = new CmsNavPage($pageOptions);
-            if ((bool) $doc->getAllowListingInNavigation() === false) {
-                $page->visible = false;
-            }
-            if (array_key_exists('children', $docArray)
-                    && is_array($docArray['children'])
-                    && count($docArray['children']) > 0) {
-                $children   = $this->buildNavPages($docArray['children'], $limit);
-                $page->setPages($children);
-            }
-            if($this->documentApi->isPublished($doc)) {
-                $pages[]    = $page;
-            }
-        }
-        return $pages;
+
+        return $documents;
     }
+
 }

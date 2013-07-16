@@ -2,11 +2,8 @@
 namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\UI\Alert;
-use Vivo\Form\Fieldset;
 use Vivo\Util\RedirectEvent;
 use Vivo\CMS\Model\Folder;
-
-use Zend\ServiceManager\ServiceManager;
 
 /**
  * Creator
@@ -80,7 +77,12 @@ class Creator extends Editor
             $this->explorer->setEntity($this->entity);
             $this->saveProcess();
             $this->explorer->setCurrent('editor');
-            $this->events->trigger(new RedirectEvent());
+            $routeParams = array(
+                'path' => $this->entity->getUuid(),
+                'explorerAction' => 'editor',
+            );
+            $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+            $this->events->trigger(new RedirectEvent($url));
             $this->addAlertMessage('Created...', Alert::TYPE_SUCCESS);
         }
         else {

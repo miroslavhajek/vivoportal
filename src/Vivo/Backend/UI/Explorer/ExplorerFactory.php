@@ -19,8 +19,16 @@ class ExplorerFactory implements FactoryInterface
         $sm = $serviceLocator->get('service_manager');
         $siteSelector = $sm->get('Vivo\Backend\UI\SiteSelector');
 
+        $urlHelper = $sm->get('Vivo\Util\UrlHelper');
+
+        // get uuid from route (from path param)
+        /** @var Zend\Mvc\Router\Http\RouteMatch $routeMatch */
+        $routeMatch = $serviceLocator->get('site_event')->getRouteMatch();
+        $uuid = $routeMatch->getParam('path');
+        $explorerAction = $routeMatch->getParam('explorerAction') ?: 'browser';
+
         $explorer = new \Vivo\Backend\UI\Explorer\Explorer($sm->get('Vivo\CMS\Api\CMS'),
-                $siteSelector, $sm);
+                $siteSelector, $sm, $urlHelper, $uuid, $explorerAction);
         $explorer->setComponentTreeController($serviceLocator->get('component_tree_controller'));
 
         $explorer->setEventManager($sm->get('event_manager'));

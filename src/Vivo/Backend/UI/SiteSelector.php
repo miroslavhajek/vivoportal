@@ -12,8 +12,8 @@ use Zend\EventManager\EventManagerAwareInterface;
 /**
  * Component for selecting site for editing.
  */
-class SiteSelector extends Component implements EventManagerAwareInterface,
-        PersistableInterface
+class SiteSelector extends Component implements EventManagerAwareInterface
+        /*PersistableInterface*/
 {
 
     /**

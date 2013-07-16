@@ -96,13 +96,30 @@ return array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => true,
                         'options' => array(
-                            'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
+                            'regex'    => '/(?<host>[^/]+)/(?<module>[^/]+)/(?<path>[^/]*)',
                             'spec'    => '/%host%/%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'backend_controller',
                                 'path'   => '',
                                 'module' => 'explorer',
                                 'host' => '',
+                            ),
+                        ),
+                    ),
+                    //route for backend explorer module
+                    //@example http://<backendhost>/<sitehost>/explorer/<path>/<explorerAction>
+                    'explorer' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'regex'    => '/(?<host>[^/]+)/explorer/(?<path>[^/]+)/(?<explorerAction>[^/]*)',
+                            'spec'    => '/%host%/%module%/%path%/%explorerAction%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'host' => '',
+                                'module' => 'explorer',
+                                'explorerAction' => '',
                             ),
                         ),
                     ),
@@ -224,7 +241,7 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
+            'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
@@ -325,7 +342,6 @@ return array(
             'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
             'container_component'   => 'Vivo\View\Helper\ContainerComponent',
             'overview_title'        => 'Vivo\View\Helper\OverviewTitle',
-          //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
@@ -342,6 +358,7 @@ return array(
     'navigation_view_helpers'   => array(
         'invokables'        => array(
             'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+            'vivo_site_map'     => 'Vivo\View\Helper\Navigation\SiteMap',
         ),
     ),
     'validators'    => array(
@@ -1178,4 +1195,7 @@ return array(
         //default values and structure are in cms.config.php
         //do not access to this key directly - use service 'cms_config'
     ),
+    'options' => array(
+        'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
+	),
 );

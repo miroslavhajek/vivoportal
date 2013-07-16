@@ -1,12 +1,12 @@
-<? 
-if ($visible): 	
+<?
+if ($visible):
 	if (!$enabled):?>
 		<a data-rel="table" href="#" class="disabled"  title="<?= $this->translate($label) ?>">
 			<img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>?bw=1" alt="<?= $this->translate($label) ?>" />
 			<span><?= $this->translate($label) ?></span>
 		</a>
 	<?else:?>
-		<a href="<?=$this->actionUrl('click')?>"  title="<?= $this->translate($label) ?>" class="<?=$active ? 'active' : ''?>">
+		<a href="<?= htmlspecialchars($this->url('backend/explorer', array('explorerAction' => $component['name']))); ?>"  title="<?= $this->translate($label) ?>" class="<?=$active ? 'active' : ''?>">
 			<img src="<?=$this->resource('backend/img/icons/24x24/' . $component['name'] . '.png','Vivo');?>" alt="<?= $this->translate($label) ?>" />
 			<span><?= $this->translate($label) ?></span>
 		</a>
