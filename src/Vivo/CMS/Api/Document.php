@@ -122,13 +122,17 @@ class Document implements DocumentInterface
 
     /**
      * Checks whether document is published.
+     * Published means that the document has 1st. content as published.
      *
-     * Published means that the document has at least one published content.
      * @param \Vivo\CMS\Model\Document $document
      */
     public function isPublished(Model\Document $document)
     {
-        return count($this->getPublishedContents($document))>0;
+        $components  = array($document->getPath(), 'Contents.0');
+        $contentPath = $this->pathBuilder->buildStoragePath($components);
+        $container = $this->getEntity($contentPath);
+
+        return $this->getPublishedContent($container) ? true : false;
     }
 
     /**
