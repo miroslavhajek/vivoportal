@@ -8,11 +8,11 @@
 					<div class="row-fluid">
 						<div class="span3">
 							<? if($child->getImage()) : ?>
-							<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+							<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="">
 							<? endif; ?>
 						</div>
 						<div class="span9 caption">
-							<h3><?=$child->getTitle();?></h3>
+							<h3><?=htmlspecialchars($child->getOverviewTitleSafe());?></h3>
 							<? if ($child->getDescription()): ?>
 							<p><?=$child->getPublished()->format('d.m.Y') ?></p>
 							<p><?= htmlspecialchars($child->getDescription()); ?></p>

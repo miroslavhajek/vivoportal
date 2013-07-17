@@ -1,9 +1,9 @@
 <div class="Overview">
 <? if(count($children)) : ?>
-	<ul class="nav nav-list">
-	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a></li>
-	<? endforeach; ?>
-	</ul>
+    <ul class="nav nav-list">
+    <? foreach($children as $child) : ?>
+        <li><a href="<?=$this->document($child)?>"><?=htmlspecialchars($child->getOverviewTitleSafe());?></a></li>
+    <? endforeach; ?>
+    </ul>
 <? endif; ?>
 </div>
