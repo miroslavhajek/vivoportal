@@ -8,7 +8,7 @@ $hosts = $site->getHosts();
 <?else:?>
 <li>
 <?endif;?>
-<a href="<?=$this->url(null, array ('host' => current($hosts)))?>"><?=$site->getName()?></a>
+<a href="<?=$this->url('backend/modules', array ('host' => current($hosts), 'path' => ''))?>"><?=$site->getName()?></a>
 </li>
 <?endforeach;?>
 </ul>

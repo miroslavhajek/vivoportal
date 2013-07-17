@@ -23,7 +23,7 @@ class IconUrl extends AbstractHelper
     protected $options = array(
         'icon_path'    => 'backend/img/icons/16x16/',
         'ext'          => '.png',
-        'default_icon' => 'File',
+        'default_icon' => 'Document',
     );
     
     /**

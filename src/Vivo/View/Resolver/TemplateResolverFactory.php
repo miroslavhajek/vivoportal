@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\View\Resolver;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -16,10 +16,12 @@ class TemplateResolverFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get('cms_config');
-        return new \Vivo\View\Resolver\TemplateResolver(
+        $cmsConfig = $serviceLocator->get('cms_config');
+        $config = $serviceLocator->get('config');
+        $configOptions = $config['options'];
+        return new TemplateResolver(
                 $serviceLocator->get('module_resource_manager'),
                 new \Vivo\Util\Path\PathParser(),
-                $config['templates']);
+                $cmsConfig['templates'], $configOptions);
     }
 }
