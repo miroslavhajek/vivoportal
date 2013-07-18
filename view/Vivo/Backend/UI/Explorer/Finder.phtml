@@ -4,15 +4,14 @@ $id = "id_1";
 ?>
 <div class="finderHolder">
     <form action="" method="post" id="<?= $id ?>" name="mainFinderMulti">
-        <input type="hidden" name="getPath[getEntities]" value="<?=$this->action('getEntities', array(), true)?>">
         <input type="hidden" name="act" value="<?=$this->action('set')?>">
+        <input type="hidden" name="getPath[getEntities]" value="<?=$this->action('getSubEntities')?>">
         <input type="hidden" name="getPath[getTitles]" value="<?=$this->action('getTitles')?>">
         <input type="hidden" name="site[name]" value="<?=htmlspecialchars($siteTitle)?>">
 <?/*
         <input type="hidden" name="actionURL[set]" value="/system/manager/explorer/?act=main-%3Eparam-%3Eparam-%3Efinder-%3Eset%3A9b4b6e3" />
         <input type="hidden" name="finder[output]" value="main->param->param->finder->output:9b4b6e3" />
         <input type="hidden" name="getPath[viewBookmarks]" value="main->param->param->finder->viewBookmarks:9b4b6e3" />
-<<<<<<< HEAD
  */?>
 
         <table width="100%">
