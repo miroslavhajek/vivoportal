@@ -18,12 +18,15 @@ $id = "id_1";
                 <td class="path_root">&nbsp;<a><img src="<?= $this->resource('backend/img/icons/24x24/explorer.png','Vivo')?>" alt=""><? if ($is_published): ?><span class="published"></span><? endif; ?></a>&nbsp;</td>
                 <td class="path_finder">
                     <div class="inputFinder">
-                        <input type="text" name="input" autocomplete="off" value="<?=$this->document($entity)?>" data-titles="<?=urlencode(json_encode($titles))?>">
+                        <input type="text" name="input" autocomplete="off" value="<?=$this->document($entity)?>">
                     </div>
                     <div class="inputFinderMulti" id="finderMulti_<?=$id?>"></div>
                 </td>
             </tr>
         </table>
+        <script type="text/javascript">
+            var finder_data_<?=$id?> = <?=json_encode($entities)?>
+        </script>
     </form>
 </div>
 

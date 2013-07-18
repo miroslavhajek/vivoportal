@@ -140,7 +140,12 @@ class Finder extends Component implements TranslatorAwareInterface
         $this->translator = $translator;
     }
 
-    private function getTitlesByUrl($url)
+    /**
+     * Returns informations about parents.
+     * @param string $url
+     * @return array
+     */
+    private function getParentsByUrl($url)
     {
         $path = explode('/', trim($url, '/'));
         $realPaths = array();
@@ -156,7 +161,12 @@ class Finder extends Component implements TranslatorAwareInterface
 
         foreach($realPaths as $realPath) {
             $entity = $this->cmsApi->getSiteEntity($realPath, $this->site);
-            $titles[] = $entity->getOverviewTitle(); //TODO: getOverviewTitleSafe()
+            $actionUrl = $this->urlHelper->fromRoute('backend/explorer', array('path'=>$entity->getUuid()));
+
+            $titles[] = array(
+                'title' => $entity->getTitle(),
+                'actionUrl' => $actionUrl,
+            );
         }
 
         return $titles;
@@ -170,8 +180,15 @@ class Finder extends Component implements TranslatorAwareInterface
      */
     public function getTitles($url = '/')
     {
+        $data = array();
+        $titles = $this->getParentsByUrl($url);
+
+        foreach ($titles as $title) {
+            $data[] = $title['title'];
+        }
+
         $view = new JsonModel();
-        $view->data = $this->getTitlesByUrl($url);
+        $view->data = $data;
 
         return $view;
     }
@@ -270,7 +287,7 @@ class Finder extends Component implements TranslatorAwareInterface
         $view = parent::view();
         $view->siteTitle = $this->site->getTitle();
         $view->entity    = $this->entity;
-        $view->titles    = $this->getTitlesByUrl($this->documentUrlHelper->getDocumentUrl($this->entity));
+        $view->entities  = $this->getParentsByUrl($this->documentUrlHelper->getDocumentUrl($this->entity));
 
         return $view;
     }
