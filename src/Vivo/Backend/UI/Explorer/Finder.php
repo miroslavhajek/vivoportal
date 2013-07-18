@@ -4,6 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Folder;
+use Vivo\CMS\Util\DocumentUrlHelper;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Indexer\IndexerInterface;
@@ -16,6 +17,11 @@ use Zend\View\Model\JsonModel;
 
 class Finder extends Component implements TranslatorAwareInterface
 {
+    /**
+     * @var \Vivo\CMS\Api\CMS
+     */
+    protected $cmsApi;
+
     /**
      * @var \Vivo\CMS\Api\Document
      */
@@ -33,6 +39,11 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $site;
 
     /**
+     * @var \Vivo\CMS\Util\DocumentUrlHelper
+     */
+    protected $urlHelper;
+
+    /**
      * @var ExplorerInterface
      */
     protected $explorer;
@@ -48,14 +59,19 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $translator;
 
     /**
+     * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Indexer\IndexerInterface $indexer
+     * @param \Vivo\CMS\Util\DocumentUrlHelper $urlHelper
      * @param \Vivo\CMS\Model\Site $site
      */
-    public function __construct(Api\Document $documentApi, IndexerInterface $indexer, Site $site)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, IndexerInterface $indexer,
+            DocumentUrlHelper $urlHelper, Site $site)
     {
+        $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->indexer = $indexer;
+        $this->urlHelper = $urlHelper;
         $this->site = $site;
     }
 
@@ -131,7 +147,7 @@ class Finder extends Component implements TranslatorAwareInterface
         }
 
         foreach($realPaths as $realPath) {
-            $entity = $this->documentApi->getSiteDocument($realPath, $this->site);
+            $entity = $this->cmsApi->getSiteEntity($realPath, $this->site);
             $titles[] = $entity->getOverviewTitle(); //TODO: getOverviewTitleSafe()
         }
 
@@ -161,7 +177,7 @@ class Finder extends Component implements TranslatorAwareInterface
     {
         $info = array();
 //      if (substr($url, 0, 1) == '/') { //TODO: warum? jestli nic, smazat...
-            $document = $this->documentApi->getSiteDocument($path, $this->site);
+            $document = $this->cmsApi->getSiteEntity($path, $this->site);
 
             /* @var $child \Vivo\CMS\Model\Folder */
             foreach ($this->documentApi->getChildDocuments($document) as $child) {
@@ -241,13 +257,10 @@ class Finder extends Component implements TranslatorAwareInterface
      */
     public function view()
     {
-        $path = $this->entity->getPath();
-        $path = substr($path, strpos($path, '/ROOT/') + 6); //TODO: use DocumentUrl helper
-
         $view = parent::view();
         $view->siteTitle = $this->site->getTitle();
         $view->entity    = $this->entity;
-        $view->titles    = $this->getTitlesByUrl($path);
+        $view->titles    = $this->getTitlesByUrl($this->urlHelper->getDocumentUrl($this->entity));
 
         return $view;
     }
