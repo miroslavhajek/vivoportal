@@ -6,21 +6,20 @@ $id = "id_1";
     <form action="" method="post" id="<?= $id ?>" name="mainFinderMulti">
         <input type="hidden" name="getPath[getEntities]" value="<?=$this->action('getEntities')?>">
         <input type="hidden" name="getPath[getTitles]" value="<?=$this->action('getTitles')?>">
+        <input type="hidden" name="site[name]" value="<?=htmlspecialchars($siteTitle)?>">
 <?/*
         <input type="hidden" name="actionURL[set]" value="/system/manager/explorer/?act=main-%3Eparam-%3Eparam-%3Efinder-%3Eset%3A9b4b6e3" />
         <input type="hidden" name="finder[output]" value="main->param->param->finder->output:9b4b6e3" />
         <input type="hidden" name="getPath[viewBookmarks]" value="main->param->param->finder->viewBookmarks:9b4b6e3" />
-        <input type="hidden" name="site[name]" value="Home" />
 */?>
         <input type="hidden" name="act" value="<?=$this->action('set')?>">
-
         <table width="100%">
             <tr>
                 <td class="path_root">&nbsp;<a><img src="<?= $this->resource('backend/img/icons/24x24/explorer.png','Vivo')?>" alt=""><? if ($is_published): ?><span class="published"></span><? endif; ?></a>&nbsp;</td>
                 <td class="path_finder">
                     <div class="inputFinder">
-                        <input type="text" name="input" autocomplete="off" value="/cs/">
-                        <input type="hidden" class="hidden" value="###CS" name="paths">
+                        <input type="text" name="input" autocomplete="off" value="<?=$this->document($entity)?>" data-titles="<?=urlencode(json_encode($titles))?>">
+                        <? /*<input type="hidden" class="hidden" value="<?=json_encode($titles)?>" name="paths"> */?>
                     </div>
                     <div class="inputFinderMulti" id="finderMulti_<?=$id?>"></div>
                 </td>
