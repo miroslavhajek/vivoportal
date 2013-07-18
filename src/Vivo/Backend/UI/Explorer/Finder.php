@@ -11,6 +11,7 @@ use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\UI\Alert;
 use Vivo\UI\Component;
+use Vivo\Util\UrlHelper;
 use Zend\EventManager\Event;
 use Zend\I18n\Translator\Translator;
 use Zend\View\Model\JsonModel;
@@ -39,9 +40,14 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $site;
 
     /**
-     * @var \Vivo\CMS\Util\DocumentUrlHelper
+     * @var \Vivo\Util\UrlHelper
      */
     protected $urlHelper;
+
+    /**
+     * @var \Vivo\CMS\Util\DocumentUrlHelper
+     */
+    protected $documentUrlHelper;
 
     /**
      * @var ExplorerInterface
@@ -62,16 +68,18 @@ class Finder extends Component implements TranslatorAwareInterface
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
      * @param \Vivo\Indexer\IndexerInterface $indexer
-     * @param \Vivo\CMS\Util\DocumentUrlHelper $urlHelper
+     * @param \Vivo\Util\UrlHelper $urlHelper
+     * @param \Vivo\CMS\Util\DocumentUrlHelper $documentUrlHelper
      * @param \Vivo\CMS\Model\Site $site
      */
     public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, IndexerInterface $indexer,
-            DocumentUrlHelper $urlHelper, Site $site)
+            UrlHelper $urlHelper, DocumentUrlHelper $documentUrlHelper, Site $site)
     {
         $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->indexer = $indexer;
         $this->urlHelper = $urlHelper;
+        $this->documentUrlHelper = $documentUrlHelper;
         $this->site = $site;
     }
 
@@ -183,13 +191,15 @@ class Finder extends Component implements TranslatorAwareInterface
             foreach ($this->documentApi->getChildDocuments($document) as $child) {
                 $folder = ($child instanceof Folder);
                 $published = $folder ? false : $this->documentApi->isPublished($child);
+                $actionUrl = $this->urlHelper->fromRoute('backend/explorer', array('path'=>$child->getUuid()));
 
                 $info[] = array(
                     'title' => $child->getTitle(),
                     'path' => $child->getPath(),
                     'folder' => intval($folder),
                     'published' => intval($published),
-                    'icon' => 'TODO', //TODO: icon
+                    'icon' => '', //TODO: icon
+                    'actionUrl' => $actionUrl,
                 );
             }
 //      }
@@ -260,7 +270,7 @@ class Finder extends Component implements TranslatorAwareInterface
         $view = parent::view();
         $view->siteTitle = $this->site->getTitle();
         $view->entity    = $this->entity;
-        $view->titles    = $this->getTitlesByUrl($this->urlHelper->getDocumentUrl($this->entity));
+        $view->titles    = $this->getTitlesByUrl($this->documentUrlHelper->getDocumentUrl($this->entity));
 
         return $view;
     }

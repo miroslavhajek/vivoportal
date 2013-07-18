@@ -16,14 +16,15 @@ class FinderFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cms        = $serviceLocator->get('Vivo\CMS\Api\CMS');
-        $document   = $serviceLocator->get('Vivo\CMS\Api\Document');
-        $indexer    = $serviceLocator->get('indexer');
-        $urlHelper  = $serviceLocator->get('Vivo\document_url_helper');
-        $siteEvent  = $serviceLocator->get('site_event');
-        $site       = $siteEvent->getSite();
+        $cms           = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $document      = $serviceLocator->get('Vivo\CMS\Api\Document');
+        $indexer       = $serviceLocator->get('indexer');
+        $urlHelper     = $serviceLocator->get('Vivo\Util\UrlHelper');
+        $docUrlHelper  = $serviceLocator->get('Vivo\document_url_helper');
+        $siteEvent     = $serviceLocator->get('site_event');
+        $site          = $siteEvent->getSite();
 
-        $finder = new Finder($cms, $document, $indexer, $urlHelper, $site);
+        $finder = new Finder($cms, $document, $indexer, $urlHelper, $docUrlHelper, $site);
         $finder->setAlert($serviceLocator->get('Vivo\UI\Alert'));
 
         return $finder;
