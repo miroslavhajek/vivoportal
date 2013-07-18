@@ -483,12 +483,15 @@ function action(act) {
         }
         return_complete = false;
         var data = act.data || "";
+        console.log(data);
     }
 
     var result;
 
     $.ajax({
+        url: act.url || window.location.pathname,
         data: data,
+        type: act.type || "GET",
         beforeSend: function(jqXHR, settings) {
             beforeSend(jqXHR, settings);
         },

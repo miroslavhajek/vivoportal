@@ -365,7 +365,18 @@ function showEntities(part, _id) {
 
 		var getPath = $('#' + _id).find("input[name='getPath[getEntities]']").attr("value");
 		var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
-		//var entities = action(getPath, pathPart);
+		console.log(getPath);
+		console.log(pathPart);
+		var entities = action({
+								data: "act="+getPath+"&args[]="+pathPart,
+								error: function() {
+									console.log("error");
+								}, 
+								complete: function(data) {
+									console.log("finder data");
+									console.log(data);
+								}
+							});
 		var entities = {};
 		//alert(serialize(entities));
 		for (var i = 0; i < entities.length; i++) {
