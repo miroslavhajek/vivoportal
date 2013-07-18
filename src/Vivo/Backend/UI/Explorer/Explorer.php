@@ -8,6 +8,8 @@ use Vivo\Backend\UI\SiteSelector;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\UI\ComponentContainer;
 use Vivo\UI\PersistableInterface;
+use Vivo\Util\UrlHelper;
+use Vivo\Util\RedirectEvent;
 
 use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
@@ -31,7 +33,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      * Current component name.
      * @var string
      */
-    protected $currentName = 'browser';
+    protected $explorerAction = 'browser';
 
     /**
      * @var EventManagerInterface
@@ -76,18 +78,36 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     protected  $tree;
 
     /**
+     *
+     * @var \Vivo\Util\UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
+     * UUID of current document
+     * @var string
+     */
+    protected $uuid;
+
+    /**
      * Constructor.
      * @param CMS $cmsApi
      * @param SiteSelector $siteSelector
      * @param ExplorerComponentFactory $explorerComponentFactory
+     * @param string $uuid
      */
     public function __construct(CMS $cmsApi,
             \Vivo\Backend\UI\SiteSelector $siteSelector,
-            ServiceManager $serviceManager)
+            ServiceManager $serviceManager,
+            UrlHelper $urlHelper,
+            $uuid, $explorerAction)
     {
         $this->cmsApi = $cmsApi;
         $this->siteSelector = $siteSelector;
         $this->serviceManager = $serviceManager;
+        $this->urlHelper = $urlHelper;
+        $this->uuid = $uuid;
+        $this->explorerAction = $explorerAction;
     }
 
     /**
@@ -96,10 +116,9 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function init()
     {
-        $this->loadEntity();
         //attach events
         $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
-        $this->ribbon->getEventManager()->attach('itemClick', array($this, 'onRibbonClick'));
+        //$this->ribbon->getEventManager()->attach('itemClick', array($this, 'onRibbonClick'));
     }
 
     /**
@@ -108,10 +127,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function loadState($state)
     {
-        $this->entity = $state['entity'];
-        $this->currentName = isset($state['current_name']) ?
-                $state['current_name'] : $this->currentName;
-        $this->createComponent();
+        $this->loadEntity();
         $this->updateRibbon();
     }
 
@@ -122,16 +138,16 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     protected function createComponent($needInit = false)
     {
-        if (!isset($this->explorerComponents[$this->currentName])) {
+        if (!isset($this->explorerComponents[$this->explorerAction])) {
             throw new Exception(
                     sprintf("%s: Component for '%s' is not defined",
-                            __METHOD__, $this->currentName));
+                            __METHOD__, $this->explorerAction));
         }
 
-        $name = $this->explorerComponents[$this->currentName];
+        $name = $this->explorerComponents[$this->explorerAction];
 
         $component = $this->serviceManager->create($name);
-        $this->addComponent($component, $this->currentName);
+        $this->addComponent($component, $this->explorerAction);
 
         if($needInit) {
             $this->tree->setRoot($component);
@@ -139,15 +155,12 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         }
     }
 
-        /**
+    /**
      * (non-PHPdoc)
      * @see \Vivo\UI\PersistableInterface::saveState()
      */
     public function saveState()
     {
-        $state['entity'] = $this->entity;
-        $state['current_name'] = $this->currentName;
-        return $state;
     }
 
     /**
@@ -156,11 +169,11 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function setCurrent($name)
     {
-        if ($name == $this->currentName){
+        if ($name == $this->explorerAction){
             return;
         }
-        $this->removeComponent($this->currentName);
-        $this->currentName = $name;
+        $this->removeComponent($this->explorerAction);
+        $this->explorerAction = $name;
         $this->createComponent(true);
         $this->updateRibbon();
     }
@@ -180,13 +193,29 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     protected function loadEntity()
     {
         if ($site = $this->getSite()) {
+            $entity = NULL;
             if ($relPath = $this->request->getQuery('url', false)) {
                 $entity = $this->cmsApi->getSiteEntity($relPath, $site);
-                $this->setEntity($entity);
-            } elseif ($this->entity === null) {
-                $entity = $this->cmsApi->getSiteEntity('/', $site);
-                $this->setEntity($entity);
+            } else {
+                // try to load entity from repository
+                // if no exception id thrown, uuid is valid
+                try {
+                    $entity = $this->cmsApi->getEntity($this->uuid);
+                } catch (\Exception $ex) {
+                    // provided UUID is not valid
+                    // load site home page and trigger redirect event
+                    $entity = $this->cmsApi->getSiteEntity('/', $site);
+                    $routeParams = array(
+                        'path' => $entity->getUuid(),
+                        'explorerAction' => $this->explorerAction,
+                    );
+                    $url = $this->urlHelper->fromRoute(null, $routeParams);
+                    $this->getEventManager()->trigger(new RedirectEvent($url));
+                }
             }
+            // load entity and create explorer component
+            $this->entity = $entity;
+            $this->createComponent();
         }
     }
 
@@ -225,7 +254,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function setEntity(Model\Entity $entity)
     {
         $this->entity = $entity;
-        //recreate component when antity is changed.
+        //recreate component when entity is changed.
         $this->createComponent(true);
         $this->eventManager->trigger(__FUNCTION__, $this, array('entity' => $entity));
     }
@@ -245,7 +274,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
      */
     public function view()
     {
-        $this->view->currentName = $this->currentName;
+        $this->view->explorerAction = $this->explorerAction;
         return parent::view();
     }
 
@@ -286,6 +315,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
+     * Returns current name
+     * @return string
+     */
+    public function getExplorerAction() {
+        return $this->explorerAction;
+    }
+
+    /**
      * Updates ribbon - sets the currently active item
      */
     protected function updateRibbon()
@@ -293,8 +330,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         /** @var $ribbon \Vivo\Backend\UI\Explorer\Ribbon */
         $ribbon = $this->getComponent('ribbon');
         $ribbon->deactivateAll();
-        if ($this->currentName) {
-            $ribbon->setActive($this->currentName);
+        if ($this->explorerAction) {
+            $ribbon->setActive($this->explorerAction);
         }
     }
 }

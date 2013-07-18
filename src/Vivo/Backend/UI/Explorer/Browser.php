@@ -44,15 +44,6 @@ class Browser extends Component
     }
 
     /**
-     * Change document that is beeing explored.
-     * @param string $relPath
-     */
-    public function set($relPath)
-    {
-        $this->explorer->setEntityByRelPath($relPath);
-    }
-
-    /**
      * Returns view model.
      * @return \Zend\View\Model\ViewModel
      */

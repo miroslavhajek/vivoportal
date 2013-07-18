@@ -86,16 +86,34 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         }
     }
 
+    /**
+     * Get Label of Content Type Class
+     * @param $class
+     * @return string
+     */
+    private function getContentLabelFromClass($class)
+    {
+        foreach ($this->availableContents as $ctKey => $ac) {
+            if ($ac['class'] == $class) {
+                return isset($ac['label']) ? $ac['label'] : $ac['class'];
+            }
+        }
+        return $class;
+    }
+
     protected function doGetForm()
     {
         $options    = array();
         //$optionKey will be used to initialize the select value
         $optionKey = null;
+        
         /** @var $content \Vivo\CMS\Model\Content */
         foreach ($this->contents as $k => $content) {
             $optionKey  = 'EDIT:' . $content->getUuid();
             $options[$optionKey] = sprintf('1.%d [%s] %s {%s}',
-                    $k, $content->getState(), get_class($content), $content->getUuid());
+                    $k, $content->getState(),
+                    $this->getContentLabelFromClass(get_class($content)),
+                    $content->getUuid());
         }
 
         foreach ($this->availableContents as $ctKey => $ac) {

@@ -17,8 +17,8 @@ class DocumentFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm     = $serviceLocator->getServiceLocator();
-        $cmsApi = $sm->get('Vivo\CMS\Api\CMS');
-        $helper = new Document($cmsApi);
+        $documentUrlHelper = $sm->get('Vivo\document_url_helper');
+        $helper = new Document($documentUrlHelper);
         return $helper;
     }
 }

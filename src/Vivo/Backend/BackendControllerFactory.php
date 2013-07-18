@@ -19,7 +19,7 @@ class BackendControllerFactory implements FactoryInterface
         $sm = $serviceLocator->getServiceLocator();
         $bc = new BackendController($sm->get('security_manager'));
         $bc->setModuleResolver($sm->get('Vivo\Backend\ModuleResolver'));
-        $bc->setComponentTreeController($sm->get('Vivo\UI\ComponentTreeController'));
+        $bc->setComponentTreeController($sm->get('component_tree_controller'));
         $bc->setSiteEvent($sm->get('site_event'));
         $bc->setRedirector($sm->get('redirector'));
         $bc->setUrlHelper($sm->get('Vivo\Util\UrlHelper'));

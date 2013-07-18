@@ -22,8 +22,9 @@ class EditorFactory implements FactoryInterface
         $documentApi        = $sm->get('Vivo\CMS\Api\Document');
         $provider           = $sm->get('Vivo\CMS\AvailableContentsProvider');
         $alert              = $sm->get('Vivo\UI\Alert');
+        $urlHelper          = $sm->get('Vivo\Util\UrlHelper');
 
-        $editor = new Editor($sm, $metadataManager, $lookupDataManager, $documentApi, $provider);
+        $editor = new Editor($sm, $metadataManager, $lookupDataManager, $documentApi, $provider, $urlHelper);
         $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'));
         $editor->setResourceEditor($sm->create('Vivo\Backend\UI\Explorer\Editor\Resource'));
         $editor->setAlert($alert);
