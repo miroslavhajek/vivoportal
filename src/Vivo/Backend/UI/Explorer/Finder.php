@@ -116,14 +116,9 @@ class Finder extends Component implements TranslatorAwareInterface
         $this->translator = $translator;
     }
 
-    /**
-     * JS support method for rewriting pats titles of documents.
-     * @example /document/sub-document/ -> /Document name/Green subdocument/
-     * @param string $path
-     * @return \Zend\View\Model\JsonModel
-     */
-    public function getTitles($path = '/') {
-        $path = explode('/', trim($path, '/'));
+    private function getTitlesByUrl($url)
+    {
+        $path = explode('/', trim($url, '/'));
         $realPaths = array();
         $titles = array();
         $i = 0;
@@ -137,11 +132,22 @@ class Finder extends Component implements TranslatorAwareInterface
 
         foreach($realPaths as $realPath) {
             $entity = $this->documentApi->getSiteDocument($realPath, $this->site);
-            $titles[] = $entity->getOverviewTitle() ?: '-';
+            $titles[] = $entity->getOverviewTitle(); //TODO: getOverviewTitleSafe()
         }
 
+        return $titles;
+    }
+
+    /**
+     * JS support method for rewriting pats titles of documents.
+     * @example /document/sub-document/ -> /Document name/Green subdocument/
+     * @param string $path
+     * @return \Zend\View\Model\JsonModel
+     */
+    public function getTitles($url = '/')
+    {
         $view = new JsonModel();
-        $view->data = $titles;
+        $view->data = $this->getTitlesByUrl($url);
 
         return $view;
     }
@@ -151,7 +157,8 @@ class Finder extends Component implements TranslatorAwareInterface
      * @param string $path
      * @return \Zend\View\Model\JsonModel
      */
-    public function getSubEntities($path) {
+    public function getSubEntities($path)
+    {
         $info = array();
 //      if (substr($url, 0, 1) == '/') { //TODO: warum? jestli nic, smazat...
             $document = $this->documentApi->getSiteDocument($path, $this->site);
@@ -234,8 +241,13 @@ class Finder extends Component implements TranslatorAwareInterface
      */
     public function view()
     {
+        $path = $this->entity->getPath();
+        $path = substr($path, strpos($path, '/ROOT/') + 6); //TODO: use DocumentUrl helper
+
         $view = parent::view();
-        $view->entity = $this->entity;
+        $view->siteTitle = $this->site->getTitle();
+        $view->entity    = $this->entity;
+        $view->titles    = $this->getTitlesByUrl($path);
 
         return $view;
     }

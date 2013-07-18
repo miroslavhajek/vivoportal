@@ -40,7 +40,7 @@ class Document extends AbstractHelper
             'path' => $entityUrl,
         );
         $options    = array();
-        $url = $urlHelper(null, $urlParams, $options, false);
+        $url = $urlHelper('vivo/cms', $urlParams, $options, false);
 
         //Replace encoded slashes in the url. It's needed because apache
         //returns 404 when the url contains encoded slashes. This behaviour
