@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Api\CMS;
-use Vivo\Backend\UI\Form\Copy as CopyForm;
+use Vivo\Backend\Form\Copy as CopyForm;
 use Vivo\Form\Form;
 use Vivo\CMS\Model\Document;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;

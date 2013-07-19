@@ -1,8 +1,8 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\Api;
 use Vivo\CMS\Model;
+use Vivo\CMS\Util\DocumentUrlHelper;
 
 use Zend\View\Helper\AbstractHelper;
 
@@ -12,41 +12,27 @@ use Zend\View\Helper\AbstractHelper;
 class Document extends AbstractHelper
 {
     /**
-     * Helper options
-     * @var array
+     * Document url helper
+     * @var DocumentUrlHelper
      */
-    private $options = array();
+    private $documentUrlHelper;
 
     /**
-     * @var Api\CMS
-     */
-    private $cmsApi;
-
-    /**
+     * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
-     * @param array $options
      */
-    public function __construct(Api\CMS $cmsApi, $options = array())
+    public function __construct(DocumentUrlHelper $documentUrlHelper)
     {
-        $this->cmsApi = $cmsApi;
-        $this->options = array_merge($this->options, $options);
+        $this->documentUrlHelper = $documentUrlHelper;
     }
 
+    /**
+     * Returns document url
+     * @param \Vivo\CMS\Model\Document $document
+     * @return string
+     */
     public function __invoke(Model\Document $document)
     {
-        $entityUrl = $this->cmsApi->getEntityRelPath($document);
-        $urlHelper = $this->getView()->plugin('url');
-        $urlParams  = array(
-            'path' => $entityUrl,
-        );
-        $options    = array();
-        $url = $urlHelper(null, $urlParams, $options, false);
-
-        //Replace encoded slashes in the url. It's needed because apache
-        //returns 404 when the url contains encoded slashes. This behaviour
-        //could be changed in apache config, but it is not possible to do that
-        //in .htaccess context.
-        //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
-        return str_replace('%2F', '/', $url);
+        return $this->documentUrlHelper->getDocumentUrl($document);
     }
 }

@@ -8,7 +8,9 @@ use Zend\Mvc\Router\RouteStackInterface;
 /**
  * Helper class for assembling urls.
  *
- * @see \Zend\Mvc\Controller\Plugin\Url
+ * Has the same function as \Zend\View\Helper\Url, it only modifies reused params.
+ * Helper always reuses 'path' and 'host' router match param and never reuses 'controller' param.
+ * Moreover, if the route name is 'backend/explorer', the helper always reuses 'explorerAction' param.
  */
 class UrlHelper
 {
@@ -83,6 +85,10 @@ class UrlHelper
             $params['host'] =  $this->routeMatch->getParam('host');
         if (!isset($params['path']))
             $params['path'] = $this->routeMatch->getParam('path');
+
+        if (($route == 'backend/explorer') && (!isset($params['explorerAction']))) {
+            $params['explorerAction'] = $this->routeMatch->getParam('explorerAction');
+        }
 
         $url = $this->router->assemble($params, $options);
         $url = str_replace('%2F', '/', $url);
