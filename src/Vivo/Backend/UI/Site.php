@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
 use Vivo\Form;
-use Vivo\Backend\UI\Form\Fieldset\EntityEditor as EntityEditorFieldset;
+use Vivo\Backend\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Vivo\CMS\Model\Site as SiteModel;
 use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\Util\RedirectEvent;
