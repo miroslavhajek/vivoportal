@@ -11,11 +11,16 @@ use Zend\Filter\Exception\RuntimeException;
 class KeyValueStringToArray extends AbstractFilter
 {
 
+    /**
+     * Regular expression used for matching particular row in textarea
+     * @var string
+     */
     protected $pattern = '(?:[\t\ ]*([\w]+)[\t\ ]*=)?[\t\ ]*"?([^"]+)"?[\t\ ]*';
 
     /**
      * Decodes input string into array
      * @param string $input
+     * @throws \Zend\Filter\Exception\RuntimeException
      */
     protected function decodeString($input)
     {
@@ -50,9 +55,8 @@ class KeyValueStringToArray extends AbstractFilter
 
                         // insert value
                         if ($hasKey) {
-                            if (array_key_exists($key, $array)) {
+                            if (array_key_exists($key, $array))
                                 throw new RuntimeException("Duplicated key '$key'");
-                            }
                             $array[$key] = $value;
                         } else {
                             $array[] = $value;
@@ -69,9 +73,10 @@ class KeyValueStringToArray extends AbstractFilter
     }
 
     /**
-     * (non-PHPdoc)
+     * Returns decoded array
      * @see \Zend\Filter\FilterInterface::filter()
      * @throws \Zend\Filter\Exception\RuntimeException
+     * @return array Decoded array
      */
     public function filter($value)
     {
