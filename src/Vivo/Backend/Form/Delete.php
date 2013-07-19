@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Backend\UI\Form;
+namespace Vivo\Backend\Form;
 
 use Vivo\Form\Form;
 use Vivo\CMS\Validator\SubdocsAllowed;

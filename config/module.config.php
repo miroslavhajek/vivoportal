@@ -268,7 +268,8 @@ return array(
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
-            'Vivo\repository_storage'   => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',

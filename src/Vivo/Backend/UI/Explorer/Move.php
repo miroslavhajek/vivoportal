@@ -5,7 +5,7 @@ use Vivo\CMS\Model\Entity;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
-use Vivo\Backend\UI\Form\Move as MoveForm;
+use Vivo\Backend\Form\Move as MoveForm;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\Util\RedirectEvent;
