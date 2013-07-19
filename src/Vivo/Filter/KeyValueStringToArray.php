@@ -11,33 +11,7 @@ use Zend\Filter\Exception\RuntimeException;
 class KeyValueStringToArray extends AbstractFilter
 {
 
-    /**
-     * Set of regular expressions used to split the input string into tokens
-     * @var array
-     */
-    protected $patterns = array(
-        '
-            \'[^\'\n]*\' |
-            "(?: \\\\. | [^"\\\\\n] )*"
-        ', // string
-        '
-            (?: [^"\'=\x00-\x20] )
-            (?:
-                    [^=\x00-\x20]+ |
-                    (?! [\s,] | $ ) |
-                    [\ \t]+ [^=\x00-\x20]
-            )*
-        ', // literal / boolean / integer / float
-        '=', // key-value delimiter
-        '\n[\t\ ]*', // new line + indent
-        '?:[\t\ ]+', // whitespace
-    );
-
-    /**
-     * Result
-     * @var array
-     */
-    protected $result;
+    protected $pattern = '(?:[\t\ ]*([\w]+)[\t\ ]*=)?[\t\ ]*"?([^"]+)"?[\t\ ]*';
 
     /**
      * Decodes input string into array
@@ -46,65 +20,52 @@ class KeyValueStringToArray extends AbstractFilter
     protected function decodeString($input)
     {
         $input = str_replace("\r", '', $input);
-        $re = '~(' . implode(')|(', $this->patterns) . ')~Amix';
+        $re = '~^' . $this->pattern . '$~';
 
-        $tokens = preg_split($re, $input, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-        $tokens[] = "\n"; // add last line feed
+        $rows = explode("\n", $input);
 
-        // store results to $this->result
-        $this->parseTokens($tokens);
-    }
+        $array = array();
+        $key = $value = null;
 
-    /**
-     * Parse tokens into result array
-     * @param array $tokens
-     * @throws RuntimeException
-     */
-    protected function parseTokens($tokens) {
-        $value = $key = $object = NULL;
-        $hasValue = $hasKey = FALSE;
+        if (!empty($rows)) {
+            foreach ($rows as $row) {
+                $hasKey = false;
+                if (!empty($row)) {
+                    if (preg_match($re, $row, $matches)) {
+                        $key = $matches[1];
+                        $value = $matches[2];
 
-        foreach($tokens as $token) {
-            if ($token[0] === "\n") {       // New line
-                if ($hasKey || $hasValue) {
-                    $this->addValue($this->result, $hasKey, $key, $hasValue ? $value : NULL);
-                    $hasKey = $hasValue = FALSE;
+                        // check key
+                        // omit numeric keys and empty keys
+                        if (empty($key) || is_numeric($key)) {
+                            $hasKey = false;
+                        } else {
+                            $hasKey = true;
+                        }
+
+                        // remove quotes from value
+                        if ($value[0] == '"' || $value[0] == "'") {
+                            $value = mb_substr($value, 1, -1);
+                        }
+
+                        // insert value
+                        if ($hasKey) {
+                            if (array_key_exists($key, $array)) {
+                                throw new RuntimeException("Duplicated key '$key'");
+                            }
+                            $array[$key] = $value;
+                        } else {
+                            $array[] = $value;
+                        }
+                    } else {
+                        // row is not matched -> error
+                        throw new RuntimeException(sprintf('%s: Parse error', __METHOD__));
+                    }
                 }
-            } elseif ($token[0] === '=') { // KeyValuePair separator
-                if ($hasKey || !$hasValue) {
-                    throw new RuntimeException(sprintf('%s: Parse error', __METHOD__));
-                }
-                $key = (string) $value;
-                $hasKey = TRUE;
-                $hasValue = FALSE;
-            } else {                        // Value
-                if ($hasValue) {
-                    throw new RuntimeException(sprintf('%s: Parse error', __METHOD__));
-                }
-                $value = $token;
-                $hasValue = TRUE;
             }
         }
-    }
 
-    /**
-     * Adds value item into $result array
-     * @param array $result
-     * @param bool $hasKey
-     * @param mixed $key
-     * @param mixed $value
-     * @throws RuntimeException
-     */
-    protected function addValue(&$result, $hasKey, $key, $value)
-    {
-        if ($hasKey) {
-            if ($result && array_key_exists($key, $result)) {
-                throw new RuntimeException("Duplicated key '$key'");
-            }
-            $result[$key] = $value;
-        } else {
-            $result[] = $value;
-        }
+        return $array;
     }
 
     /**
@@ -114,8 +75,6 @@ class KeyValueStringToArray extends AbstractFilter
      */
     public function filter($value)
     {
-        $this->result = array();
-        $this->decodeString($value);
-        return $this->result;
+        return $this->decodeString($value);
     }
 }

@@ -4,7 +4,7 @@ namespace Vivo\Filter;
 use Zend\Filter\AbstractFilter;
 
 /**
- * Array to key value string
+ * Array to key-value string
  * Numeric keys are omitted in result string.
  * Only string keys are taken into account.
  */
@@ -12,26 +12,26 @@ class ArrayToKeyValueString extends AbstractFilter
 {
 
     /**
-     * (non-PHPdoc)
+     * Converts array into key-value string representation
+     * Numeric keys are ommited
      * @see \Zend\Filter\FilterInterface::filter()
+     * @return string
      */
     public function filter($value)
     {
         $string = '';
-
-        $rows = array();
-        if (!empty($value) && is_array($value)) {
-            foreach ($value as $k => $v) {
-                $rowChunks = array();
-                if (!is_int($k)) {
-                    $rowChunks[] = $k;
-                }
-                $rowChunks[] = $v;
-                $rows[] = implode(" = ", $rowChunks) . PHP_EOL;
+        foreach ($value as $k => $v) {
+            $v = str_replace('"', '\"', $v);
+            if (is_int($k)) {
+                $string .= sprintf('"%s"', $v);
+            } else {
+                $string .= sprintf('%s = "%s"', $k, $v);
             }
-            $string = trim(implode('',$rows));
+            $string .= PHP_EOL;
         }
+        $string = trim($string);
 
         return $string;
     }
+
 }
