@@ -27,7 +27,7 @@ class ArrayToKeyValueString extends AbstractFilter
                     $rowChunks[] = $k;
                 }
                 $rowChunks[] = $v;
-                $rows[] = implode(" = ", $rowChunks) . "\r\n";
+                $rows[] = implode(" = ", $rowChunks) . PHP_EOL;
             }
             $string = trim(implode('',$rows));
         }
