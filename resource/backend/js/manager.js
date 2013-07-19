@@ -94,7 +94,6 @@ $(document).ready(function() {
     });
     var contWidth = $('.select2-container').width();
     //console.log(contWidth);
-    
 
     /* $('.checkbox.hover').hover(function(){
      var $this = $(this);

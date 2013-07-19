@@ -6,8 +6,21 @@ $(document).ready(function() {
 	if (_mainFinderMultiId)	{
 		window.loaded = 1;
 		//init multiFinder
-		var entities = getAllEntities(_mainFinderMultiId);
-		initMultiFinder(_mainFinderMultiId, entities.length);
+		//var entities = getAllEntities(_mainFinderMultiId);
+		var getPath = $('#' + _mainFinderMultiId).find("input[name='getPath[getEntities]']").attr("value");
+		var pathPart = $('#' + _mainFinderMultiId).find("input[name='input']").attr("value");
+		action({
+				data: "act="+getPath+"&args[]="+pathPart,
+				error: function() {
+					console.log("error");
+				}, 
+				success: function(res, textStatus, jqXHR) {
+					console.log("finder data");
+					console.log(res.data);
+					initMultiFinder(_mainFinderMultiId, res.data.length);
+				}
+			});
+
 		//$(".inputFinder").show();
 
 		//view bookmarks from finder
@@ -132,7 +145,7 @@ function getPathPart(part, _id) {
 //--vykresluje samotny multifinder
 function multiFinder(_id, last) {
 	var InputField = $("#" + _id).find("input[name='input']").attr("value");
-	var pathsField = $("#" + _id).find("input[name='paths']").attr("value");
+	var pathsField = $("#" + _id).find("input[name='input']").attr("data-titles");
 	var siteName = $("#" + _id).find("input[name='site[name]']").attr("value");
 
 	var InputFieldParts = new Array();
@@ -141,9 +154,13 @@ function multiFinder(_id, last) {
 	if (InputField.length > 1)
 		InputFieldParts[InputFieldParts.length] = "";
 	*/
+	console.log(urldecode(pathsField));
+	console.log($.parseJSON(urldecode(pathsField)));
 
 	var pathsFieldParts = new Array();
-	pathsFieldParts = pathsField.split("###");
+	//pathsFieldParts = pathsField.split("###");
+	pathsFieldParts = $.parseJSON(urldecode(pathsField));
+	pathsFieldParts.splice(0, 0, "");
 
 	$("#finderMulti_" + _id).html("");
 	$("#finderMulti_" + _id).css("cursor", "text");
@@ -155,6 +172,7 @@ function multiFinder(_id, last) {
 
 	jQuery.each(InputFieldParts, function(i, val) {
 		var pathTitle = (pathsFieldParts[i] == '-') ? val : pathsFieldParts[i];
+		console.log(pathsFieldParts[i]);
 		if (i < InputFieldParts.length - 1) {
 			if (i > 0) $("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + i + "_holder' href='"+actionURL+"&args[]="+getPathPart(i, _id)+"'><span>" + pathTitle + "</span></a>");
 			if (last != 0 || i != InputFieldParts.length - 2) $("#finderMulti_" + _id).append("<div class='finderMultiPartDir'><a href='javascript:void(0)' id='"+_id+"_a_" + i + "_entities' class='finderMultiPartDira'><span>&gt;</span></a><div id='"+_id+"_" + i + "_entities' class='finderMultiPartDirEntities'></div></div>");
@@ -372,52 +390,57 @@ function showEntities(part, _id) {
 								error: function() {
 									console.log("error");
 								}, 
-								complete: function(data) {
+								success: function(res, textStatus, jqXHR) {
 									console.log("finder data");
-									console.log(data);
+									console.log(res.data);
+
+									for (var i = 0; i < res.data.length; i++) {
+									var entity = res.data[i];
+									console.log(entity);
+									entity.path = entity.path.replace("//", "/");
+									var value = entity.path.substring(entity.path.indexOf('/', 1));
+									value = value.substring(value.indexOf('/', 1)) + ''; // ve value je cesta k nastaveni do finderu
+									var name = entity.path.substring(entity.path.lastIndexOf('/') + 1); // v name je zobrazeny nazev entity
+									$('#'+_id+'_'+part+'_entities > div').append($(document.createElement("a"))
+														.attr("href", entity.actionUrl)
+														//.attr("class", "multiFinderEntitiesHref")
+														.addClass("multiFinderEntitiesHref")
+														.addClass("multiFinderEntitiesHrefIcon")
+														.addClass(entity.folder ? "multiFinderEntitiesHrefFolder" : "")
+														.css({"background-image" : "url('"+entity.icon+"')"})
+														.text(entity.title ? entity.title : name)
+														.attr('title', (entity.title ? entity.title : name) + ' - ' + value + '/')
+														.wrapInner($(document.createElement("span")))
+														.prepend($(document.createElement("span")).addClass(entity.published ? "published" : "not-published"))
+														).hide();
+								}
+
+								$('#'+_id+'_'+part+'_entities').show();
+								$('#'+_id+'_'+part+'_entities > div').slideDown(200, function() {
+									$(this).dropShadow({
+										left: 3,
+										top: 3,
+										blur: 2,
+										opacity: .7,
+										color: "#8ba9c8",
+										swap: false
+									});
+								});
+								$('#'+_id+'_'+part+'_entities').click(function(e) {
+									e.stopPropagation();
+									e.cancelBubble = true;
+								});
+								$('#'+_id+'_'+part+'_entities').show();
+								
 								}
 							});
 		var entities = {};
 		//alert(serialize(entities));
-		for (var i = 0; i < entities.length; i++) {
-			var entity = entities[i];
-			entity.path = entity.path.replace("//", "/");
-			var value = entity.path.substring(entity.path.indexOf('/', 1));
-			value = value.substring(value.indexOf('/', 1)) + ''; // ve value je cesta k nastaveni do finderu
-			var name = entity.path.substring(entity.path.lastIndexOf('/') + 1); // v name je zobrazeny nazev entity
-			$('#'+_id+'_'+part+'_entities > div').append($(document.createElement("a"))
-								.attr("href", actionURL+"&args[]=" + value + "/")
-								//.attr("class", "multiFinderEntitiesHref")
-								.addClass("multiFinderEntitiesHref")
-								.addClass("multiFinderEntitiesHrefIcon")
-								.addClass(entity.is_folder ? "multiFinderEntitiesHrefFolder" : "")
-								.css({"background-image" : "url('"+entity.icon+"')"})
-								.text(entity.title ? entity.title : name)
-							.attr('title', (entity.title ? entity.title : name) + ' - ' + value + '/')
-								.wrapInner($(document.createElement("span")))
-								.prepend($(document.createElement("span")).addClass(entity.is_published ? "published" : "not-published"))
-								).hide();
-		}
-
-		$('#'+_id+'_'+part+'_entities').show();
-		$('#'+_id+'_'+part+'_entities > div').slideDown(200, function() {
-			$(this).dropShadow({
-				left: 3,
-				top: 3,
-				blur: 2,
-				opacity: .7,
-				color: "#8ba9c8",
-				swap: false
-			});
-		});
+		
 
 		//$('#'+_id+'_'+part+'_entities > div').dropShadow();
 
-		$('#'+_id+'_'+part+'_entities').click(function(e) {
-			e.stopPropagation();
-			e.cancelBubble = true;
-		});
-		$('#'+_id+'_'+part+'_entities').show();
+		
 	} else {
 		$('#'+_id+'_'+part+'_entities').html("");
 		$('#'+_id+'_'+part+'_entities').hide();
@@ -468,3 +491,6 @@ function viewBookmark(_id) {
 		});
 }
 
+function urldecode(url) {
+  return decodeURIComponent(url.replace(/\+/g, ' '));
+}

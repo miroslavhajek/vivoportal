@@ -20,6 +20,7 @@ $id = "id_1";
                 <td class="path_finder">
                     <div class="inputFinder">
                         <input type="text" name="input" autocomplete="off" value="<?=$this->document($entity)?>" data-titles="<?=urlencode(json_encode($titles))?>">
+                        <?=print_r($titles)?>
                     </div>
                     <div class="inputFinderMulti" id="finderMulti_<?=$id?>"></div>
                 </td>
