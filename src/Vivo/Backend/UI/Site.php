@@ -40,11 +40,6 @@ class Site extends AbstractForm implements TranslatorAwareInterface
     protected $lookupDataManager;
 
     /**
-     * @var \Vivo\CMS\AvailableContentsProvider
-     */
-    private $availableContentsProvider;
-
-    /**
      * @var \Vivo\UI\Alert
      */
     private $alert;
@@ -103,40 +98,19 @@ class Site extends AbstractForm implements TranslatorAwareInterface
         $this->documentApi = $documentApi;
     }
 
+    /**
+     * Init component
+     */
     public function init()
     {
         $this->siteEntity = $this->cmsEvent->getSite();
 
         $this->getForm()->bind($this->siteEntity);
         parent::init();
-        //$this->initForm();
     }
 
-//    protected function initForm()
-//    {
-//        if($this->siteEntity instanceof Site) {
-//            try {
-//                $containers = $this->documentApi->getContentContainers($this->siteEntity);
-//            }
-//            catch(\Vivo\Repository\Exception\PathNotSetException $e) {
-//            }
-//        }
-//        foreach ($containers as $index => $contentContainer) {
-//            $contentTab = $this->createContentTab($contentContainer);
-//            $this->contentTab->addComponent($contentTab, "content_$index");
-//            //Init the component
-//            $contentTab->init();
-//        }
-//        if (count($this->availableContents) > 0) {
-//            $contentTab = $this->createContentTab(new ContentContainer());
-//            $count = count($containers);
-//            $this->contentTab->addComponent($contentTab, "content_$count");
-//            //Init the component
-//            $contentTab->init();
-//        }
-//    }
-
     /**
+     * Sets alert
      * @param Alert $alert
      */
     public function setAlert(Alert $alert)
@@ -153,6 +127,10 @@ class Site extends AbstractForm implements TranslatorAwareInterface
         $this->translator = $translator;
     }
 
+    /**
+     * Returns form
+     * @return \Vivo\Form\Form
+     */
     protected function doGetForm()
     {
         $metadata = $this->metadataManager->getMetadata(get_class($this->siteEntity));
@@ -193,6 +171,7 @@ class Site extends AbstractForm implements TranslatorAwareInterface
     }
 
     /**
+     * Adds alert message
      * @param string $message
      * @param string $type
      */
@@ -212,8 +191,6 @@ class Site extends AbstractForm implements TranslatorAwareInterface
         $form = $this->getForm();
 
         if ($form->isValid()) {
-            //Save contents first, otherwise published contents are not updated in indexer
-            //$successContents    = $this->saveContents();
             $this->documentApi->saveDocument($this->siteEntity);
             $this->events->trigger(new RedirectEvent());
             $this->addAlertMessage('Saved...', Alert::TYPE_SUCCESS);
@@ -222,45 +199,5 @@ class Site extends AbstractForm implements TranslatorAwareInterface
             $message = $this->translator->translate("Document data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);
         }
-    }
-
-    /**
-     * @return boolean
-     */
-    private function saveContents()
-    {
-        $success = $this->saveProcess();
-
-        if($success) {
-            $this->addAlertMessage('Saved...', Alert::TYPE_SUCCESS);
-        }
-        else {
-            $this->addAlertMessage('Error...', Alert::TYPE_ERROR);
-        }
-
-        return $success;
-    }
-
-    /**
-     * @return boolean
-     */
-    protected function saveProcess()
-    {
-        $success = true;
-        /** @var $tabContainer TabContainer */
-        $tabContainer   = $this->getComponent('contentTab');
-        if ($tabContainer->hasComponent($tabContainer->getSelected())) {
-            /* @var $component \Vivo\Backend\UI\Explorer\Editor\ContentTab */
-            $component  = $tabContainer->getSelectedComponent();
-            $success    = $success && $component->save();
-        }
-        if($success) {
-            $tabContainer->removeAllComponents();
-            $this->initForm();
-            foreach ($tabContainer->getComponents() as $component) {
-                $component->initForm();
-            }
-        }
-        return $success;
     }
 }
