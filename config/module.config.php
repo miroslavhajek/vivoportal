@@ -355,6 +355,7 @@ return array(
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'              => 'Vivo\View\Helper\UserFactory',
+            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

@@ -39,8 +39,9 @@ class Db extends AbstractManager
      * @var array
      */
     protected $options  = array(
-        'super_password'        => null,
-        'super_access_networks' => array(
+        'use_external_authentication'   => true,
+        'super_password'            => null,
+        'super_access_networks'     => array(
         ),
     );
 
@@ -54,10 +55,9 @@ class Db extends AbstractManager
     public function __construct(SessionManager $sessionManager, DbTableGatewayProvider $dbTableGatewayProvider,
                                 $remoteAddress = null, array $options = array())
     {
-        parent::__construct($sessionManager);
+        parent::__construct($sessionManager, $options);
         $this->dbTableGatewayProvider   = $dbTableGatewayProvider;
         $this->remoteAddress            = $remoteAddress;
-        $this->options                  = array_merge($this->options, $options);
     }
 
     /**
