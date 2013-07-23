@@ -268,7 +268,8 @@ return array(
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
-            'Vivo\repository_storage'   => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -354,6 +355,7 @@ return array(
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'              => 'Vivo\View\Helper\UserFactory',
+            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

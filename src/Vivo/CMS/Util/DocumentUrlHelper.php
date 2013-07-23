@@ -25,7 +25,7 @@ class DocumentUrlHelper
     /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
-     * @param array $options
+     * @param UrlHelper $urlHelper
      */
     public function __construct(Api\CMS $cmsApi, UrlHelper $urlHelper)
     {
@@ -36,22 +36,18 @@ class DocumentUrlHelper
     /**
      * Returns document url
      * @param \Vivo\CMS\Model\Document $document
+     * @param array $options
      * @return string
      */
-    public function getDocumentUrl(Model\Document $document)
+    public function getDocumentUrl(Model\Document $document, array $options = array())
     {
         $entityUrl = $this->cmsApi->getEntityRelPath($document);
-        $urlParams  = array(
+        $params  = array(
             'path' => $entityUrl,
         );
-        $options    = array();
-        $url = $this->urlHelper->fromRoute('vivo/cms', $urlParams, $options, false);
+        // configure url helper
+        $options['settings']['secured'] = (bool) $document->getSecured();
 
-        //Replace encoded slashes in the url. It's needed because apache
-        //returns 404 when the url contains encoded slashes. This behaviour
-        //could be changed in apache config, but it is not possible to do that
-        //in .htaccess context.
-        //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
-        return str_replace('%2F', '/', $url);
+        return $this->urlHelper->fromRoute('vivo/cms', $params, $options);
     }
 }

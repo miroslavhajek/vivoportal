@@ -90,12 +90,11 @@ class ResourceUrlHelper
      *      getResourceUrl('images/page/logo.png', 'MyModule');
      * @param string $resourcePath
      * @param string|Entity $source
-     * @param string|null $type Resource type (for module resources)
-     * @param array $queryParams Query string parameters
+     * @param array Options
      * @throws Exception\InvalidArgumentException
      * @return string
      */
-    public function getResourceUrl($resourcePath, $source, $type = null, array $queryParams = array())
+    public function getResourceUrl($resourcePath, $source, array $options = array())
     {
         if ($this->options['check_resource'] == true) {
             $this->checkResource($resourcePath, $source);
@@ -108,13 +107,13 @@ class ResourceUrlHelper
                 'entity'    => $entityUrl,
             );
             $mtime      = $this->cmsApi->getResourceMtime($source, $resourcePath);
-            $reuseMatchedParams = true;
         } elseif (is_string($source)) {
             if ($source == 'Vivo') {
                 //It is a Vivo resource
                 $mtime  = $this->getVivoResourceMtime($resourcePath);
             } else {
                 //It is a module resource
+                $type = isset($options['type']) ? $options['type'] : null;
                 $mtime  = $this->moduleResourceManager->getResourceMtime($source, $resourcePath, $type);
             }
             $resourceRouteName  = $this->resourceRouteName;
@@ -123,21 +122,12 @@ class ResourceUrlHelper
                 'path'      => $resourcePath,
                 'type'      => 'resource',
             );
-            $reuseMatchedParams = true;
         } else {
             throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'.", __METHOD__));
         }
-        $queryParams['mtime']   = $mtime;
-        $urlOptions         = array(
-            'query' => $queryParams,
-        );
-        $url = $this->urlHelper->fromRoute($resourceRouteName, $urlParams, $urlOptions, $reuseMatchedParams);
-        //Replace encoded slashes in the url.
-        //It's needed because apache returns 404 when the url contains encoded slashes
-        //This behaviour could be changed in apache config, but it is not possible to do that in .htaccess context.
-        //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
-        $url = str_replace('%2F', '/', $url);
-        return $url;
+        $options['query']['mtime'] = $mtime;
+        $options['reuse_matched_params'] = true;
+        return $this->urlHelper->fromRoute($resourceRouteName, $urlParams, $options);
     }
 
     /**
