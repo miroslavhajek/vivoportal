@@ -150,17 +150,21 @@ function multiFinder(_id, last) {
 
 	var InputFieldParts = new Array();
 	InputFieldParts = InputField.split("/");
+	//InputFieldParts.pop();
 	/*
 	if (InputField.length > 1)
 		InputFieldParts[InputFieldParts.length] = "";
 	*/
-	console.log(urldecode(pathsField));
-	console.log($.parseJSON(urldecode(pathsField)));
+	//console.log(urldecode(pathsField));
+	//console.log($.parseJSON(urldecode(pathsField)));
 
 	var pathsFieldParts = new Array();
 	//pathsFieldParts = pathsField.split("###");
-	pathsFieldParts = $.parseJSON(urldecode(pathsField));
-	pathsFieldParts.splice(0, 0, "");
+	//pathsFieldParts = $.parseJSON(urldecode(pathsField));
+	pathsFieldParts = window.finder_data[_id];
+	//pathsFieldParts.splice(0, 0, {title: "", actionUrl: ""});
+
+	console.log(pathsFieldParts);
 
 	$("#finderMulti_" + _id).html("");
 	$("#finderMulti_" + _id).css("cursor", "text");
@@ -168,13 +172,18 @@ function multiFinder(_id, last) {
 	var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
 
 	//sitename
-	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+actionURL+"&args[]=/'><span>" + siteName + "</span></a>");
+	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+pathsFieldParts[0].actionUrl+"'><span>" + siteName + "</span></a>");
 
 	jQuery.each(InputFieldParts, function(i, val) {
-		var pathTitle = (pathsFieldParts[i] == '-') ? val : pathsFieldParts[i];
-		console.log(pathsFieldParts[i]);
+		console.log(i);
+		console.log(typeof pathsFieldParts[i]);
+		if (typeof pathsFieldParts[i] == 'undefined') return;
+
+		var pathTitle = pathsFieldParts[i].title;
+		var pathUrl = pathsFieldParts[i].actionUrl;
+		
 		if (i < InputFieldParts.length - 1) {
-			if (i > 0) $("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + i + "_holder' href='"+actionURL+"&args[]="+getPathPart(i, _id)+"'><span>" + pathTitle + "</span></a>");
+			if (i > 0) $("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + i + "_holder' href='"+pathUrl+"'><span>" + pathTitle + "</span></a>");
 			if (last != 0 || i != InputFieldParts.length - 2) $("#finderMulti_" + _id).append("<div class='finderMultiPartDir'><a href='javascript:void(0)' id='"+_id+"_a_" + i + "_entities' class='finderMultiPartDira'><span>&gt;</span></a><div id='"+_id+"_" + i + "_entities' class='finderMultiPartDirEntities'></div></div>");
 			$('#'+_id+'_'+i+'_entities').hide();
 			$('#'+_id+'_a_'+i+'_entities').click(function(e) {
