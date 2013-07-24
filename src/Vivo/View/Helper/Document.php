@@ -19,7 +19,7 @@ class Document extends AbstractHelper
 
     /**
      * Constructor
-     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param DocumentUrlHelper $documentUrlHelper
      */
     public function __construct(DocumentUrlHelper $documentUrlHelper)
     {
@@ -29,10 +29,11 @@ class Document extends AbstractHelper
     /**
      * Returns document url
      * @param \Vivo\CMS\Model\Document $document
+     * @param array $options
      * @return string
      */
-    public function __invoke(Model\Document $document)
+    public function __invoke(Model\Document $document, array $options = array())
     {
-        return $this->documentUrlHelper->getDocumentUrl($document);
+        return $this->documentUrlHelper->getDocumentUrl($document, $options);
     }
 }

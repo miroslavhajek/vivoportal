@@ -32,13 +32,12 @@ class Resource extends AbstractHelper
      * @see ResourceUrlHelper
      * @param string $resourcePath
      * @param string|Entity $source
-     * @param string|null $type Resource type (for module resources)
-     * @param array $queryParams Query string parameters
+     * @param array $options
      * @return string
      */
-    public function __invoke($resourcePath, $source, $type = null, array $queryParams = array())
+    public function __invoke($resourcePath, $source, array $options = array())
     {
-        return $this->resourceUrlHelper->getResourceUrl($resourcePath, $source, $type, $queryParams);
+        return $this->resourceUrlHelper->getResourceUrl($resourcePath, $source, $options);
     }
 
 }

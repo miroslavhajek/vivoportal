@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Folder;
-use Vivo\CMS\Util\DocumentUrlHelper;
+use Vivo\CMS\Util;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Indexer\IndexerInterface;
@@ -50,6 +50,11 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $documentUrlHelper;
 
     /**
+     * @var \Vivo\CMS\Util\IconUrlHelper
+     */
+    protected $iconUrlHelper;
+
+    /**
      * @var ExplorerInterface
      */
     protected $explorer;
@@ -70,16 +75,19 @@ class Finder extends Component implements TranslatorAwareInterface
      * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param \Vivo\Util\UrlHelper $urlHelper
      * @param \Vivo\CMS\Util\DocumentUrlHelper $documentUrlHelper
+     * @param \Vivo\CMS\Util\IconUrlHelper $documentUrlHelper
      * @param \Vivo\CMS\Model\Site $site
      */
     public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, IndexerInterface $indexer,
-            UrlHelper $urlHelper, DocumentUrlHelper $documentUrlHelper, Site $site)
+            UrlHelper $urlHelper, Util\DocumentUrlHelper $documentUrlHelper, Util\IconUrlHelper $iconUrlHelper,
+            Site $site)
     {
         $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
         $this->indexer = $indexer;
         $this->urlHelper = $urlHelper;
         $this->documentUrlHelper = $documentUrlHelper;
+        $this->iconUrlHelper = $iconUrlHelper;
         $this->site = $site;
     }
 
@@ -210,13 +218,14 @@ class Finder extends Component implements TranslatorAwareInterface
                 $folder = ($child instanceof Folder);
                 $published = $folder ? false : $this->documentApi->isPublished($child);
                 $actionUrl = $this->urlHelper->fromRoute('backend/explorer', array('path'=>$child->getUuid()));
+                $iconUrl = $this->iconUrlHelper->getByFolder($child);
 
                 $info[] = array(
                     'title' => $child->getTitle(),
                     'path' => $child->getPath(),
                     'folder' => intval($folder),
                     'published' => intval($published),
-                    'icon' => '', //TODO: icon
+                    'icon' => $iconUrl,
                     'actionUrl' => $actionUrl,
                 );
             }
