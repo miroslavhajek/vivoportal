@@ -3,7 +3,7 @@ namespace Vivo\Backend\UI\Explorer;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
-use Vivo\CMS\Model\Folder;
+use Vivo\CMS\Model\Document;
 use Vivo\CMS\Util;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
@@ -215,7 +215,7 @@ class Finder extends Component implements TranslatorAwareInterface
 
             /* @var $child \Vivo\CMS\Model\Folder */
             foreach ($this->documentApi->getChildDocuments($document) as $child) {
-                $folder = ($child instanceof Folder);
+                $folder = !($child instanceof Document);
                 $published = $folder ? false : $this->documentApi->isPublished($child);
                 $actionUrl = $this->urlHelper->fromRoute('backend/explorer', array('path'=>$child->getUuid()));
                 $iconUrl = $this->iconUrlHelper->getByFolder($child);
