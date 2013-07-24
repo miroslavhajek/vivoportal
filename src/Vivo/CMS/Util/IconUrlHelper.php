@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\CMS\Util;
 
-use Vivo\Security\Principal\UserInterface;
 use Vivo\CMS\Model\Folder;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Api\Document as DocumentApi;
@@ -9,9 +8,7 @@ use Vivo\Metadata\MetadataManager;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\File;
 use Vivo\Util\MIME;
-
 use Zend\View\Helper\AbstractHelper;
-use Zend\Stdlib\ArrayUtils;
 
 /**
  * IconUrlHelper
@@ -19,7 +16,6 @@ use Zend\Stdlib\ArrayUtils;
  */
 class IconUrlHelper extends AbstractHelper
 {
-
     protected $options = array(
         'icon_path'    => 'backend/img/icons/16x16/',
         'ext'          => '.png',
@@ -27,19 +23,16 @@ class IconUrlHelper extends AbstractHelper
     );
 
     /**
-     *
      * @var MetadataManager
      */
     protected $metadataManager;
 
     /**
-     *
      * @var DocumentApi
      */
     protected $documentApi;
 
     /**
-     *
      * @var MIME
      */
     protected $mime;
@@ -50,7 +43,6 @@ class IconUrlHelper extends AbstractHelper
     protected $resourceUrlHelper;
 
     /**
-     *
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      */
     public function __construct(MetadataManager $metadataManager,
@@ -59,10 +51,10 @@ class IconUrlHelper extends AbstractHelper
         ResourceUrlHelper $resourceUrlHelper,
         array $options = array())
     {
-        $this->options         = array_merge($this->options, $options);
-        $this->metadataManager = $metadataManager;
-        $this->documentApi     = $documentApi;
-        $this->mime            = $mime;
+        $this->options           = array_merge($this->options, $options);
+        $this->metadataManager   = $metadataManager;
+        $this->documentApi       = $documentApi;
+        $this->mime              = $mime;
         $this->resourceUrlHelper = $resourceUrlHelper;
     }
 
@@ -100,7 +92,8 @@ class IconUrlHelper extends AbstractHelper
      * @param string contentType class
      * @return string url
      */
-    public function getByContentType($contentType) {
+    public function getByContentType($contentType)
+    {
         $md = $this->metadataManager->getMetadata($contentType);
 
         if (isset($md['icon']['file'])) {
@@ -141,7 +134,8 @@ class IconUrlHelper extends AbstractHelper
      * @param string $icon
      * @return string url
      */
-    private function doGetIconUrl($icon) {
+    private function doGetIconUrl($icon)
+    {
         return $this->resourceUrlHelper->getResourceUrl($this->options['icon_path'].$icon.$this->options['ext'], 'Vivo');
     }
 
@@ -157,5 +151,4 @@ class IconUrlHelper extends AbstractHelper
             return $this;
         }
     }
-
 }
