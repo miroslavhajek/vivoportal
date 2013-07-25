@@ -110,7 +110,7 @@ class Menu extends ZfViewHelperMenu
             // render li tag and page
             $liClass    = $this->buildLiClass($page, $isActive);
             $html .= $myIndent . '    <li' . $liClass . '>' . self::EOL
-                   . $myIndent . '        ' . $this->htmlify($page, $escapeLabels) . self::EOL;
+                   . $myIndent . '        ' . '<span>' . $this->htmlify($page, $escapeLabels) . '</span>' . self::EOL;
 
             // store as previous depth for next iteration
             $prevDepth = $depth;

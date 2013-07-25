@@ -83,7 +83,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     protected $limit;
     
     /**
-     * Determinates way of sorting navigation documents
+     * Determines way of sorting navigation documents
      * @var string
      */
     protected $navigationSorting = 'title:asc';
