@@ -169,7 +169,8 @@ function multiFinder(_id, last) {
 	$("#finderMulti_" + _id).html("");
 	$("#finderMulti_" + _id).css("cursor", "text");
 
-	var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
+	//var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
+	var actionURL = location.pathname;
 
 	//sitename
 	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+pathsFieldParts[0].actionUrl+"'><span>" + siteName + "</span></a>");
@@ -258,7 +259,22 @@ function multiFinder(_id, last) {
 				if (jQuery.trim(newSearchstr) != "" && newSearchstr.substring(0,1) != "/") {
 					$('#' + _id).find(".inputFinder .searchBox").removeShadow();
 					$('#' + _id).find(".inputFinder .searchBox").remove();
-					var getPath = $('#' + _id).find("input[name='finder[output]']").attr("value");
+					var act = $('#' + _id).find("input[name='getPath[search]']").attr("value");
+
+					
+
+					action({
+						data: "act="+act+"&args[]="+newSearchstr,
+						error: function() {
+							console.log("error");
+						}, 
+						success: function(res, textStatus, jqXHR) {
+							console.log("finder data");
+							console.log(res.data);
+							initMultiFinder(_mainFinderMultiId, res.data.length);
+						}
+					});
+
 					//searchPullDownContent = action(getPath, "renderSearchPulldown", newSearchstr);
 					searchPullDownContent = "";
 					searchTimer0 = null;
@@ -324,6 +340,7 @@ function multiFinder(_id, last) {
 				if (e.keyCode == 13) {
 					var inputVal_ = inputVal;
 					inputVal_ = (inputVal_.substring(inputVal_.length - 1) != "/") ? inputVal_ + "/" : inputVal_;
+					console.log(actionURL+"&args[]=" + inputVal_);
 					location.href = actionURL+"&args[]=" + inputVal_;
 				}
 			}
