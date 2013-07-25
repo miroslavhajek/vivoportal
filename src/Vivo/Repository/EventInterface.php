@@ -20,7 +20,12 @@ interface EventInterface extends ZendEventInterface
     const EVENT_SERIALIZE_PRE       = 'serialize_pre';
 
     /**
-     * Event triggered
+     * Event triggered after an entity is serialized
      */
     const EVENT_UNSERIALIZE_POST    = 'unserialize_post';
+
+    /**
+     * Event triggered when getting an entity fails
+     */
+    const EVENT_GET_FAILED          = 'get_failed';
 }

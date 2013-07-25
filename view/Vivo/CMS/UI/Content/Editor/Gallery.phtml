@@ -1,0 +1,40 @@
+<?
+use Vivo\CMS\Model\Content\Fileboard;
+
+$formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+if($form->get('gl-new')) {
+    echo $this->formFieldsetTwb($form->get('gl-new'), $formType, array(), true, false);
+}
+?>
+<? if($files) : ?>
+    <div>
+        <a href="<?=$this->actionUrl('deleteAll')?>">Smazat vše</a>
+    </div>
+    <ol>
+        <?
+         $count = count($files);
+         foreach ($files as $i => $file) { /* @var $file \Vivo\CMS\Model\Content\Gallery\Media */
+            $u = $file->getUuid();
+            $fieldset = $form->get('gl-file-container')->get($u); /* @var $fieldset \Vivo\Form\Fieldset */
+        ?>
+            <li style="border:1px solid gray; margin:6px;">
+                <img src="<?=$this->resource('resource.'.$file->getExt(), $file, null, array('size'=>120));?>" alt="" />
+                <a href="<?=htmlspecialchars($this->actionUrl('delete', array('uuid'=>$u)))?>" title="Delete">delete</a>
+                <? if($file->getMain()) : ?>
+                    | <a href="<?=htmlspecialchars($this->actionUrl('setAsMain', array('uuid'=>$u)))?>" title="Set As Main">main</a>
+                <? else : ?>
+                    | is main
+                <? endif; ?>
+
+                <? if($i != 0) : ?>
+                    | <a href="<?=htmlspecialchars($this->actionUrl('moveUp', array('uuid'=>$u)))?>" title="Move Up">move up</a>
+                <? endif; ?>
+                <? if($i + 1 != $count) : ?>
+                    | <a href="<?=htmlspecialchars($this->actionUrl('moveDown', array('uuid'=>$u)))?>" title="Move Down">move down</a>
+                <? endif; ?>
+
+                <?= $this->formFieldsetTwb($fieldset, $formType, array(), false, false, false); ?>
+            </li>
+        <? } ?>
+    </ol>
+<? endif; ?>

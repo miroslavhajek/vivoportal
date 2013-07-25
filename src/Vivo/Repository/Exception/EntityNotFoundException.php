@@ -4,6 +4,6 @@ namespace Vivo\Repository\Exception;
 /**
  * EntityNotFoundException
  */
-class EntityNotFoundException extends \Exception implements ExceptionInterface
+class EntityNotFoundException extends \RuntimeException implements ExceptionInterface
 {
 }

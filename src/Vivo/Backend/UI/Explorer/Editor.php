@@ -4,13 +4,13 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
 use Vivo\Form;
-use Vivo\Backend\UI\Form\Fieldset\EntityEditor as EntityEditorFieldset;
+use Vivo\Backend\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\ContentContainer;
-use Vivo\UI\TabContainer;
 use Vivo\Util\RedirectEvent;
+use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 
@@ -67,6 +67,12 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected $translator;
 
     /**
+     * Url helper
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
      * TTL for CSRF token
      * Redefine in descendant if necessary
      * @var int|null
@@ -86,13 +92,15 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         \Vivo\Metadata\MetadataManager $metadataManager,
         LookupDataManager $lookupDataManager,
         DocumentApiInterface $documentApi,
-        AvailableContentsProvider $availableContentsProvider)
+        AvailableContentsProvider $availableContentsProvider,
+        UrlHelper $urlHelper)
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
         $this->lookupDataManager = $lookupDataManager;
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
+        $this->urlHelper = $urlHelper;
     }
 
     public function init()

@@ -19,21 +19,11 @@ class Simple extends AbstractManager
      * @var array
      */
     protected $options  = array(
-        'security_domain'   => 'VIVO',
-        'username'          => 'vivo.user',
-        'password'          => 'password',
+        'use_external_authentication'   => true,
+        'security_domain'           => 'VIVO',
+        'username'                  => 'vivo.user',
+        'password'                  => 'password',
     );
-
-    /**
-     * Constructor
-     * @param \Zend\Session\SessionManager $sessionManager
-     * @param array $options Credentials for successful authentication
-     */
-    public function __construct(SessionManager $sessionManager, array $options = array())
-    {
-        parent::__construct($sessionManager);
-        $this->options  = array_merge($this->options, $options);
-    }
 
     /**
      * Returns roles in security domain.

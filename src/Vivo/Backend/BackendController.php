@@ -142,7 +142,12 @@ class BackendController implements DispatchableInterface,
             $result = $this->handleAction();
         } else {
             $this->tree->init();
-            $this->handleAction();
+            $result = $this->handleAction();
+            if($result != null) {
+                $type = is_object($result) ? get_class($result) : gettype($result);
+                throw new Exception\RuntimeException(sprintf("%s: Action returns not null result; returns '%s'",
+                        __METHOD__, $type));
+            }
             if (!$this->redirector->isRedirect()) {
                 $result = $this->tree->view();
             }

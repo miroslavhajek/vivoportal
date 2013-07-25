@@ -27,6 +27,7 @@ class AvailableContentsProvider
      */
     public function getAvailableContents(Model\Folder $document, $documentPath)
     {
+        $documentPath   = strtolower($documentPath);
         $this->contents = $this->config['available_contents'];
         $restrictions = $this->config['restrictions'];
 
@@ -44,7 +45,7 @@ class AvailableContentsProvider
         }
         if (isset($restrictions['document_path']) && is_array($restrictions['document_path'])){
             foreach ($restrictions['document_path'] as $path => $contents) {
-                if(strpos($documentPath, $path) !== false) {
+                if(strpos($documentPath, strtolower($path)) !== false) {
                     $this->intersect($contents);
                 }
             }

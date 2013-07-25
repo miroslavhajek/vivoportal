@@ -1,17 +1,39 @@
 <?
+use Vivo\CMS\Model\Content\Fileboard;
+
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-echo $this->formFieldsetTwb($form, $formType, array(), true, false);
+if($form->get('fb-new')) {
+    echo $this->formFieldsetTwb($form->get('fb-new'), $formType, array(), true, false);
+    $this->tinyMce('exact', $form->get('fb-new')->get('separator')->getAttribute('id'), true, 'en');
+}
 ?>
 <? if($files) : ?>
+    <div>
+        <a href="<?=$this->actionUrl('deleteAll')?>">Smazat vše</a>
+    </div>
     <ol>
-    <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Fileboard\Media */
-        $u = $file->getUuid();
-    ?>
-        <li>
-            <?=$file->getFilename()?> | <a href="<?=$this->actionUrl('delete', array('uuid'=>$u))?>" title="Delete">delete</a>
-            <input type="text" name="fb-media[<?=$u?>][name]" value="<?=$file->getName()?>" />
-            <textarea name="fb-media[<?=$u?>][description]"><?=$file->getDescription()?></textarea>
-        </li>
-    <? endforeach; ?>
+        <?
+         $count = count($files);
+         foreach ($files as $i => $file) {
+            $u = $file->getUuid();
+            $fieldset = $form->get('fb-media-container')->get($u); /* @var $fieldset \Vivo\Form\Fieldset */
+        ?>
+            <li style="border:1px solid gray; margin:6px;">
+                <a href="<?=htmlspecialchars($this->actionUrl('delete', array('uuid'=>$u)))?>" title="Delete">delete</a>
+                <? if($i != 0) : ?>
+                    | <a href="<?=htmlspecialchars($this->actionUrl('moveUp', array('uuid'=>$u)))?>" title="Move Up">move up</a>
+                <? endif; ?>
+                <? if($i + 1 != $count) : ?>
+                    | <a href="<?=htmlspecialchars($this->actionUrl('moveDown', array('uuid'=>$u)))?>" title="Move Down">move down</a>
+                <? endif; ?>
+                <? if($file instanceof Fileboard\Media) : ?>
+                    <br><img src="<?=$this->iconUrl($file->getMimeType())?>" alt=""> <?=htmlspecialchars($file->getFilename())?>
+                    <?= $this->formFieldsetTwb($fieldset, $formType, array(), false, false, false); ?>
+                <? else : ?>
+                    <?= $this->formFieldsetTwb($fieldset, $formType, array(), false, false, false); ?>
+                    <? $this->tinyMce('exact', $fieldset->get('separator')->getAttribute('id'), true, 'en'); ?>
+                <? endif; ?>
+            </li>
+        <? } ?>
     </ol>
 <? endif; ?>

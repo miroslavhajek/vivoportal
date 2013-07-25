@@ -21,7 +21,7 @@ class RenderDocumentFactory implements FactoryInterface
         $documentApi        = $sm->get('Vivo\CMS\Api\Document');
         $componentFactory   = $sm->get('component_factory');
         $view               = $sm->get('view');
-        $treeController     = $sm->get('Vivo\UI\ComponentTreeController');
+        $treeController     = $sm->get('component_tree_controller');
         $helper             = new RenderDocument($documentApi, $componentFactory, $view, $treeController);
         return $helper;
     }

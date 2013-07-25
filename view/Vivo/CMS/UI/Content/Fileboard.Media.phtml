@@ -1,0 +1,10 @@
+<?
+/* @var $model \Vivo\CMS\Model\Content\Fileboard\Media */
+$desc = $model->getDescription();
+$size = round($model->getSize() / 1024);
+?>
+<li>
+    <img src="<?=$this->iconUrl($model->getMimeType())?>" alt="">
+    <strong><a href="<?=$this->actionUrl('download', array('uuid'=>$model->getUuid()))?>" title="Download"><?=htmlspecialchars($model->getName())?></a> (<?=$model->getExt()?>, <?=$size?> kB)</strong>
+    <? if($desc) :?><p><?=htmlspecialchars($desc)?></p><? endif; ?>
+</li>

@@ -5,6 +5,7 @@ use Vivo\Indexer\IndexerInterface;
 use Vivo\CMS\Api\IndexerInterface as IndexerApiInterface;
 use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\Indexer\IndexerEvent;
+use Vivo\Console\LineOutput;
 
 use Zend\EventManager\EventManagerInterface;
 
@@ -44,6 +45,12 @@ class IndexerController extends AbstractCliController
      * @var array
      */
     protected $failed   = array();
+
+    /**
+     * Console output
+     * @var LineOutput
+     */
+    protected $consoleOutput;
 
     /**
      * Constructor
@@ -88,6 +95,7 @@ class IndexerController extends AbstractCliController
      */
     public function reindexAction()
     {
+        $this->consoleOutput    = new LineOutput(true);
         $this->failed   = array();
         //Attach listeners
         $failedListener = $this->indexerEvents->attach(IndexerEvent::EVENT_INDEX_FAILED, array($this, 'onReindexFail'));
@@ -97,34 +105,33 @@ class IndexerController extends AbstractCliController
         /* @var $request \Zend\Console\Request */
         $host           = $request->getParam('host');
         $stopOnErrors   = $request->getParam('stopOnErrors') || $request->getParam('soe');
-        echo PHP_EOL . 'Reindex' . PHP_EOL;
-        echo 'Host: ' . $host . PHP_EOL;
+        $this->consoleOutput->line('Reindex');
+        $this->consoleOutput->line('Host: ' . $host);
         $site       = $this->siteEvent->getSite();
         if (!$site) {
-            $output = sprintf("No site object created (invalid host?)");
-            return $output;
+            $this->consoleOutput->line('No site object created (invalid host?)');
+            return $this->consoleOutput->toString();
         }
-        echo 'Site path: '. $site->getPath() . PHP_EOL;
+        $this->consoleOutput->line('Site path: '. $site->getPath());
         $numIndexed = $this->indexerApi->reindex($site, '/', true, !$stopOnErrors);
-        //Detach listeners
-        $output     = sprintf("%s items reindexed", $numIndexed) . PHP_EOL;
+        $this->consoleOutput->line(sprintf("%s items reindexed", $numIndexed));
         if (count($this->failed)) {
-            $output     .= PHP_EOL . 'Problems:' . PHP_EOL;
+            $this->consoleOutput->line('Problems:');
             foreach ($this->failed as $failedPath => $exception) {
                 if ($exception instanceof \Exception) {
                     $exceptionText  = $exception->getMessage();
                 } else {
                     $exceptionText  = '???';
                 }
-                $output     .= PHP_EOL . $failedPath . ' ->' . PHP_EOL . $exceptionText . PHP_EOL;
+                $this->consoleOutput->line($failedPath . ' -> ' . $exceptionText);
             }
-
-
         }
-        $output     .= PHP_EOL;
+        //Detach listeners
         $this->indexerEvents->detach($failedListener);
         $this->indexerEvents->detach($postListener);
-        return $output;
+        $this->consoleOutput->line('Mem used: ' . round(memory_get_peak_usage(false) / 1000000) . ' MB');
+        $this->consoleOutput->line('Mem used real: ' . round(memory_get_peak_usage(true) / 1000000) . ' MB');
+        //return $this->consoleOutput->toString();
     }
 
     /**
@@ -133,7 +140,7 @@ class IndexerController extends AbstractCliController
      */
     public function onReindexFail(IndexerEvent $e)
     {
-        echo PHP_EOL . 'Error: ' . $e->getEntityPath() . PHP_EOL . PHP_EOL;
+        $this->consoleOutput->line('Error: ' . $e->getEntityPath());
         $this->failed[$e->getEntityPath()] = $e->getException();
     }
 
@@ -143,6 +150,6 @@ class IndexerController extends AbstractCliController
      */
     public function onReindexPost(IndexerEvent $e)
     {
-        echo 'Reindexed: ' . $e->getEntityPath() . PHP_EOL;
+        $this->consoleOutput->line('Reindexed: ' . $e->getEntityPath());
     }
 }

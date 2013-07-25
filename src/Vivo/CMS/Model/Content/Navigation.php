@@ -86,7 +86,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * Determinates way of sorting navigation documents
      * @var string
      */
-    protected $navigationSorting;
+    protected $navigationSorting = 'title:asc';
     
     /**
      * Array of explicitly enumerated documents to include in the navigation

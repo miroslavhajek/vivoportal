@@ -5,7 +5,7 @@ use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception;
-use Vivo\Util\MIME;
+use Vivo\Util\MIMEInterface;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 
 /**
@@ -20,7 +20,7 @@ class File extends Component
     private $cmsApi;
 
     /**
-     * @var MIME
+     * @var MIMEInterface
      */
     protected $mime;
 
@@ -39,9 +39,9 @@ class File extends Component
      * Constructor
      * @param CMS $cmsApi
      * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
-     * @param MIME $mime
+     * @param MIMEInterface $mime
      */
-    public function __construct(CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, MIME $mime)
+    public function __construct(CMS $cmsApi, SymRefConvertorInterface $symRefConvertor, MIMEInterface $mime)
     {
         $this->cmsApi           = $cmsApi;
         $this->symRefConvertor  = $symRefConvertor;

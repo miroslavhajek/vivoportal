@@ -18,16 +18,9 @@ class RepositoryFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config = $serviceLocator->get('config');
-        if (!isset($config['repository']['storage'])) {
-            throw new Exception\ConfigException(sprintf("%s: Repository storage configuration missing", __METHOD__));
-        }
-        $storageConfig  = $config['repository']['storage'];
-        $storageConfig['options']['path_builder']   = $serviceLocator->get('path_builder');
-        $storageFactory         = $serviceLocator->get('storage_factory');
-        /* @var $storageFactory \Vivo\Storage\Factory */
-        $storage                = $storageFactory->create($storageConfig);
+        $storage                = $serviceLocator->get('Vivo\repository_storage');
         $serializer             = new \Vivo\Serializer\Adapter\Entity();
-        $watcher                = new \Vivo\Repository\Watcher();
+        $watcher                = $serviceLocator->get('Vivo\watcher');
         $ioUtil                 = $serviceLocator->get('io_util');
         $events                 = $serviceLocator->get('repository_events');
         $uuidConvertor          = $serviceLocator->get('uuid_convertor');

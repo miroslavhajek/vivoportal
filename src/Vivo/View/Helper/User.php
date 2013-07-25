@@ -78,6 +78,9 @@ class User extends AbstractHelper
             case 'username':
                 $retVal = $this->getUsername();
                 break;
+            case 'principal':
+                $retVal = $this->getUserPrincipal();
+                break;
             default:
                 throw new Exception\InvalidArgumentException(
                     sprintf("%s: Unsupported quick command '%s'", __METHOD__, $quickCmd));
@@ -188,5 +191,14 @@ class User extends AbstractHelper
             $retVal = $this->options['messages']['notLogged'];
         }
         return $retVal;
+    }
+
+    /**
+     * Returns user principal or null when principal is not set
+     * @return UserInterface|null
+     */
+    public function getUserPrincipal()
+    {
+        return $this->userPrincipal;
     }
 }

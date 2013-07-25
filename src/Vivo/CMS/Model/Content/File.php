@@ -28,7 +28,7 @@ class File extends Model\Content
     /**
      * @var int File size in bytes.
      */
-    protected $size;
+    protected $size = 0;
 
     /**
      * Sets the original file name.

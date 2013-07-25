@@ -15,6 +15,7 @@ use Zend\Http\PhpEnvironment\Request;
 use Zend\Stdlib\RequestInterface;
 use Zend\I18n\Translator\Translator;
 use Zend\InputFilter\Factory as InputFilterFactory;
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * Form
@@ -208,8 +209,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
             return;
         }
         $data   = $this->request->getQuery()->toArray();
-        $data   = array_merge($data, $this->request->getPost()->toArray());
-        $data   = array_merge($data, $this->request->getFiles()->toArray());
+        $data   = ArrayUtils::merge($data, $this->request->getPost()->toArray());
+        $data   = ArrayUtils::merge($data, $this->request->getFiles()->toArray());
 
         //Unset act field to prevent mix up with an unrelated act field
         unset($data['act']);

@@ -15,10 +15,10 @@ class FileboardFactory implements FactoryInterface
     {
         $cms             = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $file            = $serviceLocator->get('Vivo\CMS\Api\Content\File');
-        $pathBuilder     = $serviceLocator->get('path_builder');
         $indexer         = $serviceLocator->get('indexer');
+        $pathBuilder     = $serviceLocator->get('path_builder');
 
-        $api             = new Fileboard($cms, $file, $pathBuilder, $indexer);
+        $api             = new Fileboard($cms, $file, $indexer, $pathBuilder);
 
         return $api;
     }

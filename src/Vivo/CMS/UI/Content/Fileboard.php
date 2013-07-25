@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\Api\Content\Fileboard as FileboardApi;
+use Vivo\CMS\Model\Content\Fileboard\Separator;
 
 /**
  * UI component for content fileboard.
@@ -20,6 +21,11 @@ class Fileboard extends Component
     private $files = array();
 
     /**
+     * @var array
+     */
+    private $resources = array();
+
+    /**
      * Constructor
      */
     public function __construct(FileboardApi $fileboardApi)
@@ -31,7 +37,13 @@ class Fileboard extends Component
     {
         parent::init();
 
-        $this->files = $this->fileboardApi->getMediaList($this->content);
+        $this->files = $this->fileboardApi->getList($this->content);
+
+        foreach ($this->files as $file) {
+            if($file instanceof Separator) {
+                $this->resources[$file->getUuid()] = $this->fileboardApi->readResource($file);
+            }
+        }
     }
 
     /**
@@ -46,6 +58,7 @@ class Fileboard extends Component
     {
         $view = parent::view();
         $view->files = $this->files;
+        $view->resources = $this->resources;
 
         return $view;
     }

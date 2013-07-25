@@ -1,13 +1,13 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Module\ResourceManager;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
 /**
- * ModuleResourceManagerFactory
+ * ResourceManagerFactory
  */
-class ModuleResourceManagerFactory implements FactoryInterface
+class ResourceManagerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -19,8 +19,7 @@ class ModuleResourceManagerFactory implements FactoryInterface
         $config                 = $serviceLocator->get('config');
         $resourceManagerOptions = $config['modules']['resource_manager'];
         $moduleStorageManager   = $serviceLocator->get('module_storage_manager');
-        $moduleResourceManager  = new \Vivo\Module\ResourceManager\ResourceManager($moduleStorageManager,
-                                        $resourceManagerOptions);
+        $moduleResourceManager  = new ResourceManager($moduleStorageManager, $resourceManagerOptions);
         //PerfLog
         $events = $serviceLocator->get('event_manager');
         $events->trigger('log', $this,

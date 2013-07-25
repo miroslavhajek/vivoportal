@@ -1,5 +1,10 @@
-<?foreach ($messages as $m):?>
-<div class="alert alert-<?=$m['type']?>">
-<?=$this->escapeHtml($this->translate($m['message']))?>
+<div class="alerts">
+	<?foreach ($messages as $m):?>
+	<div class="alert alert-<?=$m['type']?>">
+		<span><?=$this->escapeHtml($this->translate($m['message']))?></span>
+		<a href="#" class="alert-close">
+			<span>x</span>
+		</a>
+	</div>
+	<?endforeach;?>
 </div>
-<?endforeach;?>

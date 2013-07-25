@@ -12,15 +12,14 @@ class FetchErrorDocumentListenerFactory implements FactoryInterface
     /**
      * Creates CMS front controller.
      * @param ServiceLocatorInterface $serviceLocator
-     * @return FrontController
+     * @return \Vivo\CMS\FetchErrorDocumentListener
      */
     public function createService(ServiceLocatorInterface $sm)
     {
-
         $config = $sm->get('cms_config');
 
-        $listener = new FetchErrorDocumentListener($sm->get('Vivo\CMS\Api\CMS'),
-                $config['error_documents']);
+        $listener = new FetchErrorDocumentListener($sm->get('Vivo\CMS\Api\Document'), $config['error_documents']);
+
         return $listener;
     }
 }

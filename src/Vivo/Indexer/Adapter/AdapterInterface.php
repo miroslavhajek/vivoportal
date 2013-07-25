@@ -66,4 +66,11 @@ interface AdapterInterface extends TransactionalInterface
      * @return void
      */
     public function optimize();
+
+    /**
+     * Returns query as string
+     * @param \Vivo\Indexer\Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(Query\QueryInterface $query);
 }

@@ -67,15 +67,6 @@ class Tree extends Component
     }
 
     /**
-     * Change entity beeing browsed.
-     * @param string $relPath
-     */
-    public function set($relPath)
-    {
-        $this->explorer->setEntityByRelPath($relPath);
-    }
-
-    /**
      * Show browser with opened path.
      * @param string $relPath
      */
@@ -92,6 +83,7 @@ class Tree extends Component
     public function view()
     {
         $this->view->tree = $this->getDocumentTree($this->getSiteRoot(), $this->explorer->getEntity()->getPath());
+        $this->view->explorerAction = $this->explorer->getExplorerAction();
         return parent::view();
     }
 
@@ -107,6 +99,7 @@ class Tree extends Component
         $tree = $this->getDocumentTree($folder, $folder->getPath());
         $nodes = $tree->getChildrenNodes();
         $this->view->tree = reset($nodes);
+        $this->view->explorerAction = $this->explorer->getExplorerAction();
         return parent::view();
     }
 
@@ -133,8 +126,11 @@ class Tree extends Component
             $children = $this->documentApi->sortDocumentsByCriteria($children, $child->getSorting());
             $a = array ();
             $a['document'] = $child;
-            $a['published'] = true;
-            $a['content_type'] = '';
+            if ($child instanceof \Vivo\CMS\Model\Document) {
+                $a['published'] = $this->documentApi->isPublished($child);
+            } else { // Folder
+                $a['published'] = true;
+            }
             $a['level'] = $node->getDeep();
             $a['rel_path'] = $this->cmsApi->getEntityRelPath($child);
             $a['active'] = $child->getPath() == $expandedPath;

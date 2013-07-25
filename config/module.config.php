@@ -96,13 +96,30 @@ return array(
                         'type' => 'Zend\Mvc\Router\Http\Regex',
                         'may_terminate' => true,
                         'options' => array(
-                            'regex'    => '/(?<host>.+?)/(?<module>.+?)/(?<path>.*)',
+                            'regex'    => '/(?<host>[^/]+)/(?<module>[^/]+)/(?<path>[^/]*)',
                             'spec'    => '/%host%/%module%/%path%',
                             'defaults' => array(
                                 'controller' => 'backend_controller',
                                 'path'   => '',
                                 'module' => 'explorer',
                                 'host' => '',
+                            ),
+                        ),
+                    ),
+                    //route for backend explorer module
+                    //@example http://<backendhost>/<sitehost>/explorer/<path>/<explorerAction>
+                    'explorer' => array(
+                        'type' => 'Zend\Mvc\Router\Http\Regex',
+                        'may_terminate' => true,
+                        'options' => array(
+                            'regex'    => '/(?<host>[^/]+)/explorer/(?<path>[^/]+)/(?<explorerAction>[^/]*)',
+                            'spec'    => '/%host%/%module%/%path%/%explorerAction%',
+                            'defaults' => array(
+                                'controller' => 'backend_controller',
+                                'path'   => '',
+                                'host' => '',
+                                'module' => 'explorer',
+                                'explorerAction' => '',
                             ),
                         ),
                     ),
@@ -179,6 +196,7 @@ return array(
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
+            'Vivo\watcher'              => 'Vivo\Repository\Watcher',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -204,9 +222,11 @@ return array(
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
+            'Vivo\CMS\Api\Util'         => 'Vivo\CMS\Api\UtilFactory',
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
-            'module_resource_manager'   => 'Vivo\Service\ModuleResourceManagerFactory',
+            'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
+            'module_resource_manager'   => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
             'db_provider_core'          => 'Vivo\Service\DbProviderCoreFactory',
@@ -221,7 +241,7 @@ return array(
             'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
-            'template_resolver'         => 'Vivo\Service\TemplateResolverFactory',
+            'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',
             'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
@@ -231,6 +251,8 @@ return array(
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
             'Vivo\Metadata\Provider\SelectableTemplatesProvider' => 'Vivo\Metadata\Provider\SelectableTemplatesProviderFactory',
             'Vivo\Util\UrlHelper'       => 'Vivo\Util\UrlHelperFactory',
+            'Vivo\document_url_helper'  => 'Vivo\CMS\Util\DocumentUrlHelperFactory',
+            'Vivo\resource_url_helper'  => 'Vivo\CMS\Util\ResourceUrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
             'Vivo\Transliterator\Url'   => 'Vivo\Transliterator\UrlFactory',
@@ -245,6 +267,9 @@ return array(
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
+            'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
+            'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -288,6 +313,7 @@ return array(
             'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
             'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
             'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
@@ -298,10 +324,10 @@ return array(
         'not_found_template'       => 'error/404',
         'exception_template'       => 'error/index',
         'template_map' => array(
-            'layout/layout'           => __DIR__ . '/../view/layout/layout.phtml',
-            'vivo/index/index' => __DIR__ . '/../view/vivo/index/index.phtml',
-            'error/404'               => __DIR__ . '/../view/error/404.phtml',
-            'error/index'             => __DIR__ . '/../view/error/index.phtml',
+            'layout/layout'        => __DIR__ . '/../view/layout/layout.phtml',
+            'vivo/index/index'     => __DIR__ . '/../view/vivo/index/index.phtml',
+            'error/404'            => __DIR__ . '/../view/error/404.phtml',
+            'error/index'          => __DIR__ . '/../view/error/index.phtml',
         ),
         'template_path_stack' => array(
             __DIR__ . '/../view',
@@ -319,22 +345,24 @@ return array(
             'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
             'container_component'   => 'Vivo\View\Helper\ContainerComponent',
             'overview_title'        => 'Vivo\View\Helper\OverviewTitle',
-          //  'url' => 'Vivo\View\Helper\Url',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
+            'icon_url'          => 'Vivo\View\Helper\IconUrlFactory',
             'resource'          => 'Vivo\View\Helper\ResourceFactory',
             'document'          => 'Vivo\View\Helper\DocumentFactory',
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
             'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'              => 'Vivo\View\Helper\UserFactory',
+            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers
     'navigation_view_helpers'   => array(
         'invokables'        => array(
             'vivo_menu'         => 'Vivo\View\Helper\Navigation\Menu',
+            'vivo_site_map'     => 'Vivo\View\Helper\Navigation\SiteMap',
         ),
     ),
     'validators'    => array(
@@ -547,7 +575,6 @@ return array(
             'text/x-smarty'                 => array('tpl'),
             'text/x-vcard'                  => array('vcf'),
             'text/x-speech'                 => array('talk'),
-            'text/x-speech'                 => array('talk'),
             'image/gif'                     => array('gif'),
             'image/png'                     => array('png'),
             'image/ief'                     => array('ief'),
@@ -627,8 +654,7 @@ return array(
             'application/x-shockwave-flash' => array('swf'),
             'application/x-stuffit'         => array('sit', 'sea'),
             'application/fractals'          => array('fif'),
-            'application/octet-stream'      => array('bin', 'uu'),
-            'application/octet-stream'      => array('exe'),
+            'application/octet-stream'      => array('bin', 'uu', 'exe'),
             'application/x-wais-source'     => array('src', 'wsrc'),
             'application/hdf'               => array('hdf'),
             'application/x-sh'              => array('sh'),
@@ -681,6 +707,34 @@ return array(
             'font/ttf'                      => array('ttf'),
             'font/opentype'                 => array('otf'),
         ),
+        'icons' => array(
+            'video/avi' => 'File.avi',
+            'video/x-msvideo' => 'File.avi',
+            'application/msword' => 'File.doc',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'File.docx',
+            'image/gif' => 'File.gif',
+            'text/html' => 'File.html',
+            'image/jpeg' => 'File.jpg',
+            'image/pjpeg' => 'File.jpg',
+            'audio/mpeg' => 'File.mp3',
+            'application/pdf' => 'File.pdf',
+            'application/php' => 'File.php',
+            'application/phtml' => 'File.php',
+            'image/png' => 'File.png',
+            'image/x-png' => 'File.png',
+            'application/vnd.openxmlformats-officedocument.presentationml.slideshow' => 'File.ppsx',
+            'application/mspowerpoint' => 'File.ppt',
+            'application/vnd.ms-powerpoint' => 'File.ppt',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' => 'File.pptx',
+            'text/x-vcard' => 'File.vcf',
+            'audio/x-wav' => 'File.wav',
+            'audio/x-ms-wma' => 'File.wma',
+            'video/x-ms-wmv' => 'File.wmv',
+            'application/vnd.ms-excel' => 'File.xls',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' => 'File.xlsx',
+            'application/zip' => 'File.zip',
+        ),
+        'default_icon' => 'File',
     ),
 
     'response' => array (
@@ -771,6 +825,13 @@ return array(
                 'tokenized'     => false,
                 'multi'         => false,
             ),
+            '\order' => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_INT,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
             '\hosts' => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
@@ -828,6 +889,13 @@ return array(
                 'multi'         => false,
             ),
             '\title'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            '\mimeType' => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,
@@ -1050,6 +1118,24 @@ return array(
                         ),
                     ),
                 ),
+                'util' => array(
+                    'options' => array(
+                        'route'    => 'util [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_util',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+                'util_crawl' => array(
+                    'options' => array(
+                        'route'    => 'util crawl <host> <service>',
+                        'defaults' => array(
+                            'controller' => 'cli_util',
+                            'action'     => 'crawl',
+                        ),
+                    ),
+                ),
                 'cms' => array(
                     'options' => array(
                         'route'    => 'cms [<action>]',
@@ -1113,4 +1199,7 @@ return array(
         //default values and structure are in cms.config.php
         //do not access to this key directly - use service 'cms_config'
     ),
+    'options' => array(
+        'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
+	),
 );

@@ -25,7 +25,9 @@
                     <div></div>
                 </td>
                 <td>
-                    <div><?= $this->actionLink('set', '..', array($parent->getPath())) ?></div>
+                    <div>
+                        <a href="<?= $this->url(null, array('path' => $parent->getUuid())) ?>">..</a>
+                    </div>
                 </td>
                 <td>
                     <div><?= $this->translate('parent folder') ?></div>
@@ -39,7 +41,12 @@
                     <div><?= ++$i ?></div>
                 </td>
                 <td>
-                    <div><?= $this->actionLink('set', $document->getTitle(), array($document->getPath())) ?></div>
+                    <div>
+                        <img src="<?= $this->iconUrl($document)?>" alt="" />
+                        <a href="<?= $this->url(null, array('path' => $document->getUuid())) ?>">
+                            <?= $document->getTitle() ?>
+                        </a>
+                    </div>
                 </td>
                 <td>
                     <div><?= $document->getPath() ?></div>

@@ -16,9 +16,9 @@ class MIMEFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config = $serviceLocator->get('config');
-        $types  = $config['mime']['types'];
+        $config  = $serviceLocator->get('config');
+        $options = $config['mime'];
 
-        return new MIME($types);
+        return new MIME($options);
     }
 }

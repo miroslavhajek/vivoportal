@@ -1,68 +1,39 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Zend\Mvc\ModuleRouteListener;
+use Vivo;
 
 /**
  * Url view helper.
  *
- * Has the same function as \Zend\View\Helper\Url, it only modifies reused params.
- * Helper always reuses 'path' and 'host' router match param and never reuses 'controller' param.
  */
-class Url extends \Zend\View\Helper\Url
+class Url extends \Zend\View\Helper\AbstractHelper
 {
-    public function __invoke($name = null, array $params = array(), $options = array(), $reuseMatchedParams = false)
+    /**
+     *
+     * @var Vivo\Util\UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
+     * Constructor
+     * @param Vivo\Util\UrlHelper $urlHelper
+     */
+    public function __construct($urlHelper)
     {
-        if (null === $this->router) {
-            throw new Exception\RuntimeException('No RouteStackInterface instance provided');
-        }
+        $this->urlHelper = $urlHelper;
+    }
 
-        if (3 == func_num_args() && is_bool($options)) {
-            $reuseMatchedParams = $options;
-            $options = array();
-        }
-
-        if ($name === null) {
-            if ($this->routeMatch === null) {
-                throw new Exception\RuntimeException('No RouteMatch instance provided');
-            }
-
-            $name = $this->routeMatch->getMatchedRouteName();
-
-            if ($name === null) {
-                throw new Exception\RuntimeException('RouteMatch does not contain a matched route name');
-            }
-        }
-
-        if ($reuseMatchedParams && $this->routeMatch !== null) {
-            $routeMatchParams = $this->routeMatch->getParams();
-
-            if (isset($routeMatchParams[ModuleRouteListener::ORIGINAL_CONTROLLER])) {
-                $routeMatchParams['controller'] = $routeMatchParams[ModuleRouteListener::ORIGINAL_CONTROLLER];
-                unset($routeMatchParams[ModuleRouteListener::ORIGINAL_CONTROLLER]);
-            }
-
-            if (isset($routeMatchParams[ModuleRouteListener::MODULE_NAMESPACE])) {
-                unset($routeMatchParams[ModuleRouteListener::MODULE_NAMESPACE]);
-            }
-
-            $params = array_merge($routeMatchParams, $params);
-        }
-
-        $options['name'] = $name;
-
-        //modify reused params for assembling routes.
-        //we don't want to reuse 'controller' param and
-        //we always want to reuse host and path params
-        unset($params['controller']);
-        if (!isset($params['host']))
-            $params['host'] =  $this->routeMatch->getParam('host');
-        if (!isset($params['path']))
-            $params['path'] = $this->routeMatch->getParam('path');
-
-        $url = $this->router->assemble($params, $options);
-        $url = str_replace('%2F', '/', $url);
-
-        return $url;
+    /**
+     * Assemble url using route and router params.
+     * @param string|null $name Route name
+     * @param array $params Route params
+     * @param array $options
+     * @return string
+     */
+    public function __invoke($name = null, array $params = array(), array $options = array())
+    {
+        $route = $this->urlHelper->fromRoute($name, $params, $options);
+        return $route;
     }
 }

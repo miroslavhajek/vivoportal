@@ -24,17 +24,13 @@ class CMS
      */
     const UUID_PATTERN = '[\d\w]{32}';
 
+    const RESOURCE_NAME = 'resource';
+
     /**
      * Repository
      * @var RepositoryInterface
      */
     private $repository;
-
-    /**
-     * Query Builder
-     * @var QueryBuilder
-     */
-    protected $qb;
 
     /**
      * UUID Convertor
@@ -62,19 +58,16 @@ class CMS
     /**
      * Construct
      * @param \Vivo\Repository\RepositoryInterface $repository
-     * @param \Vivo\Indexer\QueryBuilder $qb
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      */
     public function __construct(RepositoryInterface $repository,
-                                QueryBuilder $qb,
                                 UuidConvertorInterface $uuidConvertor,
                                 UuidGeneratorInterface $uuidGenerator,
                                 PathBuilderInterface $pathBuilder)
     {
         $this->repository       = $repository;
-        $this->qb               = $qb;
         $this->uuidConvertor    = $uuidConvertor;
         $this->uuidGenerator    = $uuidGenerator;
         $this->pathBuilder      = $pathBuilder;
@@ -118,28 +111,29 @@ class CMS
     }
 
     /**
-     * @param Model\Folder $folder
+     * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity[]
      */
-    public function getChildren(Model\Folder $folder)
+    public function getChildren(Model\Entity $entity)
     {
-        return $this->repository->getChildren($folder);
+        return $this->repository->getChildren($entity);
     }
 
     /**
-     * @param Model\Folder $folder
-     * @return Model\Folder
+     * @param \Vivo\CMS\Model\Entity $entity
      */
-    public function getParent(Model\Folder $folder)
+    public function removeChildren(Model\Entity $entity)
     {
-        return $this->repository->getParent($folder);
+        foreach ($this->getChildren($entity) as $child) {
+            $this->removeEntity($child);
+        }
     }
 
     /**
-     * @param Model\Entity $entity
+     * @param \Vivo\CMS\Model\Entity $entity
      * @return \Vivo\CMS\Model\Entity
      */
-    public function getEntityParent(Model\Entity $entity)
+    public function getParent(Model\Entity $entity)
     {
         return $this->repository->getParent($entity);
     }
@@ -223,6 +217,17 @@ class CMS
 //     }
 
     /**
+     * Returns resource name for repository.
+     *
+     * @param \Vivo\CMS\Model\Content\File $file
+     * @return string
+     */
+    public function getResourceName(Model\Content\File $file)
+    {
+        return sprintf('%s.%s', self::RESOURCE_NAME, $file->getExt());
+    }
+
+    /**
      * Writes resource represented by a stream into the repository
      * @param Model\Entity $entity 'Owner' of the resource
      * @param string $name Resource name
@@ -265,6 +270,18 @@ class CMS
     public function getResource(Model\Entity $entity, $name)
     {
         return $this->repository->getResource($entity, $name);
+    }
+
+    /**
+     * Returns entity resource mtime or false when the resource is not found
+     * @param Model\Entity $entity
+     * @param string $name
+     * @return int|bool
+     */
+    public function getResourceMtime(Model\Entity $entity, $name)
+    {
+        $mtime  = $this->repository->getResourceMtime($entity, $name);
+        return $mtime;
     }
 
     /**

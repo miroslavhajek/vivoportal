@@ -4,7 +4,7 @@ namespace Vivo\CMS\Api\Content;
 use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\ContentContainer;
 use Vivo\CMS\Api;
-use Vivo\Util\MIME;
+use Vivo\Util\MIMEInterface;
 use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\IO\InputStreamInterface;
 use Vivo\IO\FileInputStream;
@@ -22,16 +22,16 @@ class File
     private $documentApi;
 
     /**
-     * @var \Vivo\Util\MIME
+     * @var \Vivo\Util\MIMEInterface
      */
     private $mime;
 
     /**
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Document $documentApi
-     * @param \Vivo\Util\MIME $mime
+     * @param \Vivo\Util\MIMEInterface $mime
      */
-    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, MIME $mime)
+    public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, MIMEInterface $mime)
     {
         $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
@@ -103,7 +103,7 @@ class File
     public function saveResource(Content\File $file, $data)
     {
         $this->checkFileProperties($file);
-        $this->cmsApi->saveResource($file, 'resource.'.$file->getExt(), $data);
+        $this->cmsApi->saveResource($file, $this->cmsApi->getResourceName($file), $data);
     }
 
     /**
@@ -115,17 +115,26 @@ class File
     public function writeResource(Content\File $file, InputStreamInterface $inputStream)
     {
         $this->checkFileProperties($file);
-        $this->cmsApi->writeResource($file, 'resource.'.$file->getExt(), $inputStream);
+        $this->cmsApi->writeResource($file, $this->cmsApi->getResourceName($file), $inputStream);
     }
 
     /**
+     * @param \Vivo\CMS\Model\Content\File $file
+     */
+    public function removeResource(Content\File $file)
+    {
+        $this->cmsApi->removeResource($file, $this->cmsApi->getResourceName($file));
+    }
+
+    /**
+     * Returns content of entity resource.
+     *
      * @param \Vivo\CMS\Model\Content\File $file
      * @return string
      */
     public function getResource(Content\File $file)
     {
-        $this->checkFileProperties($file);
-        return $this->cmsApi->getResource($file, 'resource.'.$file->getExt());
+        return $this->cmsApi->getResource($file, $this->cmsApi->getResourceName($file));
     }
 
     /**
@@ -137,8 +146,7 @@ class File
      */
     public function readResource(Content\File $file)
     {
-        $this->checkFileProperties($file);
-        return $this->cmsApi->readResource($file, 'resource.'.$file->getExt());
+        return $this->cmsApi->readResource($file, $this->cmsApi->getResourceName($file));
     }
 
     /**

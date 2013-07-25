@@ -96,21 +96,18 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
      */
     public function save(Model\ContentContainer $contentContainer)
     {
-        // TODO insert checkbox to form (really replace content with file?)
-        $replaceContent = true;
         $form = $this->getForm();
 
         if($form->isValid()) {
             $data = $form->get('upload-file')->getValue();
 
-            if ($replaceContent && $data["tmp_name"] != "") {
+            if ($data["tmp_name"] != "") {
                 $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
             }
             else {
                 $mimeType = $this->content->getMimeType();
                 $ext = $this->fileApi->getExt($mimeType);
 
-                $this->content->setFilename(null);
                 $this->content->setMimeType($mimeType);
                 $this->content->setExt($ext);
 

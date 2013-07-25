@@ -2,8 +2,9 @@
 namespace Vivo\CMS\Model\Content\Fileboard;
 
 use Vivo\CMS\Model\Content;
+use Vivo\Stdlib\OrderableInterface;
 
-class Media extends Content\File
+class Media extends Content\File implements OrderableInterface
 {
     /**
      * @var string Media name.
@@ -18,7 +19,7 @@ class Media extends Content\File
     /**
      * @var int Order.
      */
-    protected $order;
+    protected $order = 0;
 
     public function setName($name)
     {
@@ -42,7 +43,7 @@ class Media extends Content\File
 
     public function setOrder($order)
     {
-        $this->order = $order;
+        $this->order = intval($order);
     }
 
     public function getOrder()

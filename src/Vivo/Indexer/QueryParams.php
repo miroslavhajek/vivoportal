@@ -4,7 +4,7 @@ namespace Vivo\Indexer;
 /**
  * QueryParams
  */
-class QueryParams
+class  QueryParams
 {
     /**
      * Result page size

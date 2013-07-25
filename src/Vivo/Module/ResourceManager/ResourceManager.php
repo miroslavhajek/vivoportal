@@ -6,6 +6,7 @@ use Vivo\Module\Exception;
 use Vivo\Module\ResourceProviderInterface;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
+use Vivo\CMS\Model\Entity;
 
 use Zend\ModuleManager\ModuleManager;
 
@@ -134,9 +135,7 @@ class ResourceManager
             $stream   = $module->getResourceStream($type, $pathToResource);
         } else {
             //Retrieve the resource manually
-            $resourceBase   = $this->getFolderForType($type);
-            $components     = array($resourceBase, $pathToResource);
-            $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
+            $pathInModule       = $this->getResourcePathInModule($pathToResource, $type);
             try {
                 $stream         = $this->moduleStorageManager->getFileStream($moduleName, $pathInModule);
             } catch (Exception\FileNotFoundException $e) {
@@ -151,9 +150,9 @@ class ResourceManager
 
     /**
      * Returns folder corresponding to the specified resource type
-     * @param string|null $type
-     * @return string
+     * @param null|string $type
      * @throws \Vivo\Module\Exception\InvalidArgumentException
+     * @return string
      */
     protected function getFolderForType($type = null)
     {
@@ -166,5 +165,61 @@ class ResourceManager
         }
         $folder = $this->options['type_map'][$type];
         return $folder;
+    }
+
+    /**
+     * Returns resource mtime or false when the resource is not found
+     * @param string $moduleName
+     * @param string $pathToResource
+     * @param string|null $type Resource type
+     * @throws \Vivo\Module\Exception\ResourceNotFoundException
+     * @throws \Vivo\Module\Exception\AsyncCallException
+     * @return bool|int
+     */
+    public function getResourceMtime($moduleName, $pathToResource, $type = null)
+    {
+        if (!$this->moduleManager) {
+            throw new Exception\AsyncCallException(sprintf('%s: Module manager not set', __METHOD__));
+        }
+        $module = $this->moduleManager->getModule($moduleName);
+        if (!$module) {
+            throw new Exception\ResourceNotFoundException(
+                sprintf("%s: Module '%s' not loaded", __METHOD__, $moduleName));
+        }
+        if ($module instanceof ResourceProviderInterface) {
+            //Delegate resource mtime retrieval to the module
+            /* @var $module ResourceProviderInterface */
+            $mtime      = $module->getResourceMtime($type, $pathToResource);
+        } else {
+            //Retrieve the resource mtime manually
+            $pathInModule   = $this->getResourcePathInModule($pathToResource, $type);
+            try {
+                $mtime          = $this->moduleStorageManager->getFileMtime($moduleName, $pathInModule);
+            } catch (\Exception $e) {
+                $mtime  = false;
+                //Log error
+                $events = new \Zend\EventManager\EventManager();
+                $events->trigger('log', $this, array(
+                    'message'   => sprintf("Getting mtime for resource '%s' in module '%s' failed ('%s')",
+                                        $pathInModule, $moduleName, $e->getMessage()),
+                    'priority'  => \VpLogger\Log\Logger::ERR,
+                ));
+            }
+        }
+        return $mtime;
+    }
+
+    /**
+     * Returns resource path in module
+     * @param string $pathToResource
+     * @param string|null $type
+     * @return string
+     */
+    public function getResourcePathInModule($pathToResource, $type = null)
+    {
+        $resourceBase   = $this->getFolderForType($type);
+        $components     = array($resourceBase, $pathToResource);
+        $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
+        return $pathInModule;
     }
 }

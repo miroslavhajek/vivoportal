@@ -10,6 +10,8 @@ use Vivo\Module\Exception\ResourceNotFoundException as ModuleResourceNotFoundExc
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\SiteManager\Event\SiteEvent;
 
+use VpLogger\Log\Logger;
+
 use Zend\EventManager\EventInterface as Event;
 use Zend\Http\Response as HttpResponse;
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -35,7 +37,7 @@ class ResourceFrontController implements DispatchableInterface,
     protected $event;
 
     /**
-     * @var \Vivo\Util\MIME
+     * @var \Vivo\Util\MIMEInterface
      */
     protected $mime;
 
@@ -51,12 +53,18 @@ class ResourceFrontController implements DispatchableInterface,
 
     public function dispatch(Request $request, Response $response = null)
     {
+//        $eventManager   = new \Zend\EventManager\EventManager();
+//        $eventManager->trigger('log', $this,
+//            array ('message'    => "TEST FOO BAR",
+//                'priority'   => Logger::DEBUG));
+
         $pathToResource = $this->event->getRouteMatch()->getParam('path');
         $source = $this->event->getRouteMatch()->getParam('source');
         try {
             if ($source === 'Vivo') {
                 //it's vivo core resource
-                    $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
+                $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
+                $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
             } elseif ($source === 'entity') {
                 //it's entity resource
                 $entityPath = $this->event->getRouteMatch()->getParam('entity');
@@ -65,15 +73,15 @@ class ResourceFrontController implements DispatchableInterface,
                 if ($entity instanceof File) {
                     //TODO match interface instead of the concrete class File
                     $filename = $entity->getFilename();
+                } else {
+                    $filename = pathinfo($pathToResource, PATHINFO_BASENAME);
                 }
 
                 $resourceStream = $this->cmsApi->readResource($entity, $pathToResource);
             } else {
                 //it's module resource
                 $resourceStream = $this->resourceManager->readResource($source, $pathToResource);
-            }
-            if (!isset($filename)) {
-                $filename   = pathinfo($pathToResource, PATHINFO_BASENAME);
+                $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
             }
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $mimeType = $this->mime->detectByExtension($ext);
@@ -85,6 +93,13 @@ class ResourceFrontController implements DispatchableInterface,
             $this->headerHelper->setExpirationByMimeType($headers, $mimeType);
 
             $response->setInputStream($resourceStream);
+
+            //Log matched resource path
+            $eventManager   = new \Zend\EventManager\EventManager();
+            $eventManager->trigger('log', $this,
+                array ('message'    => sprintf("Path to resource: '%s'", $pathToResource),
+                    'priority'   => Logger::DEBUG));
+
         } catch (\Exception $e) {
             if ($e instanceof IOException ||
                     $e instanceof ModuleResourceNotFoundException ||
@@ -146,9 +161,9 @@ class ResourceFrontController implements DispatchableInterface,
 
     /**
      * Inject MIME.
-     * @param \Vivo\Util\MIME $mime
+     * @param \Vivo\Util\MIMEInterface $mime
      */
-    public function setMime(\Vivo\Util\MIME $mime)
+    public function setMime(\Vivo\Util\MIMEInterface $mime)
     {
         $this->mime = $mime;
     }

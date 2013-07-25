@@ -1,7 +1,7 @@
 <?
 	$root = $tree->getChildrenNodes();
 	$master_level = $tree->getDeep();
-	//print_r($root);
+
 ?>
 <ul <?=($master_level != 0) ? "id=sub-".$tree->value['document']->getUuid() : "" ?>>
 	<? $i = 0; ?>
@@ -25,13 +25,13 @@
 			<? if ($document['expandable'] && $document['level'] > 1): ?>
 				<div class="hitarea <?=$cur_status?>-hitarea<?=($last) ? " last-$cur_status-hitarea" : ''?>" id="tree-<?=$document['document']->getUuid();?>" data-path="<?=$document['rel_path']?>"></div>
 			<? endif; ?>
-						
+
 			<span class="<?=($document['expandable'])?'folder':'file'?>" id="cont-<?=$document['document']->getUuid();?>">
-				<img src="<?= $this->resource('backend/img/icons/16x16/File.png','Vivo')?>" alt="" />
+				<img src="<?= $this->iconUrl($document['document'])?>" alt="" />
 					<? if ($document['published']): ?>
 					<span class="published"></span>
-					<? endif; ?>            
-				<a href="<?= htmlspecialchars($this->actionUrl('set', array($document['rel_path']))) ?>" class="<?=$cur_status?>-a<?=($document['active']) ? ' active' : ''?>" title="<?=$document['rel_path']?>">
+					<? endif; ?>
+				<a href="<?= htmlspecialchars($this->url('backend/explorer', array('path' => $document['document']->getUuid(), 'explorerAction' => $explorerAction))); ?>" class="<?=$cur_status?>-a<?=($document['active']) ? ' active' : ''?>" title="<?=$document['rel_path']?>">
 					<?if ($document['document'] instanceof \Vivo\CMS\Model\Folder && ! $document['document'] instanceof \Vivo\CMS\Model\Document) :?>
 						<span><b><?=htmlspecialchars($title)?></b></span>
 					<?else:?>
@@ -42,7 +42,7 @@
 
 
 			<? if ($item->getChildrenNodes()): ?>
-				<?= $this->partial('Vivo\Backend\UI\Explorer\Tree:Subtree', array('tree' => $item)); ?>
+				<?= $this->partial('Vivo\Backend\UI\Explorer\Tree:Subtree', array('tree' => $item, 'explorerAction' => $explorerAction)); ?>
 			<? endif; ?>
 		</li>
 		<? $i++ ?>
@@ -51,7 +51,7 @@
 		<? $more = $tree->value['count'] - $i; ?>
 		<li class="last">
 			<span class="folder">
-			<a href="<?= $this->actionUrl('showMore', array($document['parent_rel_path']))?>" class="more expandable-a"><span><?=$this->translate('more')?></span></a>	
+			<a href="<?= $this->actionUrl('showMore', array($document['parent_rel_path']))?>" class="more expandable-a"><span><?=$this->translate('more')?></span></a>
 		</li>
 	<? endif; ?>
 </ul>

@@ -7,6 +7,7 @@ use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
 use Vivo\Repository\Exception\PathNotSetException;
+use Vivo\Storage\Exception\IOException;
 
 /**
  * Editor Adapter for editing HTML code via WYSIWYG Editor
@@ -50,9 +51,13 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
             if($this->content->getUuid()) {
                 $data = $this->fileApi->getResource($this->content);
                 $this->data = $data;
+
                 $data = $this->symRefConvertor->convertReferencesToURLs($data);
                 $form->get("resource")->setValue($data);
             }
+        }
+        catch (IOException $e) {
+            // First open WYSIWYG (create action)
         }
         catch (PathNotSetException $e) {
 

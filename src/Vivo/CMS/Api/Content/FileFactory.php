@@ -9,7 +9,7 @@ class FileFactory implements FactoryInterface
     /**
      * Create service
      * @param ServiceLocatorInterface $serviceLocator
-     * @return \Vivo\CMS\Api\Content\Fileboard
+     * @return \Vivo\CMS\Api\Content\File
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

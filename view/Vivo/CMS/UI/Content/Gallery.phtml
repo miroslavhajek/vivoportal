@@ -1,0 +1,25 @@
+<? if($files) : ?>
+    <ul>
+        <? foreach ($files as $file) : /* @var $file \Vivo\CMS\Model\Content\Gallery\Media */
+            $size = $file->isLandscape()
+                        ? min($this->info['image_thumbnail_width'], $this->info['image_thumbnail_height'])
+                        : max($this->info['image_thumbnail_width'], $this->info['image_thumbnail_height']);
+        ?>
+            <li>
+                <a href="<?=$this->resource('resource.'.$file->getExt(), $file, null,
+                                    array(
+                                        'width' => $this->info['image_preview_width'],
+                                        'height' => $this->info['image_preview_height'],
+                                        'quality' => $this->info['image_quality']
+                                    )
+                )?>"><img src="<?=$this->resource('resource.'.$file->getExt(), $file, null,
+                                    array(
+                                        'size' => $size,
+                                        'quality' => $this->info['image_quality']
+                                    )
+                )?>" alt="<?=htmlspecialchars($file->getName())?>"></a>
+                <p><?=htmlspecialchars($file->getDescription())?></p>
+            </li>
+        <? endforeach; ?>
+    </ul>
+<? endif; ?>

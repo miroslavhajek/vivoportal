@@ -1,9 +1,8 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\Api;
 use Vivo\CMS\Model\Entity;
-use Vivo\View\Helper\Exception\InvalidArgumentException;
+use Vivo\CMS\Util\ResourceUrlHelper;
 
 use Zend\View\Helper\AbstractHelper;
 
@@ -12,79 +11,33 @@ use Zend\View\Helper\AbstractHelper;
  */
 class Resource extends AbstractHelper
 {
-    /**
-     * Helper options
-     * @var array
-     */
-    private $options = array(
-            'check_resource' => false, // useful for debugging sites
-            );
 
     /**
-     * @var Api\CMS
+     * Resource url helper
+     * @var ResourceUrlHelper
      */
-    private $cmsApi;
+    protected $resourceUrlHelper;
 
     /**
-     * @var string
+     * Constructor
+     * @param ResourceUrlHelper $resourceUrlHelper
      */
-    protected $resourceRouteName;
+    public function __construct(ResourceUrlHelper $resourceUrlHelper)
+    {
+        $this->resourceUrlHelper = $resourceUrlHelper;
+    }
 
     /**
-     * Constructor.
-     * @param CMS $cms
+     * Builds resource URL
+     * @see ResourceUrlHelper
+     * @param string $resourcePath
+     * @param string|Entity $source
      * @param array $options
+     * @return string
      */
-    public function __construct(Api\CMS $cmsApi, $options = array())
+    public function __invoke($resourcePath, $source, array $options = array())
     {
-        $this->cmsApi = $cmsApi;
-        $this->options  = array_merge($this->options, $options);
+        return $this->resourceUrlHelper->getResourceUrl($resourcePath, $source, $options);
     }
 
-    /**
-     * Sets route used for assembling resource url.
-     * @param string $resourceRouteName
-     */
-    public function setResourceRouteName($resourceRouteName)
-    {
-        $this->resourceRouteName = $resourceRouteName;
-    }
-
-    public function __invoke($resourcePath, $source)
-    {
-        if ($this->options['check_resource'] == true) {
-            $this->checkResource($resourcePath, $source);
-        }
-        $urlHelper = $this->view->plugin('url');
-
-        if ($source instanceof Entity) {
-            $entityUrl  = $this->cmsApi->getEntityRelPath($source);
-            $urlParams  = array(
-                'path' => $resourcePath,
-                'entity' => $entityUrl,
-            );
-            $url = $urlHelper($this->resourceRouteName . '_entity', $urlParams);
-        } elseif (is_string($source)) {
-            $urlParams  = array(
-                'source'    => $source,
-                'path'      => $resourcePath,
-                'type'      => 'resource',
-            );
-            $url = $urlHelper($this->resourceRouteName, $urlParams, array(), true);
-        } else {
-            throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'.", __METHOD__));
-        }
-        //Replace encoded slashes in the url.
-        //It's needed because apache returns 404 when the url contains encoded slashes
-        //This behaviour could be changed in apache config, but it is not possible to do that in .htaccess context.
-        //@see http://httpd.apache.org/docs/current/mod/core.html#allowencodedslashes
-        $url = str_replace('%2F', '/', $url);
-
-        return $url;
-    }
-
-    public function checkResource($resourcePath, $source)
-    {
-        //TODO check resoure and throw exception if doesn't exist.
-    }
 }

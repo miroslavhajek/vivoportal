@@ -16,6 +16,7 @@ use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\Indexer\Query\Term as TermQuery;
 use Vivo\Indexer\IndexerEvent;
+use Vivo\Repository\Watcher;
 
 use Zend\EventManager\EventManagerInterface;
 
@@ -74,6 +75,12 @@ class Indexer implements IndexerInterface
     protected $indexerEvents;
 
     /**
+     * Watcher
+     * @var Watcher
+     */
+    protected $watcher;
+
+    /**
      * Constructor
      * @param \Vivo\Indexer\IndexerInterface $indexer
      * @param \Vivo\CMS\Indexer\IndexerHelperInterface $indexerHelper
@@ -84,6 +91,7 @@ class Indexer implements IndexerInterface
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Zend\EventManager\EventManagerInterface $indexerEvents
      * @param \Zend\EventManager\EventManagerInterface $repositoryEvents
+     * @param Watcher $watcher
      */
     public function __construct(VivoIndexerInterface $indexer,
                                 IndexerHelperInterface $indexerHelper,
@@ -93,7 +101,8 @@ class Indexer implements IndexerInterface
                                 DocumentApi $documentApi,
                                 PathBuilderInterface $pathBuilder,
                                 EventManagerInterface $indexerEvents,
-                                EventManagerInterface $repositoryEvents)
+                                EventManagerInterface $repositoryEvents,
+                                Watcher $watcher)
     {
         $this->indexer          = $indexer;
         $this->indexerHelper    = $indexerHelper;
@@ -103,6 +112,7 @@ class Indexer implements IndexerInterface
         $this->documentApi      = $documentApi;
         $this->pathBuilder      = $pathBuilder;
         $this->indexerEvents    = $indexerEvents;
+        $this->watcher          = $watcher;
 
         //Attach listeners
         $repositoryEvents->attach(RepositoryEventInterface::EVENT_COMMIT, array($this, 'onRepositoryCommit'));
@@ -131,6 +141,10 @@ class Indexer implements IndexerInterface
                 $entities[] = $entity;
             } catch (EntityNotFoundException $e) {
                 //Entity not found
+                $this->indexerEvents->trigger('log', $this, array(
+                    'message'   => sprintf("Entity not found at path '%s' (%s)", $path, $e->getMessage()),
+                    'priority'  => \VpLogger\Log\Logger::WARN,
+                ));
             }
         }
         return $entities;
@@ -148,10 +162,13 @@ class Indexer implements IndexerInterface
      */
     public function reindex(Site $site, $path = '/', $deep = false, $suppressErrors = false)
     {
-        //The reindexing may not rely on the indexer in any way! Presume the indexer data is corrupt.
+        //The reindexing may not rely on the indexer in any way!
         $pathComponents = array($site->getPath(), $path);
         $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
         $this->repository->commit();
+        //Deactivate watcher, otherwise all entities in the site will be stored in the watcher (=>high mem requirements)
+        $this->watcher->isActive(false);
+        $this->watcher->clear();
         $this->indexer->begin();
         try {
             if ($deep) {
@@ -160,66 +177,84 @@ class Indexer implements IndexerInterface
                 $delQuery   = $this->qb->cond(sprintf('\path:%s', $path));
             }
             $this->indexer->delete($delQuery);
-            //Index the root entity
-            $entity = null;
-            try {
-                $entity     = $this->repository->getEntityFromStorage($path);
-                $this->indexEntity($entity, $suppressErrors);
-                $count      = 1;
-            } catch (\Exception $e) {
-                if ($suppressErrors) {
-                    //Trigger index failed event
-                    $event      = new IndexerEvent(null, $this);
-                    $event->setEntityPath($path);
-                    $event->setEntity($entity);
-                    $event->setException($e);
-                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-                } else {
-                    //Rethrow
-                    throw $e;
-                }
-            }
-            //Index the subtree
-            if ($deep) {
-                $descStruct = $this->repository->getDescendantsFromStorage($path, $suppressErrors);
-                if ($suppressErrors) {
-                    $descendants    = $descStruct['entities'];
-                    $erroneous      = $descStruct['erroneous'];
-                } else {
-                    $descendants    = $descStruct;
-                    $erroneous      = array();
-                }
-                //Index descendants
-                foreach ($descendants as $descendant) {
-                    if ($this->indexEntity($descendant, $suppressErrors)) {
-                        $count++;
-                    }
-                }
-                //Trigger failed event for erroneous paths
-                $event      = new IndexerEvent(null, $this);
-                foreach ($erroneous as $errorPath => $exception) {
-                    //Trigger index failed event
-                    $event->setEntityPath($errorPath);
-                    $event->setException($exception);
-                    $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-                }
-            }
+            //Index
+            $count      = $this->doReindex($path, $deep, $suppressErrors);
             $this->indexer->commit();
         } catch (\Exception $e) {
             $this->indexer->rollback();
+            $this->watcher->isActive(true);
+            $this->watcher->clear();
             throw $e;
+        }
+        //Reactivate the watcher
+        $this->watcher->isActive(true);
+        $this->watcher->clear();
+        return $count;
+    }
+
+    /**
+     * Recursive method traversing and reindexing the entity tree
+     * @param string $entityPath
+     * @param bool $deep
+     * @param bool $suppressErrors
+     * @return int Number of reindexed items
+     * @throws \Exception
+     */
+    protected function doReindex($entityPath, $deep = false, $suppressErrors = false)
+    {
+        $count  = 0;
+        //Index the entity
+        try {
+            $entity     = $this->repository->getEntityFromStorage($entityPath);
+            if ($entity) {
+                try{
+                    $this->indexEntity($entity);
+                    $count      = 1;
+                } catch (\Exception $e) {
+                    //Exception during reindexing
+                    //Index failed event is triggered by $this->indexEntity()
+                    if (!$suppressErrors) {
+                        //Rethrow
+                        throw $e;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            //Exception during getEntityFromStorage(), e.g. unserialize exception
+            //Trigger index failed event
+            $event      = new IndexerEvent(null, $this);
+            $event->setEntityPath($entityPath);
+            $event->setEntity(null);
+            $event->setException($e);
+            $event->setParam('log', array(
+                'message'   => sprintf("Retrieving entity '%s' from storage failed", $entityPath),
+                'priority'  => \VpLogger\Log\Logger::ERR,
+            ));
+            $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
+            if (!$suppressErrors) {
+                //Rethrow
+                throw $e;
+            }
+
+        }
+        //Index the subtree
+        if ($deep) {
+            $childPaths = $this->repository->getChildEntityPaths($entityPath);
+            foreach ($childPaths as $childPath) {
+                $count  += $this->doReindex($childPath, $deep, $suppressErrors);
+            }
         }
         return $count;
     }
 
     /**
      * Adds entity into index
+     * If the entity cannot be indexed, throws an exception
      * @param \Vivo\CMS\Model\Entity $entity
-     * @param bool $suppressErrors
      * @throws \Exception
-     * @return bool Has the entity been indexed?
+     * @return void
      */
-    protected function indexEntity(Model\Entity $entity, $suppressErrors = false)
+    protected function indexEntity(Model\Entity $entity)
     {
         $event      = new IndexerEvent(null, $this);
         $event->setEntity($entity);
@@ -230,12 +265,12 @@ class Indexer implements IndexerInterface
             } catch (\Exception $e) {
                 //Cannot get published content types
                 $event->setException($e);
+                $event->setParam('log', array(
+                    'message'   => sprintf("Getting published contents for entity '%s' failed", $entity->getPath()),
+                    'priority'  => \VpLogger\Log\Logger::ERR,
+                ));
                 $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-                if ($suppressErrors) {
-                    return false;
-                } else {
-                    throw $e;
-                }
+                throw $e;
             }
         } else {
             $publishedContentTypes    = array();
@@ -249,14 +284,13 @@ class Indexer implements IndexerInterface
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_POST, $event);
         } catch (\Exception $e) {
             $event->setException($e);
+            $event->setParam('log', array(
+                'message'   => sprintf("Indexing entity '%s' failed", $entity->getPath()),
+                'priority'  => \VpLogger\Log\Logger::ERR,
+            ));
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_FAILED, $event);
-            if ($suppressErrors) {
-                return false;
-            } else {
-                throw $e;
-            }
+            throw $e;
         }
-        return true;
     }
 
     /**

@@ -26,8 +26,9 @@ class IndexerFactory implements FactoryInterface
         $pathBuilder        = $serviceLocator->get('path_builder');
         $repositoryEvents   = $serviceLocator->get('repository_events');
         $indexerEvents      = $serviceLocator->get('indexer_events');
+        $watcher            = $serviceLocator->get('Vivo\watcher');
         $service            = new Indexer($indexer, $indexerHelper, $queryParser, $queryBuilder, $repository,
-                                          $documentApi, $pathBuilder, $indexerEvents, $repositoryEvents);
+                                          $documentApi, $pathBuilder, $indexerEvents, $repositoryEvents, $watcher);
         return $service;
     }
 }

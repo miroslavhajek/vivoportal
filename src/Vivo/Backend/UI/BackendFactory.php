@@ -32,7 +32,7 @@ class BackendFactory implements FactoryInterface
         $backend->addComponent($sm->get('Vivo\Backend\UI\ModulesPanel'), 'modulesPanel');
         $backend->addComponent($sm->get('Vivo\Backend\UI\FooterBar'), 'footerBar');
 
-        $backend->addComponent($sm->get('Vivo\Backend\UI\Explorer\Explorer'), 'module');
+        //$backend->addComponent($sm->get('Vivo\Backend\UI\Explorer\Explorer'), 'module');
 
         return $backend;
     }

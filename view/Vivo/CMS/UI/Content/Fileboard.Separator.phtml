@@ -1,0 +1,7 @@
+<li><?
+    if($resource && $model->getSize()) {
+        while(($b = $resource->read(4096)) !== false) {
+            echo $b;
+        }
+    }
+?></li>

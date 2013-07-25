@@ -6,7 +6,7 @@
 <?php if(isset($this->exception) && $this->exception instanceof Exception): ?>
 <hr/>
 <h2><?php echo $this->translate('Additional information') ?>:</h2>
-<h3><?php echo get_class($this->exception); ?></h3>
+<h3><?php echo get_class($this->exception); ?> (<?= $this->exception->getCode()?>)</h3>
 <dl>
     <dt><?php echo $this->translate('File') ?>:</dt>
     <dd>
@@ -30,7 +30,7 @@
 <ul class="unstyled">
     <?php while($e) : ?>
     <li>
-        <h3><?php echo get_class($e); ?></h3>
+        <h3><?php echo get_class($e); ?> (<?= $e->getCode()?>)</h3>
         <dl>
             <dt><?php echo $this->translate('File') ?>:</dt>
             <dd>

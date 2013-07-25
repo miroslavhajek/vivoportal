@@ -72,4 +72,13 @@ class Result
     {
         return $this->hits;
     }
+
+    /**
+     * Returns first hit or NULL
+     * @return QueryHit
+     */
+    public function getFirstHit()
+    {
+        return reset($this->getHits()) ?: null;
+    }
 }

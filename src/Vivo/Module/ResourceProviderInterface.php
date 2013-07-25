@@ -26,4 +26,12 @@ interface ResourceProviderInterface
      * @throws \Vivo\Module\Exception\ResourceNotFoundException
      */
     public function getResourceStream($type, $pathToResource);
+
+    /**
+     * Returns the resource mtime
+     * @param string $type
+     * @param string $pathToResource
+     * @return int
+     */
+    public function getResourceMtime($type, $pathToResource);
 }

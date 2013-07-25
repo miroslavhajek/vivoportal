@@ -63,8 +63,8 @@ class FetchDocumentByUrlListener implements ListenerAggregateInterface
      */
     public function fetchDocument(Event\CMSEvent $e)
     {
-        $query = '\Vivo\CMS\Model\Document\url:"'. $e->getRequestedPath(). '" ';
-        $query .= 'AND \class:"Vivo\CMS\Model\Document"';
+        $query = sprintf('\Vivo\CMS\Model\Document\uri:"%s" AND \class:"Vivo\CMS\Model\Document"',
+                $e->getRequestedPath());
         $documents = $this->indexerApi->getEntitiesByQuery($query);
         return current($documents)?:null;
     }

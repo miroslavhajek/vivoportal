@@ -16,27 +16,10 @@ class ResourceFactory implements  FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm             = $serviceLocator->getServiceLocator();
-        /** @var $application \Zend\Mvc\Application */
-        $application    = $sm->get('application');
-        $mvcEvent       = $application->getMvcEvent();
-        $routeMatch     = $mvcEvent->getRouteMatch();
-        $routeName      = $routeMatch->getMatchedRouteName();
-
-        $cmsApi         = $sm->get('Vivo\CMS\Api\CMS');
-        $helper         = new Resource($cmsApi);
-
-        //Define resource routes for Resource view helper
-        $resourceRouteMap = array(
-            'vivo/cms'          => 'vivo/resource',
-            'backend/cms'       => 'backend/resource',
-            'backend/modules'   => 'backend/backend_resource',
-            'backend/other'     => 'backend/backend_resource',
-            'backend/default'   => 'backend/backend_resource',
-        );
-
-        $resourceRouteName = isset($resourceRouteMap[$routeName]) ? $resourceRouteMap[$routeName] : '';
-        $helper->setResourceRouteName($resourceRouteName);
+        $sm = $serviceLocator->getServiceLocator();
+        /* @var $resourceUrlHelper \Vivo\CMS\Util\ResourceUrlHelper */
+        $resourceUrlHelper = $sm->get('Vivo\resource_url_helper');
+        $helper = new Resource($resourceUrlHelper);
         return $helper;
     }
 }

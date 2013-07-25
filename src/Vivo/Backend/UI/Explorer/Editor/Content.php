@@ -3,7 +3,7 @@ namespace Vivo\Backend\UI\Explorer\Editor;
 
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
-use Vivo\Backend\UI\Form\Fieldset\EntityEditor;
+use Vivo\Backend\Form\Fieldset\EntityEditor;
 use Vivo\Backend\Exception\ConfigException;
 use Vivo\CMS\Model;
 use Vivo\CMS\ComponentResolver;

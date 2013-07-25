@@ -2,7 +2,7 @@
 namespace Vivo\UI;
 
 use Vivo\IO\InputStreamInterface;
-use Vivo\Util\MIME;
+use Vivo\Util\MIMEInterface;
 
 use Zend\Http\Response;
 
@@ -18,7 +18,7 @@ class File extends Component
     private $filename;
 
     /**
-     * @var MIME
+     * @var \Vivo\Util\MIMEInterface
      */
     protected $mime;
 
@@ -119,9 +119,9 @@ class File extends Component
 
     /**
      * Inject MIME.
-     * @param MIME $mime
+     * @param \Vivo\Util\MIMEInterface $mime
      */
-    public function setMime(MIME $mime)
+    public function setMime(MIMEInterface $mime)
     {
         $this->mime = $mime;
     }

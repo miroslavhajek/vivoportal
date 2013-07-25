@@ -17,12 +17,10 @@ class CMSFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $repository     = $serviceLocator->get('repository');
-        $qb             = $serviceLocator->get('indexer_query_builder');
         $uuidConvertor  = $serviceLocator->get('uuid_convertor');
         $uuidGenerator  = $serviceLocator->get('uuid_generator');
         $pathBuilder    = $serviceLocator->get('path_builder');
         $cms            = new CMS($repository,
-                                  $qb,
                                   $uuidConvertor,
                                   $uuidGenerator,
                                   $pathBuilder);

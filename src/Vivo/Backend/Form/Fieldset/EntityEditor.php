@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Backend\UI\Form\Fieldset;
+namespace Vivo\Backend\Form\Fieldset;
 
 use Vivo\Form\Fieldset;
 

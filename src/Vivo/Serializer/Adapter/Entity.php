@@ -4,7 +4,11 @@ namespace Vivo\Serializer\Adapter;
 use Vivo\Serializer\Exception;
 use Vivo\Text\Text;
 
+use VpLogger\Log\Logger;
+
 use Zend\Serializer\Adapter\AbstractAdapter;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
 
 /**
  * Serializer adapter for serializing to Vivo entity format.
@@ -18,12 +22,15 @@ class Entity extends AbstractAdapter
     const NONE = '__NONE__';
 
     /**
+     * Event Manager
+     * @var EventManagerInterface
+     */
+    private $events;
+
+    /**
      * Serialize
-     *
      * @param  mixed $value
      * @return string
-     * @throws Exception\InvalidArgumentException
-     * @throws Exception\RuntimeException
      */
     public function serialize($entity)
     {
@@ -110,10 +117,21 @@ class Entity extends AbstractAdapter
 
     public function unserialize($serialized)
     {
-        return $this->unserializeRun($serialized);
+        $pos    = 0;
+        $object = $this->unserializeRun($serialized, $pos, true);
+        return $object;
     }
 
-    public function unserializeRun(&$str, &$pos = 0)
+    /**
+     * @param string $str
+     * @param int $pos
+     * @param bool $ignoreUnknownProperties
+     * @throws \Vivo\Serializer\Exception\RuntimeException
+     * @throws \Exception|\ReflectionException
+     * @throws \Vivo\Serializer\Exception\ClassNotFoundException
+     * @return array|bool|\DateTime|float|int|mixed|null|string
+     */
+    protected function unserializeRun(&$str, &$pos = 0, $ignoreUnknownProperties = true)
     {
         switch ($type = Text::readWord($str, $pos)) {
         case 'NULL':
@@ -141,37 +159,50 @@ class Entity extends AbstractAdapter
         case 'array':
             Text::expectChar('(', $str, $pos);
             $array = array();
-            while (($key = $this->unserializeRun($str, $pos)) !== self::EOA) {
+            while (($key = $this->unserializeRun($str, $pos, $ignoreUnknownProperties)) !== self::EOA) {
                 Text::expectChar(':', $str, $pos);
-                $value = $this->unserializeRun($str, $pos);
+                $value = $this->unserializeRun($str, $pos, $ignoreUnknownProperties);
                 $array[$key] = $value;
             }
             return $array;
         case 'object':
-            $class_name = Text::readWord($str, $pos);
+            $className = Text::readWord($str, $pos);
             Text::expectChar('{', $str, $pos);
-            if (!class_exists($class_name)) {
+            if (!class_exists($className)) {
                 throw new Exception\ClassNotFoundException(
-                    sprintf("%s: Class '%s' not found", __METHOD__, $class_name));
+                    sprintf("%s: Class '%s' not found", __METHOD__, $className));
             }
-            $object = new $class_name;
-            $refl = new \ReflectionObject($object);
-
-            $vars = array();
+            $object = new $className;
+            $refl   = new \ReflectionObject($object);
+            $vars   = array();
             while (($name = Text::readWord($str, $pos)) != '}') {
-                $prop = $refl->getProperty($name);
+                try {
+                    $prop = $refl->getProperty($name);
+                } catch (\ReflectionException $e) {
+                    //Property does not exists
+                    if ($ignoreUnknownProperties) {
+                        $events = $this->getEventManager();
+                        $events->trigger('log', $this, array(
+                            'message'   => sprintf("Property '%s' not found in an object of class '%s'",
+                                $name, $className),
+                            'priority'  => Logger::WARN,
+                        ));
+                        //Read the property value to advance to next property
+                        $this->unserializeRun($str, $pos, true);
+                        continue;
+                    } else {
+                        throw $e;
+                    }
+                }
+                $vars[$name] = $this->unserializeRun($str, $pos, $ignoreUnknownProperties);
                 $prop->setAccessible(true);
-                $prop
-                        ->setValue($object,
-                                $vars[$name] = $this
-                                        ->unserializeRun($str, $pos));
+                $prop->setValue($object, $vars[$name]);
             }
             // 				if (method_exists($object, '__wakeup'))
             // 				$object->__wakeup();
-            if ($class_name == 'DateTime') {
+            if ($className == 'DateTime') {
                 try {
-                    $object = new \DateTime($vars['date'],
-                            new \DateTimeZone($vars['timezone']));
+                    $object = new \DateTime($vars['date'], new \DateTimeZone($vars['timezone']));
                 } catch (\Exception $e) {
                     $object = new \DateTime;
                 }
@@ -184,5 +215,17 @@ class Entity extends AbstractAdapter
                     "Undefined type '$type' at position $pos: \""
                             . substr(substr($str, $pos), 20) . "...\"");
         }
+    }
+
+    /**
+     * Returns Event Manager
+     * @return EventManager|EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (!$this->events) {
+            $this->events   = new EventManager();
+        }
+        return $this->events;
     }
 }

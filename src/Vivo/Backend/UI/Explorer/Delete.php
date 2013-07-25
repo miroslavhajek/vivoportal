@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Api\CMS;
-use Vivo\Backend\UI\Form\Delete as DeleteForm;
+use Vivo\Backend\Form\Delete as DeleteForm;
 use Vivo\Form\Form;
 use Vivo\Util\RedirectEvent;
 use Vivo\UI\Alert;

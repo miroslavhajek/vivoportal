@@ -37,7 +37,7 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
      * @var string Documents sorting.
      * @see Vivo\CMS\Model\Document::$sorting
      */
-    protected $overviewSorting;
+    protected $overviewSorting = 'title:asc';
 
     /**
      * @var int A number represent documents count in overview.

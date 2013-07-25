@@ -6,16 +6,25 @@ use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\Util\Path\PathParser;
 use Vivo\View\Exception\TemplateNotFoundException;
 
+use VpLogger\Log\Logger;
+
 use Zend\Config\Config;
 use Zend\Mvc\Application;
 use Zend\View\Renderer\RendererInterface;
 use Zend\View\Resolver\ResolverInterface;
+use Zend\EventManager\EventManagerInterface;
 
 /**
  * Resolver determines which template file should be used for rendering.
  */
 class TemplateResolver implements ResolverInterface
 {
+    const STATE_NOT_FOUND_ACTION_THROW		= 'throw';
+    const STATE_NOT_FOUND_ACTION_COMMENT	= 'comment';
+    const STATE_NOT_FOUND_ACTION_HIDE		= 'hide';
+
+    const EVENT_TEMPLATE_NOT_FOUND			= 'template_not_found';
+
     /**
      * @var ResourceManager
      */
@@ -33,16 +42,32 @@ class TemplateResolver implements ResolverInterface
     private $templateMap = array();
 
     /**
+     * Config options
+     * @var array
+     */
+    private $configOptions = array();
+
+    /**
+     * Event Manager
+     * @var \Zend\EventManager\EventManagerInterface
+     */
+    private $eventManager;
+
+    /**
      * @param ResourceManager $resourceManager
      * @param PathParser $parser
      * @param array $options
+     * @param array $configOptions
      */
     public function __construct(ResourceManager $resourceManager,
-            PathParser $parser, $options = array())
+                                PathParser $parser,
+                                array $options = array(),
+                                array $configOptions = array())
     {
         $this->configure($options);
         $this->resourceManager = $resourceManager;
         $this->parser = $parser;
+        $this->configOptions = $configOptions;
     }
 
     /**
@@ -53,7 +78,7 @@ class TemplateResolver implements ResolverInterface
     {
         if (isset($config['template_map'])) {
             $this->templateMap = array_merge($this->templateMap,
-                    $config['template_map']);
+                                             $config['template_map']);
         }
     }
 
@@ -98,11 +123,36 @@ class TemplateResolver implements ResolverInterface
             } catch (\Exception $e) {
                 if ($e instanceof \Vivo\Module\Exception\ExceptionInterface
                         || $e instanceof \Vivo\Util\Exception\CanNotParsePathException) {
-                    throw new TemplateNotFoundException(
-                            sprintf(
-                                    "%s: Template '%s' ,that is defined in template map for '%s', not found.",
-                                    __METHOD__, $path, $name), null, $e);
 
+                    $eventParams = array(
+                        'templateName' => $name,
+                        'log' => array(
+                            'message' => sprintf(
+                                "%s: Template '%s' ,that is defined in template map for '%s', not found.",
+                                __METHOD__, $path, $name),
+                            'priority' => Logger::ERR,
+                        ),
+                    );
+                    $this->getEventManager()->trigger(self::EVENT_TEMPLATE_NOT_FOUND, $this, $eventParams);
+
+                    switch ($this->configOptions['template_not_found_action']) {
+                        case self::STATE_NOT_FOUND_ACTION_THROW:
+                            throw new TemplateNotFoundException(
+                                sprintf(
+                                        "%s: Template '%s' ,that is defined in template map for '%s', not found.",
+                                        __METHOD__, $path, $name), null, $e);
+                            break;
+                        case self::STATE_NOT_FOUND_ACTION_COMMENT:
+                            echo sprintf(
+                                    "<!-- %s: Template '%s' ,that is defined in template map for '%s', not found. -->",
+                                    __METHOD__, $path, $name);
+                            $this->resolved[$name] = $this->templateMap['Vivo\TemplateNotFound'];
+                            break;
+                        default:
+                        case self::STATE_NOT_FOUND_ACTION_HIDE:
+                            $this->resolved[$name] = $this->templateMap['Vivo\Blank'];
+                            break;
+                    }
                 } else {
                     //rethrow other exceptions
                     throw $e;
@@ -110,5 +160,27 @@ class TemplateResolver implements ResolverInterface
             }
         }
         return $this->resolved[$name];
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManagerInterface
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->eventManager = new \Zend\EventManager\EventManager();
+        }
+
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event Manager
+     * @param \Zend\EventManager\EventManagerInterface $eventManager
+     */
+    public function setEventManager(EventManagerInterface $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

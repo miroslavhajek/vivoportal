@@ -11,9 +11,7 @@ use Zend\EventManager\ListenerAggregateInterface;
  */
 class FetchDocumentListener implements ListenerAggregateInterface
 {
-
     /**
-     *
      * @var Api\Indexer
      */
     protected $indexerApi;
@@ -70,7 +68,7 @@ class FetchDocumentListener implements ListenerAggregateInterface
         } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
             return null;
         }
-            //$e->stopPropagation();
-            return $document;
+
+        return $document;
     }
 }

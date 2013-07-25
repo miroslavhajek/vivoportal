@@ -378,6 +378,27 @@ class StorageManager
     }
 
     /**
+     * Returns mtime for a file in a module or false when the file does not exist
+     * @param string $moduleName
+     * @param string $pathInModule
+     * @return bool|int
+     */
+    public function getFileMtime($moduleName, $pathInModule)
+    {
+        $fullPath   = $this->getFullPathToFile($moduleName, $pathInModule);
+        $mtime      = $this->storage->mtime($fullPath);
+        if ($mtime ===  false) {
+            //Log not found file
+            $events = new \Zend\EventManager\EventManager();
+            $events->trigger('log', $this,  array(
+                'message'   => sprintf("File '%s' not found in module '%s'", $fullPath, $moduleName),
+                'priority'  => \VpLogger\Log\Logger::ERR,
+            ));
+        }
+        return $mtime;
+    }
+
+    /**
      * Builds and returns a full absolute path to a file in a module
      * @param string $moduleName
      * @param string $pathInModule Path to a file relative to the module root

@@ -67,6 +67,7 @@ class Module implements ConsoleBannerProviderInterface, ConsoleUsageProviderInte
                 array ('module', 'Manage modules.'),
                 array ('cms', 'CMS functions.'),
                 array ('setup', 'System setup'),
+                array ('util', 'Utilities'),
         );
     }
 }

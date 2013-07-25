@@ -27,19 +27,19 @@ class Folder extends Entity implements SymRefDataExchangeInterface
      * Allows listing documents in navigation
      * @var bool
      */
-    protected $allowListingInNavigation;
+    protected $allowListingInNavigation = true;
     
     /**
      * Allows listing documents in overview
      * @var bool
      */
-    protected $allowListing;
+    protected $allowListing = true;
     
     /**
      * Allows listing documents in sitemap
      * @var bool
      */
-    protected $allowListingInSitemap;
+    protected $allowListingInSitemap = true;
 
     /**
      * @var int Position of the document in layer. This property could be used as sorting option of the document.
@@ -49,7 +49,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     /**
      * @var string Specifies which criteria will classify sub-documents in the lists (newsletters, sitemap, menu, etc.)
      */
-    protected $sorting;
+    protected $sorting = 'title:asc';
 
     /**
      * @var string Replication id;
