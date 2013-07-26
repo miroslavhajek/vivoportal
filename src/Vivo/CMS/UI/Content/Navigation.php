@@ -85,7 +85,7 @@ class Navigation extends AbstractNavigation
     {
         $concat = '';
         foreach ($enumeratedDocs as $enumDoc) {
-            $concat .= $enumDoc['docPath'];
+            $concat .= $enumDoc['doc_path'];
             if (isset($enumDoc['children'])) {
                 $concat .= $this->concatEnumeratedDocs($enumDoc['children']);
             }
@@ -259,9 +259,10 @@ class Navigation extends AbstractNavigation
 
     protected function sortDocuments($documents)
     {
-        $currentDoc = $this->cmsEvent->getDocument();
-        if($this->navModel->getNavigationSorting() !== null) {
-            $sorting = $this->navModel->getNavigationSorting();
+        $sorting = $this->navModel->getNavigationSorting();
+        if($sorting !== null && $sorting != 'none') {
+            /* @var $currentDoc Document */
+            $currentDoc = $this->cmsEvent->getDocument();
             $parentSorting = $currentDoc->getSorting();
             if(strpos($sorting, "parent") !== false && $parentSorting != null) {
                 $sorting = $parentSorting;

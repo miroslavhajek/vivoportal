@@ -31,7 +31,7 @@ class Navigation extends AbstractForm implements EditorInterface
      * @var bool
      */
     protected $autoAddCsrf  = false;
-    
+
     /**
      * Native document sorting options
      * @var array
@@ -149,6 +149,7 @@ class Navigation extends AbstractForm implements EditorInterface
                                     . 'Empty means unlimited.',
             ),
         ));
+        // Navigation sorting
         $form->add(array(
             'name' => 'navigationSorting',
             'type' => 'Vivo\Form\Element\Select',
@@ -156,7 +157,7 @@ class Navigation extends AbstractForm implements EditorInterface
             'attributes' => array(
                 'options' => $this->sortOptions
             )
-        ));      
+        ));
         return $form;
     }
 
