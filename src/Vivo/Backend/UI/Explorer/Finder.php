@@ -273,10 +273,11 @@ class Finder extends Component implements TranslatorAwareInterface
         foreach ($hits as $hit) {
             $path     = $hit->getDocument()->getFieldValue('\path');
             $document = $this->documentApi->getEntity($path);
+            $published = ($document instanceof Document) ? $this->documentApi->isPublished($document) : false;
 
             $documents[] = array(
                 'document' => $document,
-                'published' => $this->documentApi->isPublished($document),
+                'published' => intval($published),
             );
         }
 
