@@ -23,12 +23,6 @@ class Site extends Folder
     protected $hosts = array();
 
     /**
-     * only test purposes
-     * @var array test
-     */
-    protected $test = array();
-
-    /**
      * @param string Path to entity.
      * @param Vivo\CMS\Model\Entity\Security
      */
@@ -68,20 +62,6 @@ class Site extends Folder
     public function getHosts()
     {
         return $this->hosts;
-    }
-
-    /**
-     * @return array
-     */
-    public function getTest() {
-        return $this->test;
-    }
-
-    /**
-     * @param array $test
-     */
-    public function setTest($test) {
-        $this->test = $test;
     }
 }
 

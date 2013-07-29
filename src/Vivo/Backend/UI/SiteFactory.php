@@ -24,7 +24,7 @@ class SiteFactory implements FactoryInterface
         $urlHelper          = $sm->get('Vivo\Util\UrlHelper');
         $cmsEvent           = $sm->get('cms_event');
 
-        $site = new Site($sm, $metadataManager, $lookupDataManager, $cmsEvent, $urlHelper, $documentApi);
+        $site = new Site($metadataManager, $lookupDataManager, $cmsEvent, $urlHelper, $documentApi);
         $site->setAlert($alert);
 
         return $site;

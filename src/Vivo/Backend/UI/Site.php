@@ -19,11 +19,6 @@ use Zend\I18n\Translator\Translator;
 class Site extends AbstractForm implements TranslatorAwareInterface
 {
     /**
-     * @var \Zend\ServiceManager\ServiceManager
-     */
-    private $sm;
-
-    /**
      * CMS event
      * @var CMSEvent
      */
@@ -77,20 +72,17 @@ class Site extends AbstractForm implements TranslatorAwareInterface
 
     /**
      * Constructor
-     * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\LookupData\LookupDataManager $lookupDataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      */
     public function __construct(
-        \Zend\ServiceManager\ServiceManager $sm,
         \Vivo\Metadata\MetadataManager $metadataManager,
         LookupDataManager $lookupDataManager,
         CMSEvent $cmsEvent,
         UrlHelper $urlHelper,
         DocumentApi $documentApi)
     {
-        $this->sm = $sm;
         $this->metadataManager = $metadataManager;
         $this->lookupDataManager = $lookupDataManager;
         $this->cmsEvent = $cmsEvent;
