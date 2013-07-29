@@ -585,7 +585,8 @@ class Document implements DocumentInterface
      * @param string $property
      * @return mixed
      */
-    protected function getPropertyByName($document, $property) {
+    protected function getPropertyByName($document, $property)
+    {
         $getter = sprintf('get%s', $property);
         return method_exists($document, $getter) ? $document->$getter() : null;
     }
@@ -596,7 +597,8 @@ class Document implements DocumentInterface
      * @param string $item
      * @return string
      */
-    public function transliterateItem($item) {
+    public function transliterateItem($item)
+    {
         if (!isset($this->translitCache[$item])) {
             $this->translitCache[$item] = $this->transliteratorMbStringCompare->transliterate($item);
         }
