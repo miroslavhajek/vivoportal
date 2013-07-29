@@ -253,6 +253,7 @@ return array(
             'Vivo\Util\UrlHelper'       => 'Vivo\Util\UrlHelperFactory',
             'Vivo\document_url_helper'  => 'Vivo\CMS\Util\DocumentUrlHelperFactory',
             'Vivo\resource_url_helper'  => 'Vivo\CMS\Util\ResourceUrlHelperFactory',
+            'Vivo\icon_url_helper'      => 'Vivo\CMS\Util\IconUrlHelperFactory',
             'Vivo\Http\HeaderHelper'    => 'Vivo\Http\HeaderHelperFactory',
             'Vivo\Transliterator\Path'  => 'Vivo\Transliterator\PathFactory',
             'Vivo\Transliterator\Url'   => 'Vivo\Transliterator\UrlFactory',
@@ -318,6 +319,20 @@ return array(
             'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
+    'cms_front_controller' => array(
+        'listeners' => array(
+            // fetch
+            'Vivo\CMS\Listener\FetchDocumentListener'       => 100,
+            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 200,
+            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 300,
+            // redirect
+            'Vivo\CMS\Listener\RedirectMapListener' => 100,
+            // create
+            'Vivo\CMS\Listener\RssListener' => 500,
+            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 100,
+            // render
+        ),
+    ),
     'view_manager' => array(
         'display_not_found_reason' => true,
         'display_exceptions'       => false,
@@ -351,6 +366,7 @@ return array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
             'icon_url'          => 'Vivo\View\Helper\IconUrlFactory',
             'resource'          => 'Vivo\View\Helper\ResourceFactory',
+            'resourceInfo'      => 'Vivo\View\Helper\ResourceInfoFactory',
             'document'          => 'Vivo\View\Helper\DocumentFactory',
             'cms'               => 'Vivo\View\Helper\CmsFactory',
             'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
@@ -370,6 +386,7 @@ return array(
         'invokables' => array(
             'conditional'   => 'Vivo\Validator\Conditional',
             'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
+            'vivo_personal_number_cz'  => 'Vivo\Validator\PersonalNumberCZ',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',

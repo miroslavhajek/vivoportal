@@ -6,11 +6,11 @@ use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Api\CMS;
 use Vivo\Backend\Form\Copy as CopyForm;
 use Vivo\Form\Form;
-use Vivo\CMS\Model\Document;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Util\RedirectEvent;
 use Vivo\UI\Alert;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
+use Vivo\Util\UrlHelper;
 
 use Zend\I18n\Translator\Translator;
 
@@ -50,19 +50,27 @@ class Copy extends AbstractForm implements TranslatorAwareInterface
     protected $translator;
 
     /**
+     * Url helper
+     * @var type
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\UI\Alert $alert
+     * @param UrlHelper $urlHelper
      */
     public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder,
-                                Alert $alert)
+                                Alert $alert, UrlHelper $urlHelper)
     {
         $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->pathBuilder  = $pathBuilder;
         $this->alert        = $alert;
+        $this->urlHelper    = $urlHelper;
     }
 
     public function view()
@@ -91,12 +99,15 @@ class Copy extends AbstractForm implements TranslatorAwareInterface
             $copiedDoc  = $this->documentApi->copyDocument($doc, $explorer->getSite(), $validData['path'],
                                                    $validData['name_in_path'], $validData['name']);
             $copiedDocRelPath   = $this->cmsApi->getEntityRelPath($copiedDoc);
-            $explorer->setEntity($copiedDoc);
-            $explorer->setCurrent('editor');
+            $routeParams = array(
+                'path' => $copiedDoc->getUuid(),
+                'explorerAction' => 'editor',
+            );
             $message = sprintf($this->translator->translate(
                 "Document at path '%s' has been copied to path '%s'"), $docRelPath, $copiedDocRelPath);
             $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-            $this->events->trigger(new RedirectEvent());
+            $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+            $this->events->trigger(new RedirectEvent($url));
         } else {
             $message = $this->translator->translate("Form data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);

@@ -16,9 +16,15 @@ class SiteSelectorFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $siteSelector = new SiteSelector(
-                $serviceLocator->get('Vivo\CMS\Api\Site'),
-                $serviceLocator->get('site_event'));
+        /* @var $siteApi \Vivo\CMS\Api\Site */
+        $siteApi = $serviceLocator->get('Vivo\CMS\Api\Site');
+        /* @var $siteEvent \Vivo\SiteManager\Event\SiteEvent */
+        $siteEvent = $serviceLocator->get('site_event');
+        /* @var $site \Vivo\CMS\Model\Site */
+        $site = $siteEvent->getSite();
+        $sites = $siteApi->getManageableSites();
+
+        $siteSelector = new SiteSelector($site, $sites);
         return $siteSelector;
     }
 }

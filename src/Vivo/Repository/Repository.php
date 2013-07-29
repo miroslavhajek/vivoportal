@@ -3,11 +3,10 @@ namespace Vivo\Repository;
 
 use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Model\PathInterface;
-use Vivo\Storage;
+use Vivo\Storage\StorageInterface;
 use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\IO;
-use Vivo\Storage\StorageInterface;
 use Vivo\IO\IOUtil;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 
@@ -143,7 +142,7 @@ class Repository implements RepositoryInterface
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
      * @throws Exception\Exception
      */
-    public function __construct(Storage\StorageInterface $storage,
+    public function __construct(StorageInterface $storage,
                                 Cache $cache = null,
                                 Serializer $serializer,
                                 Watcher $watcher,
@@ -624,6 +623,24 @@ class Repository implements RepositoryInterface
             ));
         }
         return $mtime;
+    }
+
+    /**
+     * Returns resource size in bytes
+     * @param \Vivo\CMS\Model\PathInterface $entity
+     * @param string $name
+     * @throws \Vivo\Repository\Exception\InvalidArgumentException
+     * @return int
+     */
+    public function getResourceSize(PathInterface $entity, $name)
+    {
+        if ($name == '' || is_null($name)) {
+            throw new Exception\InvalidArgumentException(sprintf('%s: Resource name cannot be empty', __METHOD__));
+        }
+
+        $entityPath = $this->getAndCheckPath($entity);
+        $path       = $this->pathBuilder->buildStoragePath(array($entityPath, $name), true);
+        return $this->storage->size($path);
     }
 
     /**

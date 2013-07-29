@@ -6,7 +6,6 @@ use Vivo\CMS\Exception;
 use Vivo\CMS\Api\Exception as ApiException;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 use Vivo\Repository\RepositoryInterface;
-use Vivo\Indexer\QueryBuilder;
 use Vivo\Uuid\GeneratorInterface as UuidGeneratorInterface;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\Security\Manager\AbstractManager as AbstractSecurityManager;
@@ -280,8 +279,18 @@ class CMS
      */
     public function getResourceMtime(Model\Entity $entity, $name)
     {
-        $mtime  = $this->repository->getResourceMtime($entity, $name);
-        return $mtime;
+        return $this->repository->getResourceMtime($entity, $name);
+    }
+
+    /**
+     * Returns resource size in bytes
+     * @param \Vivo\CMS\Model\Entity $entity
+     * @param string $name
+     * @return int
+     */
+    public function getResourceSize(Model\Entity $entity, $name)
+    {
+        return $this->repository->getResourceSize($entity, $name);
     }
 
     /**
