@@ -32,7 +32,9 @@ return array(
             'Vivo\CMS\UI\Content\Overview:Carousel' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Carousel.phtml',
             'Vivo\CMS\UI\Content\Overview:CarouselTouch' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.CarouselTouch.phtml',
             'Vivo\CMS\UI\Content\Overview:Expandable' => __DIR__.'/../view/Vivo/CMS/UI/Content/Overview.Expandable.phtml',
-            'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
+            'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
+            'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
+            'Vivo\CMS\UI\Content\SiteMap'       => __DIR__.'/../view/Vivo/CMS/UI/Content/SiteMap.phtml',
 
             // Content editor component
             'Vivo\CMS\UI\Content\Editor\Editor'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
@@ -46,6 +48,9 @@ return array(
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
 
+            // Other CMS
+            'Vivo\CMS\UI\Rss' => __DIR__.'/../view/Vivo/CMS/UI/Rss.phtml',
+
             // Other UI
             'Vivo\UI\Page'                      => __DIR__.'/../view/Vivo/UI/Page.phtml',
             'Vivo\UI\ComponentContainer'        => __DIR__.'/../view/Vivo/UI/ComponentContainer.phtml',
@@ -56,9 +61,7 @@ return array(
             'Vivo\UI\Ribbon\Group'              => __DIR__.'/../view/Vivo/UI/Ribbon/Group.phtml',
             'Vivo\UI\Ribbon\Item'               => __DIR__.'/../view/Vivo/UI/Ribbon/Item.phtml',
             'Vivo\UI\Alert'                     => __DIR__.'/../view/Vivo/UI/Alert.phtml',
-            'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
-            'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
-            'Vivo\CMS\UI\Content\SiteMap'       => __DIR__.'/../view/Vivo/CMS/UI/Content/SiteMap.phtml',
+
             // Special Templates
             'Vivo\Blank' => __DIR__.'/../view/Vivo/Blank.phtml',
             'Vivo\TemplateNotFound' => __DIR__.'/../view/Vivo/TemplateNotFound.phtml',
@@ -233,11 +236,11 @@ return array(
         //configuration of service manager, services defined here should not override
         //services defined in Vivo config
         'invokables' => array (
-            'Vivo\CMS\UI\Blank'             => 'Vivo\CMS\UI\Blank',
-            'Vivo\CMS\UI\Root'              => 'Vivo\CMS\UI\Root',
-            'Vivo\UI\ComponentContainer'    => 'Vivo\UI\ComponentContainer',
-            'Vivo\UI\TabContainer'          => 'Vivo\UI\TabContainer',
+            'Vivo\CMS\UI\Blank'                    => 'Vivo\CMS\UI\Blank',
+            'Vivo\CMS\UI\Root'                     => 'Vivo\CMS\UI\Root',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
+            'Vivo\UI\ComponentContainer'           => 'Vivo\UI\ComponentContainer',
+            'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
         ),
         'factories' => array (
             // Content factories
@@ -263,12 +266,19 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Gallery'    => 'Vivo\CMS\UI\Content\Editor\GalleryFactory',
             'Vivo\CMS\UI\Content\Editor\SiteMap'    => 'Vivo\CMS\UI\Content\Editor\SiteMapFactory',
 
+            // CMS listeners
+            'Vivo\CMS\Listener\FetchDocumentListener'       => 'Vivo\CMS\Listener\FetchDocumentListenerFactory',
+            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 'Vivo\CMS\Listener\FetchDocumentByUrlListenerFactory',
+            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 'Vivo\CMS\Listener\FetchErrorDocumentListenerFactory',
+            'Vivo\CMS\Listener\RedirectMapListener'         => 'Vivo\CMS\Listener\RedirectMapListenerFactory',
+            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 'Vivo\CMS\Listener\ComponentTreeFromDocumentListenerFactory',
+            'Vivo\CMS\Listener\RssListener'                 => 'Vivo\CMS\Listener\RssListenerFactory',
+
             // Other
-            'Vivo\CMS\FetchErrorDocumentListener' => 'Vivo\CMS\FetchErrorDocumentListenerFactory',
-            'Vivo\CMS\RedirectMapListener'   => 'Vivo\CMS\RedirectMapListenerFactory',
             'Vivo\UI\Page'                   => 'Vivo\Service\UI\PageFactory',
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
+            'Vivo\CMS\UI\Rss'                => 'Vivo\CMS\UI\RssFactory',
             'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
 //          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 
@@ -290,6 +300,8 @@ return array(
             'Vivo\Backend\UI\Explorer\Browser'  => 'Vivo\Backend\UI\Explorer\BrowserFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
+
+            'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
         ),
         'aliases' => array(
         ),
@@ -445,6 +457,7 @@ return array(
     ),
     'document_sorting' => array (
         'native' => array(
+            'none'           => 'none',
             'parent'         => 'by_parent_document',
             'title:asc'      => 'title_asc',
             'title:desc'     => 'title_desc',

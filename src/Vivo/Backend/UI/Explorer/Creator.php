@@ -76,7 +76,6 @@ class Creator extends Editor
             $this->entity = $this->documentApi->createDocument($parent, $this->entity);
             $this->explorer->setEntity($this->entity);
             $this->saveProcess();
-            $this->explorer->setCurrent('editor');
             $routeParams = array(
                 'path' => $this->entity->getUuid(),
                 'explorerAction' => 'editor',

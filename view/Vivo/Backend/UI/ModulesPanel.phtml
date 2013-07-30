@@ -1,7 +1,8 @@
 <ul>
 	<?foreach ($modules as $module):?>
 	<li class="selected">
-		<a href="<?=$this->url(null, array('module'=>$module['name']))?>" title="<?=$this->translate($module['title'])?>">
+        <? $moduleUrl = $this->url('backend/modules', array('module'=>$module['name'], 'path' => '')); ?>
+		<a href="<?=$moduleUrl?>" title="<?=$this->translate($module['title'])?>">
 			<img src="<?=$module['icon']?>" alt="<?=$this->translate($module['title'])?>"/>
 		</a>
 	</li>

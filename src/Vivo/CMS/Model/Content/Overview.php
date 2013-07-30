@@ -35,7 +35,7 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
 
     /**
      * @var string Documents sorting.
-     * @see Vivo\CMS\Model\Document::$sorting
+     * @see Model\Folder::$sorting
      */
     protected $overviewSorting = 'title:asc';
 
