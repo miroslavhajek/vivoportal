@@ -1,6 +1,7 @@
 <?php
 namespace Vivo\CMS\Api\Helper;
 
+use Vivo\CMS\Model\Folder;
 use Vivo\Transliterator\TransliteratorInterface;
 
 /**
@@ -26,9 +27,9 @@ class DocumentCompare
 
 
     /**
-     * Returns document
-     * @param array|Model\Document $document
-     * @return Model\Document
+     * Returns document/folder
+     * @param array|Folder $document
+     * @return Folder
      */
     protected function getDocument($document)
     {
@@ -37,8 +38,8 @@ class DocumentCompare
 
     /**
      * Return properties of document pair
-     * @param mixed $doc1
-     * @param mixed $doc2
+     * @param array|Folder $doc1
+     * @param array|Folder $doc2
      * @param string $propertyName
      * @return array
      */
@@ -73,11 +74,11 @@ class DocumentCompare
 
     /**
      * Returns document property (generic getter)
-     * @param Model\Document $document
+     * @param Folder $document
      * @param string $property
      * @return mixed
      */
-    protected function getPropertyByName($document, $property)
+    protected function getPropertyByName(Folder $document, $property)
     {
         $getter = sprintf('get%s', ucfirst($property));
         return method_exists($document, $getter) ? $document->$getter() : null;
@@ -85,8 +86,8 @@ class DocumentCompare
 
     /**
      * Compares two documents based on given criteria
-     * @param mixed $doc1
-     * @param mixed $doc2
+     * @param array|Folder $doc1
+     * @param array|Folder $doc2
      * @param string $criteriaString
      * @return int Standart comparison output
      * @see http://cz2.php.net/manual/en/function.strcmp.php

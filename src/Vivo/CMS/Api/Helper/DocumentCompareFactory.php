@@ -12,7 +12,7 @@ class DocumentCompareFactory implements FactoryInterface
     /**
      * Create service
      * @param ServiceLocatorInterface $serviceLocator
-     * @return mixed
+     * @return DocumentCompare
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {

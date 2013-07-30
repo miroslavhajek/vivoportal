@@ -532,10 +532,10 @@ class Document implements DocumentInterface
     /**
      * Sort array of documents/folders by specified criteria.
      * Structure of input array may be as follows:
-     * 1) Model\Document[]
+     * 1) Model\Folder[]
      * 2) structured array:
      * array(
-     *     'doc' => Model\Document,
+     *     'doc' => Model\Folder,
      *     'children' => array(...)
      * )
      *
