@@ -199,14 +199,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
-     * Sets entity
-     * @param \Vivo\CMS\Model\Entity
+     * Returns entity beeing explored.
+     * @return \Vivo\CMS\Model\Entity
      */
-    public function setEntity($entity)
+    public function getEntity()
     {
-        $this->entity = $entity;
+        return $this->entity;
     }
-
+    
     /**
      * (non-PHPdoc)
      * @see \Vivo\UI\ComponentContainer::view()
