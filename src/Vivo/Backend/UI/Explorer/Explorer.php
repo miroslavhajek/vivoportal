@@ -206,7 +206,7 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         return $this->entity;
     }
-
+    
     /**
      * (non-PHPdoc)
      * @see \Vivo\UI\ComponentContainer::view()

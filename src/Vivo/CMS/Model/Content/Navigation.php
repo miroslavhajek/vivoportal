@@ -74,23 +74,23 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      * @var bool
      */
     protected $branchOnly   = false;
-    
+
     /**
      * Number of documents listed in the navigation per level
      * Null means unlimited
      * @var int
      */
     protected $limit;
-    
+
     /**
      * Determines way of sorting navigation documents
      * @var string
      */
     protected $navigationSorting = 'title:asc';
-    
+
     /**
      * Array of explicitly enumerated documents to include in the navigation
-     * Every document is represented as an array with two elements: 'doc_path' and 'children'
+     * Every document is represented as an array element 'doc_path' and optional element 'children'
      * The 'children' element may contain similar arrays
      * array(
      *      array(
@@ -252,7 +252,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     {
         return $this->branchOnly;
     }
-    
+
     /**
      * Sets way of sorting navigation documents
      * @param string $sorting
@@ -264,13 +264,13 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
 
     /**
      * Returns way of sorting navigation documents
-     * @return boolean
+     * @return string
      */
     public function getNavigationSorting()
     {
         return $this->navigationSorting;
     }
-    
+
     /**
      * Sets number of documents listed in the navigation per level
      * @param int $limit

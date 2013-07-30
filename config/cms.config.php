@@ -457,6 +457,7 @@ return array(
     ),
     'document_sorting' => array (
         'native' => array(
+            'none'           => 'none',
             'parent'         => 'by_parent_document',
             'title:asc'      => 'title_asc',
             'title:desc'     => 'title_desc',
