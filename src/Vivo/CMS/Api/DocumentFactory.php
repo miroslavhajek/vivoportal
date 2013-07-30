@@ -21,7 +21,7 @@ class DocumentFactory implements FactoryInterface
         $pathBuilder            = $serviceLocator->get('path_builder');
         $uuidGenerator          = $serviceLocator->get('uuid_generator');
         $translitDocTitleToPath = $serviceLocator->get('Vivo\Transliterator\DocTitleToPath');
-        $translitMbStringCmp    = $serviceLocator->get('Vivo\Transliterator\MbStringCompare');
+        $documentCompareHelper  = $serviceLocator->get('Vivo\apihelper_document_compare');
         $config                 = $serviceLocator->get('config');
         $options                = $this->prepareOptions($config['cms']);
         $api                    = new Document($cms,
@@ -29,7 +29,7 @@ class DocumentFactory implements FactoryInterface
                                        $pathBuilder,
                                        $uuidGenerator,
                                        $translitDocTitleToPath,
-                                       $translitMbStringCmp,
+                                       $documentCompareHelper,
                                        $options);
         return $api;
     }

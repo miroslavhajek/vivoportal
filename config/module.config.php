@@ -272,6 +272,7 @@ return array(
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
             'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
             'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
+            'Vivo\apihelper_document_compare' => 'Vivo\CMS\Api\Helper\DocumentCompareFactory',
         ),
         'aliases' => array(
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
@@ -625,15 +626,13 @@ return array(
                     'ý' => 'y', 'Ý' => 'Y', 'ÿ' => 'y', 'Ÿ' => 'Y',
                     //Z
                     'ž' => 'z', 'Ž' => 'Z', 'ź' => 'z', 'Ź' => 'Z', 'ż' => 'z', 'Ż' => 'Z',
-                    //Symbols
-                    '\\' => '/',
                 ),
                 //String with all allowed characters
-                'allowedChars'      => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_',
+                'allowedChars'      => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_!"$%&\'()*+,./:;<=>?@[\\]^{|}',
                 //Character used to replace illegal characters
                 'replacementChar'   => '-',
                 //Change case before processing
-                'caseChangePre'     => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
+                'caseChangePre'     => \Vivo\Transliterator\Transliterator::CASE_CHANGE_TO_LOWER,
                 //Change case after processing
                 'caseChangePost'    => \Vivo\Transliterator\Transliterator::CASE_CHANGE_NONE,
             ),

@@ -257,16 +257,20 @@ class Navigation extends AbstractNavigation
         return (bool) $doc->getAllowListingInNavigation() === false;
     }
 
+    /**
+     * Sorts documents by provided criteria
+     * By default it doesn't do anything
+     * @param array $documents
+     * @return array
+     */
     protected function sortDocuments($documents)
     {
         $sorting = $this->navModel->getNavigationSorting();
-        if($sorting !== null && $sorting != 'none') {
-            /* @var $currentDoc Document */
+        if (strpos($sorting, "parent") !== false) {
             $currentDoc = $this->cmsEvent->getDocument();
-            $parentSorting = $currentDoc->getSorting();
-            if(strpos($sorting, "parent") !== false && $parentSorting != null) {
-                $sorting = $parentSorting;
-            }
+            $sorting = $currentDoc->getSorting();
+        }
+        if($sorting !== null && $sorting != 'none') {
             $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
         }
 

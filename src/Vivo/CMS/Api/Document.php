@@ -9,6 +9,7 @@ use Vivo\CMS\Exception as CMSException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Model\Content;
 use Vivo\Transliterator\TransliteratorInterface;
+use Vivo\CMS\Api\Helper\DocumentCompare;
 
 use DateTime;
 
@@ -49,21 +50,16 @@ class Document implements DocumentInterface
     protected $transliteratorDocTitleToPath;
 
     /**
-     * Transliterator for unicode string comparison
-     * @var TransliteratorInterface
+     * Helper for document comparison
+     * @var DocumentCompare
      */
-    protected $transliteratorMbStringCompare;
+    protected $documentCompareHelper;
 
     /**
      * @var array
      */
     protected $options = array();
 
-    /**
-     *
-     * @var array
-     */
-    private $translitCache = array();
 
     /**
      * Constructor
@@ -72,7 +68,7 @@ class Document implements DocumentInterface
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Transliterator\TransliteratorInterface $transliteratorDocTitleToPath
-     * @param \Vivo\Transliterator\TransliteratorInterface $transliteratorMbStringCompare
+     * @param DocumentCompare $documentCompareHelper
      * @param array $options
      */
     public function __construct(CMS $cmsApi,
@@ -80,7 +76,7 @@ class Document implements DocumentInterface
                                 PathBuilderInterface $pathBuilder,
                                 UuidGeneratorInterface $uuidGenerator,
                                 TransliteratorInterface $transliteratorDocTitleToPath,
-                                TransliteratorInterface $transliteratorMbStringCompare,
+                                DocumentCompare $documentCompareHelper,
                                 array $options)
     {
         $this->cmsApi                       = $cmsApi;
@@ -88,7 +84,7 @@ class Document implements DocumentInterface
         $this->pathBuilder                  = $pathBuilder;
         $this->uuidGenerator                = $uuidGenerator;
         $this->transliteratorDocTitleToPath = $transliteratorDocTitleToPath;
-        $this->transliteratorMbStringCompare = $transliteratorMbStringCompare;
+        $this->documentCompareHelper = $documentCompareHelper;
         $this->options = array_merge($this->options, $options);
     }
 
@@ -534,80 +530,10 @@ class Document implements DocumentInterface
     }
 
     /**
-     * Returns document
-     * @param array|Model\Document $document
-     * @return Model\Document
-     */
-    protected function getDocument($document)
-    {
-        return is_array($document) ? $document['doc'] : $document;
-    }
-
-    /**
-     * Return properties of document pair
-     * @param mixed $doc1
-     * @param mixed $doc2
-     * @param string $propertyName
-     * @return array
-     */
-    public function getPropertiesToCompare($doc1, $doc2, $propertyName)
-    {
-        return array(
-            $this->getPropertyByName($this->getDocument($doc1), $propertyName),
-            $this->getPropertyByName($this->getDocument($doc2), $propertyName),
-        );
-    }
-
-
-    /**
-     * Parses criteria string into array.
-     * 'property_name' and 'sort_direction' properties are extracted
-     * @param string $criteriaString
-     * @return array
-     */
-    protected function parseCriteriaString($criteriaString)
-    {
-        $criteria = array();
-        if(strpos($criteriaString, ":") !== false) {
-            $criteria['property_name'] = substr($criteriaString, 0,  strpos($criteriaString,':'));
-            $criteria['sort_direction'] = substr($criteriaString, strpos($criteriaString,':')+1);
-        } else {
-            $criteria['property_name'] = $criteriaString;
-            $criteria['sort_direction'] = 'asc';
-        }
-        $criteria['sort_direction'] = $criteria['sort_direction'] == 'desc' ? SORT_DESC : SORT_ASC;
-        return $criteria;
-    }
-
-    /**
-     * Returns document property (generic getter)
-     * @param Model\Document $document
-     * @param string $property
-     * @return mixed
-     */
-    protected function getPropertyByName($document, $property)
-    {
-        $getter = sprintf('get%s', $property);
-        return method_exists($document, $getter) ? $document->$getter() : null;
-    }
-
-
-    /**
-     * Transliterate string with usage of cache
-     * @param string $item
-     * @return string
-     */
-    public function transliterateItem($item)
-    {
-        if (!isset($this->translitCache[$item])) {
-            $this->translitCache[$item] = $this->transliteratorMbStringCompare->transliterate($item);
-        }
-        return $this->translitCache[$item];
-    }
-
-    /**
-     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies
-     * where doc index is Model\Document and 'children' is custom array sorted with document.
+     * Sort array of documents/folders by specified criteria.
+     * Structure of input array may be as follows:
+     * 1) Model\Document[]
+     * 2) structured array:
      * array(
      *     'doc' => Model\Document,
      *     'children' => array(...)
@@ -615,32 +541,14 @@ class Document implements DocumentInterface
      *
      * @param array $documents Array of documents/folders
      * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
-     * @return array
+     * @return array Sorted array of documents structured the same way as input array
      */
     public function sortDocumentsByCriteria(array $documents, $criteriaString)
     {
         if (is_string($criteriaString)) {
-            $criteria = $this->parseCriteriaString($criteriaString);
-            $that = $this;
-            $translitCache = array();
-            uasort($documents, function($a, $b) use ($criteria, $that, $translitCache) {
-
-                if($criteria['property_name'] === 'random') {
-                    return rand(-1, 1);
-                }
-                $comparisonResult = 0;
-                list($aProp, $bProp) = $that->getPropertiesToCompare($a, $b, $criteria['property_name']);
-                //comparison functions
-
-                if($aProp instanceof \DateTime && $bProp instanceof \DateTime){
-                    $comparisonResult =  $aProp->getTimestamp() - $bProp->getTimestamp();
-                } else {
-                    $comparisonResult = strcmp(
-                        $that->transliterateItem($aProp),
-                        $that->transliterateItem($bProp)
-                    );
-                }
-                return ($criteria['sort_direction'] == SORT_ASC) ? $comparisonResult : -$comparisonResult;
+            $documentCompareHelper = $this->documentCompareHelper;
+            uasort($documents, function($a, $b) use ($documentCompareHelper, $criteriaString) {
+                return $documentCompareHelper->compare($a, $b, $criteriaString);
             });
         }
 

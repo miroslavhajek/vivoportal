@@ -90,7 +90,7 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
 
     /**
      * Array of explicitly enumerated documents to include in the navigation
-     * Every document is represented as an array element 'doc_path' and voluntary element 'children'
+     * Every document is represented as an array element 'doc_path' and optional element 'children'
      * The 'children' element may contain similar arrays
      * array(
      *      array(
