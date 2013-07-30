@@ -5,6 +5,7 @@ use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Util;
+use Vivo\CMS\Util\Object;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Indexer\IndexerInterface;

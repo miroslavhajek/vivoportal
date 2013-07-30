@@ -33,6 +33,7 @@ return array(
             'Vivo\Backend\UI\SiteSelector'                  => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
             'Vivo\UI\TabContainer'                          => __DIR__.'/../view/Vivo/Backend/UI/TabContainerMultiContent.phtml',
             'Vivo\UI\Ribbon'                                => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
+            'Vivo\Backend\UI\Explorer\Finder:SearchPulldown'=> __DIR__.'/../view/Vivo/Backend/UI/Explorer/Finder.SearchPulldown.phtml',
         ),
     ),
 

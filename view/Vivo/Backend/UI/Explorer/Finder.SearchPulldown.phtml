@@ -2,12 +2,11 @@
 <ul>
     <? foreach ($data as $docData) :
         $document = $docData['document']; /* @var $document \Vivo\CMS\Model\Document */
-        $isPublished = Util\Object::is_a($document, 'Vivo\CMS\Model\Document') ? ($document->isPublished() ? true : false) : false;
     ?>
     <li<?=($documentsCount == $i) ? ' class="last"' : '';?>>
-        <a href="<?=$this->actionURL('set', array($document->getURL())) ?>">
-            <?=htmlspecialchars($document->title) ?>
-            <span class="path" style="font-size: 13px; color: #606070"><?=$document->getURL()?></span>
+        <a href="<?=$this->document ?>">
+            <?=htmlspecialchars($document->getTitle()) ?>
+            <span class="path" style="font-size: 13px; color: #606070"><?=$this->document?></span>
             <?if ($docData['published']): ?><span class="published"></span><? endif; ?>
             <br>
             <? if ($document->getDescription() || $document->getKeywords()): ?>
