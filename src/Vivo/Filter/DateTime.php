@@ -7,7 +7,7 @@ class DateTime extends AbstractFilter
 {
     /**
      * Tries to parse input string into \DateTime object.
-     * Better to use '|' sign in $format but it is supported in PHP version >= 2.3.8
+     * Better to use '|' sign in $format but it is supported in PHP version >= 5.3.8
      * @see http://www.php.net/manual/en/datetime.createfromformat.php
      * @param string $value
      * @return null|string
