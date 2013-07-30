@@ -34,6 +34,7 @@ return array(
             'Vivo\UI\TabContainer'                          => __DIR__.'/../view/Vivo/Backend/UI/TabContainerMultiContent.phtml',
             'Vivo\UI\Ribbon'                                => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
             'Vivo\Backend\UI\Explorer\Finder:SearchPulldown'=> __DIR__.'/../view/Vivo/Backend/UI/Explorer/Finder.SearchPulldown.phtml',
+            'Vivo\Backend\UI\Site'                          => __DIR__.'/../view/Vivo/Backend/UI/Site.phtml',
         ),
     ),
 
@@ -152,7 +153,7 @@ return array(
             'site' => array (
                 'name' => 'site',
                 'title' => 'Site',
-                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'componentClass' => 'Vivo\Backend\UI\Site',
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
             ),
             'blank' => array (

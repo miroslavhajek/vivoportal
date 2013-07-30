@@ -64,3 +64,4 @@ class Site extends Folder
         return $this->hosts;
     }
 }
+

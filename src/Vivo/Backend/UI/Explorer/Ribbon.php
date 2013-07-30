@@ -5,7 +5,6 @@ use Vivo\UI\Ribbon\Tab;
 use Vivo\UI\Ribbon\Group;
 use Vivo\UI\Ribbon\Item;
 
-use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 
 /**

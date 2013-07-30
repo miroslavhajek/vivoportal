@@ -299,11 +299,9 @@ abstract class AbstractNavigation extends Component
                     'level' => \VpLogger\Log\Logger::WARN));
                 continue;
             }
-            if (!$doc instanceof Document) {
-                throw new Exception\UnexpectedValueException(
-                    sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
+            if ($doc instanceof Document) {
+                $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
             }
-            $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }
         $documents = $this->sortDocuments($documents);
         if($limit && count($documents) > 0) {

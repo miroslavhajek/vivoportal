@@ -20,7 +20,8 @@ class MoveFactory implements FactoryInterface
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
         $pathBuilder        = $serviceLocator->get('path_builder');
         $alert              = $serviceLocator->get('Vivo\UI\Alert');
-        $move               = new Move($cmsApi, $documentApi, $pathBuilder, $alert);
+        $urlHelper          = $serviceLocator->get('Vivo\Util\UrlHelper');
+        $move               = new Move($cmsApi, $documentApi, $pathBuilder, $alert, $urlHelper);
         return $move;
     }
 }

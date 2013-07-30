@@ -1,16 +1,19 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
+use Vivo\CMS\Api;
+use Vivo\CMS\Event\CMSEvent;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 
 /**
  * Simple listener for fetching document.
  *
- * This listener find document by its path.
+ * This listener find document by url property.
  */
-class FetchDocumentListener implements ListenerAggregateInterface
+class FetchDocumentByUrlListener implements ListenerAggregateInterface
 {
+
     /**
      * @var Api\Indexer
      */
@@ -23,11 +26,11 @@ class FetchDocumentListener implements ListenerAggregateInterface
 
     /**
      * Constructor.
-     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\Api\Indexer $indexerApi
      */
-    public function __construct(Api\CMS $cmsApi)
+    public function __construct(Api\Indexer $indexerApi)
     {
-        $this->cmsApi = $cmsApi;
+        $this->indexerApi = $indexerApi;
     }
 
     /**
@@ -38,7 +41,7 @@ class FetchDocumentListener implements ListenerAggregateInterface
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(Event\CMSEvent::EVENT_FETCH_DOCUMENT, array($this, 'fetchDocument'));
+        $this->listeners[] = $events->attach(CMSEvent::EVENT_FETCH_DOCUMENT, array($this, 'fetchDocument'));
     }
 
     /**
@@ -57,18 +60,15 @@ class FetchDocumentListener implements ListenerAggregateInterface
     }
 
     /**
-     * Fetch document by requested path.
+     * Fetch document by url property.
      * @param \Vivo\CMS\Event\CMSEvent $e
-     * @return null|Model\Document
+     * @return Model\Document | null
      */
-    public function fetchDocument(Event\CMSEvent $e)
+    public function fetchDocument(CMSEvent $e)
     {
-        try {
-            $document = $this->cmsApi->getSiteEntity($e->getRequestedPath(), $e->getSite());
-        } catch (\Vivo\Repository\Exception\EntityNotFoundException $e) {
-            return null;
-        }
-
-        return $document;
+        $query = sprintf('\Vivo\CMS\Model\Document\uri:"%s" AND \class:"Vivo\CMS\Model\Document"',
+                $e->getRequestedPath());
+        $documents = $this->indexerApi->getEntitiesByQuery($query);
+        return current($documents)?:null;
     }
 }

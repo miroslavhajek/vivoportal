@@ -5,7 +5,6 @@ use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Util;
-use Vivo\CMS\Util\Object;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Indexer\IndexerInterface;
@@ -114,16 +113,6 @@ class Finder extends Component implements TranslatorAwareInterface
     public function setExplorer(ExplorerInterface $explorer)
     {
         $this->explorer = $explorer;
-        $this->explorer->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
-    }
-
-    /**
-     * Callback for entity change event.
-     * @param Event $e
-     */
-    public function onEntityChange(Event $e)
-    {
-        $this->entity = $e->getParam('entity');
     }
 
     /**

@@ -25,12 +25,12 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
         return $this->$name; //notice if property doesn't exist
     }
 
-    function __isset($name)
+    public function __isset($name)
     {
         return $this->hasComponent($name);
     }
 
-    function __unset($name)
+    public function __unset($name)
     {
         if ($this->hasComponent($name))
             $this->removeComponent($name);

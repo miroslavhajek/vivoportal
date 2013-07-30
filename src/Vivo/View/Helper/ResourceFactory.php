@@ -7,7 +7,7 @@ use Zend\ServiceManager\FactoryInterface;
 /**
  * ResourceFactory
  */
-class ResourceFactory implements  FactoryInterface
+class ResourceFactory implements FactoryInterface
 {
     /**
      * Create service
