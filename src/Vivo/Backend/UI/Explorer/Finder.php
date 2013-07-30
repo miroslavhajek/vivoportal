@@ -276,7 +276,7 @@ class Finder extends Component implements TranslatorAwareInterface
 
             $documents[] = array(
                 'document' => $document,
-                'published' => intval($published),
+                'published' => $published,
             );
         }
 
