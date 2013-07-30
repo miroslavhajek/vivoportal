@@ -300,6 +300,8 @@ return array(
             'Vivo\Backend\UI\Explorer\Browser'  => 'Vivo\Backend\UI\Explorer\BrowserFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
+
+            'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
         ),
         'aliases' => array(
         ),
