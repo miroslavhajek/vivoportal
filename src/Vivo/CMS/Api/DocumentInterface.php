@@ -82,9 +82,10 @@ interface DocumentInterface
     /**
      * @param Model\Folder $parent
      * @param Model\Folder $document
+     * @param string $nameInPath
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Folder $parent, Model\Folder $document);
+    public function createDocument(Model\Folder $parent, Model\Folder $document, $nameInPath = null);
 
     /**
      * Copies document to a new location

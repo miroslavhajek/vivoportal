@@ -1,4 +1,6 @@
 <?php
+$this->headScript()->appendFile('/.Vivo.resource/js/update-path.js');
+
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 echo $this->formTwb()->openTag($form, $formType);
 $type = $form->get('__type')
@@ -7,6 +9,18 @@ $type = $form->get('__type')
         sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('create')));
 echo $this->formRowTwb($type, $formType);
 
+/*
+ *
+ */
+echo $this->formRowTwb($form->get('entity')->get('title'), $formType);
+$form->get('entity')->remove('title');
+
+$nameInPath = $form->get('name_in_path')
+    ->setAttribute('style', 'width:100%');
+$name = $form->get('entity')->get('title');
+$name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
+echo $this->formRowTwb($nameInPath, $formType);
+
 echo $this->formFieldsetTwb($form->get('entity'), $formType);
 echo $contentTab;
 
@@ -14,3 +28,4 @@ echo $this->formRowTwb($form->get('act'), $formType);
 echo $this->formRowTwb($form->get('csrf'), $formType);
 echo $this->formFieldsetTwb($form->get('buttons'));
 echo $this->formTwb()->closeTag();
+?>

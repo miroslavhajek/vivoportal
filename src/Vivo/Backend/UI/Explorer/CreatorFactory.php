@@ -23,8 +23,11 @@ class CreatorFactory implements FactoryInterface
         $provider           = $sm->get('Vivo\CMS\AvailableContentsProvider');
         $alert              = $sm->get('Vivo\UI\Alert');
         $urlHelper          = $sm->get('Vivo\Util\UrlHelper');
+        $formFactory        = $sm->get('form_factory');
+        $inputFilterFactory = $sm->get('input_filter_factory');
 
-        $editor = new Creator($sm, $metadataManager, $lookupDataManager, $documentApi, $provider, $urlHelper);
+        $editor = new Creator($sm, $metadataManager, $lookupDataManager,
+                              $documentApi, $provider, $urlHelper, $formFactory, $inputFilterFactory);
         $editor->setTabContainer($sm->create('Vivo\UI\TabContainer'));
         $editor->setAlert($alert);
 

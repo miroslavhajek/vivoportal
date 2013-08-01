@@ -13,6 +13,8 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
+use Vivo\InputFilter\Factory as InputFilterFactory;
+use Vivo\InputFilter\VivoInputFilter;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 use Zend\I18n\Translator\Translator;
@@ -80,12 +82,27 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected $csrfTimeout          = 3600;
 
     /**
+     * Form factory
+     * @var Form\Factory
+     */
+    protected $formFactory;
+
+    /**
+     * Input filter factory
+     * @var InputFilterFactory
+     */
+    protected $inputFilterFactory;
+
+    /**
      * Constructor
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\LookupData\LookupDataManager $lookupDataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\CMS\AvailableContentsProvider $availableContentsProvider
+     * @param \Vivo\Util\UrlHelper $urlHelper
+     * @param \Vivo\Form\Factory $formFactory
+     * @param \Vivo\InputFilter\Factory $inputFilterFactory
      */
     public function __construct(
         \Zend\ServiceManager\ServiceManager $sm,
@@ -93,7 +110,9 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         LookupDataManager $lookupDataManager,
         DocumentApiInterface $documentApi,
         AvailableContentsProvider $availableContentsProvider,
-        UrlHelper $urlHelper)
+        UrlHelper $urlHelper,
+        Form\Factory $formFactory,
+        InputFilterFactory $inputFilterFactory)
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
@@ -101,6 +120,8 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
         $this->urlHelper = $urlHelper;
+        $this->formFactory = $formFactory;
+        $this->inputFilterFactory = $inputFilterFactory;
     }
 
     public function init()
@@ -211,7 +232,13 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             ),
         ));
 
+        // create form
         $form = new Form\Form('entity-' . $this->entity->getUuid());
+        $form->setFormFactory($this->formFactory);
+        $inputFilter = new VivoInputFilter();
+        $inputFilter->setFactory($this->inputFilterFactory);
+        $form->setInputFilter($inputFilter);
+
         $form->setAttribute('action', $action);
         $form->setAttribute('method', 'post');
         $form->add(array(

@@ -335,17 +335,29 @@ class Document implements DocumentInterface
      * @throws Exception\InvalidTitleException
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Folder $parent, Model\Folder $document)
+    public function createDocument(Model\Folder $parent, Model\Folder $document, $nameInPath = null)
     {
-        $title = trim($document->getTitle());
+        $title = $pathSlug = trim($document->getTitle());
         if($title == '') {
             throw new \Vivo\CMS\Api\Exception\InvalidTitleException('Document title is not set');
         }
         $document->setTitle($title);
 
-        $titleTranslit  = $this->transliteratorDocTitleToPath->transliterate($document->getTitle());
-//        $titleLc = mb_strtolower($document->getTitle());
-        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleTranslit));
+        // use $nameInPath param?
+        if ($nameInPath !== null) {
+            $nameInPath = trim($nameInPath);
+            if($nameInPath == '') {
+                throw new \Vivo\CMS\Api\Exception\InvalidPathException('Document path is not set');
+            }
+            $pathSlug = $nameInPath;
+        }
+
+        $pathSlugTranslit  = $this->transliteratorDocTitleToPath->transliterate($pathSlug);
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $pathSlugTranslit));
+
+        if ($this->repository->hasEntity($path)) {
+            throw new \Vivo\CMS\Api\Exception\InvalidPathException(sprintf("Path '%s' already exists", $path));
+        }
 
         $document->setPath($path);
         $document = $this->cmsApi->prepareEntityForSaving($document);
