@@ -19,6 +19,10 @@ class UniqueEntityPath extends AbstractValidator implements PathBuilderAwareInte
 {
     const UNIQUE = 'unique';
 
+    /**
+     * Array of message templates
+     * @var array
+     */
     protected $messageTemplates = array(
         self::UNIQUE => "Name '%value%' must form unique path",
     );
