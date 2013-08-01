@@ -53,6 +53,11 @@ class Entity implements PathInterface
     protected $modifiedBy;
 
     /**
+     * @var CustomProperties
+     */
+    protected $customProperties;
+
+    /**
      * Constructor.
      * @param string $path Path to entity. If not set, it will be undefined and can be set later before persisting entity using saveEntity method of Repository.
      */
@@ -215,5 +220,17 @@ class Entity implements PathInterface
     public function getTextContent($field_names = array())
     {
 
+    }
+
+    /**
+     * @return \Vivo\CMS\Model\CustomProperties
+     */
+    public function getCustomProperties()
+    {
+        if(!$this->customProperties instanceof CustomProperties) {
+            $this->customProperties = new CustomProperties();
+        }
+
+        return $this->customProperties;
     }
 }
