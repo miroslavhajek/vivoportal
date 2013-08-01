@@ -82,16 +82,10 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected $csrfTimeout          = 3600;
 
     /**
-     * Form factory
-     * @var Form\Factory
+     * New form factory
+     * @var Form\NewFormFactory
      */
-    protected $formFactory;
-
-    /**
-     * Input filter factory
-     * @var InputFilterFactory
-     */
-    protected $inputFilterFactory;
+    protected $newFormFactory;
 
     /**
      * Constructor
@@ -101,8 +95,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\CMS\AvailableContentsProvider $availableContentsProvider
      * @param \Vivo\Util\UrlHelper $urlHelper
-     * @param \Vivo\Form\Factory $formFactory
-     * @param \Vivo\InputFilter\Factory $inputFilterFactory
+     * @param \Vivo\Form\NewFormFactory $newFormFactory
      */
     public function __construct(
         \Zend\ServiceManager\ServiceManager $sm,
@@ -111,8 +104,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         DocumentApiInterface $documentApi,
         AvailableContentsProvider $availableContentsProvider,
         UrlHelper $urlHelper,
-        Form\Factory $formFactory,
-        InputFilterFactory $inputFilterFactory)
+        Form\NewFormFactory $newFormFactory)
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
@@ -120,8 +112,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
         $this->urlHelper = $urlHelper;
-        $this->formFactory = $formFactory;
-        $this->inputFilterFactory = $inputFilterFactory;
+        $this->newFormFactory = $newFormFactory;
     }
 
     public function init()
@@ -233,12 +224,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         ));
 
         // create form
-        $form = new Form\Form('entity-' . $this->entity->getUuid());
-        $form->setFormFactory($this->formFactory);
-        $inputFilter = new VivoInputFilter();
-        $inputFilter->setFactory($this->inputFilterFactory);
-        $form->setInputFilter($inputFilter);
-
+        $form = $this->newFormFactory->create('entity-' . $this->entity->getUuid());
         $form->setAttribute('action', $action);
         $form->setAttribute('method', 'post');
         $form->add(array(

@@ -9,16 +9,16 @@ $type = $form->get('__type')
         sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('create')));
 echo $this->formRowTwb($type, $formType);
 
-/*
- *
- */
+// manual render of 'title' element of 'entity' fieldset to get 'title' to the first position
+// fieldset 'entity' is rendered below - 'title' element must be removed (it would be rendered twice)
+$name = $form->get('entity')->get('title');
+$name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
 echo $this->formRowTwb($form->get('entity')->get('title'), $formType);
 $form->get('entity')->remove('title');
 
-$nameInPath = $form->get('name_in_path')
-    ->setAttribute('style', 'width:100%');
-$name = $form->get('entity')->get('title');
-$name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
+// render of 'name_in_path' which is not part of 'entity' fieldset
+$nameInPath = $form->get('name_in_path');
+$nameInPath->setAttribute('style', 'width:100%');
 echo $this->formRowTwb($nameInPath, $formType);
 
 echo $this->formFieldsetTwb($form->get('entity'), $formType);
