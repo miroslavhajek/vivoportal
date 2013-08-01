@@ -15,6 +15,7 @@ use Vivo\Util\UrlHelper;
 use Zend\EventManager\Event;
 use Zend\I18n\Translator\Translator;
 use Zend\View\Model\JsonModel;
+use Vivo\Util\RedirectEvent;
 
 class Finder extends Component implements TranslatorAwareInterface
 {
@@ -55,9 +56,14 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $iconUrlHelper;
 
     /**
-     * @var ExplorerInterface
+     * @var \Vivo\Backend\UI\Explorer\ExplorerInterface
      */
     protected $explorer;
+
+    /**
+     * @var \Vivo\UI\Alert
+     */
+    protected $alert;
 
     /**
      * @var \Vivo\CMS\Model\Entity
@@ -65,7 +71,7 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $entity;
 
     /**
-     * @var Translator
+     * @var \Zend\I18n\Translator\Translator
      */
     protected $translator;
 
@@ -264,6 +270,26 @@ class Finder extends Component implements TranslatorAwareInterface
         $view->documentsCount = count($documents);
 
         return $view;
+    }
+
+    /**
+     * Opens entity editor by URL / UUID
+     * @param string $url
+     */
+    public function redirectToUrl($url)
+    {
+        try {
+            $document = $this->documentApi->getEntity($url);
+
+            $url = $this->urlHelper->fromRoute('backend/explorer', array('path' => $document->getUuid()));
+            $this->events->trigger(new RedirectEvent($url));
+        }
+        catch(\Vivo\CMS\Exception\InvalidArgumentException $e) {
+            $this->alert->addMessage('Neplatný formát URL', Alert::TYPE_WARNING);
+        }
+        catch(\Vivo\Repository\Exception\EntityNotFoundException $e) {
+            $this->alert->addMessage('Entita na zadané URL neexistuje', Alert::TYPE_WARNING);
+        }
     }
 
     /**
