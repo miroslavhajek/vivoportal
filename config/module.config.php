@@ -392,6 +392,7 @@ return array(
             'conditional'   => 'Vivo\Validator\Conditional',
             'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
             'vivo_personal_number_cz'  => 'Vivo\Validator\PersonalNumberCZ',
+            'vivo_unique_entity_path' => 'Vivo\CMS\Validator\UniqueEntityPath',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
