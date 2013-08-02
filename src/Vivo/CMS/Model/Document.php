@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\Model;
 
-use DateTime;
-
 /**
  * The document represents a folder in tree. The document contains functions for working with content and sub-documents
  */
@@ -123,7 +121,7 @@ class Document extends Folder
      * Typically it is used for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
      *
-     * @var DateTime
+     * @var \DateTime
      */
     protected $published;
 
