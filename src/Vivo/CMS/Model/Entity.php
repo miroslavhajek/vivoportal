@@ -67,11 +67,30 @@ class Entity implements PathInterface
     }
 
     /**
+     * Magic method call for custom properties
+     * @param string $name
+     * @param mixed $params
+     * @return mixed
+     */
+    public function __call($name, $params)
+    {
+        if(strpos($name, 'get') === 0) {
+            $name = lcfirst(substr($name, 3));
+
+            return $this->customProperties->get($name);
+        }
+        if(strpos($name, 'set') === 0) {
+            $name = lcfirst(substr($name, 3));
+            $this->customProperties->set($name, $params[0]);
+        }
+    }
+
+    /**
      * Compare entities by path.
      * @param \Vivo\CMS\Model\Entity $entity
      * @return bool Returns true if the entity is under another entity (in the tree paths).
      */
-    public function under(\Vivo\CMS\Model\Entity $entity)
+    public function under(Entity $entity)
     {
         return (strpos($this->path . '/', $entity->getPath() . '/') === 0);
     }
