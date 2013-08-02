@@ -50,16 +50,6 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
     protected $overviewItems = array();
 
     /**
-     * Setting default values
-     *
-     * @param string $path Entity path
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
-    /**
      * Sets overview type
      *
      * @param string $type Overview type
@@ -145,27 +135,18 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
     }
 
     /**
-     * @param array $field_names
-     * @return string
-     */
-    public function getTextContent($field_names = array())
-    {
-        return parent::getTextContent(
-                array_merge($field_names,
-                        array('overviewPath', 'overviewItems')));
-    }
-
-    /**
      * @param string $overviewPath
      */
-    public function setOverviewPath($overviewPath) {
+    public function setOverviewPath($overviewPath)
+    {
         $this->overviewPath = $overviewPath;
     }
 
     /**
      * @param array $overviewItems
      */
-    public function setOverviewItems(array $overviewItems) {
+    public function setOverviewItems(array $overviewItems)
+    {
         $this->overviewItems = $overviewItems;
     }
 
@@ -192,10 +173,9 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
      */
     public function getArrayCopySymRef()
     {
-        $data   = array(
+        return array(
             'overview_criteria' => $this->getOverviewCriteria(),
             'overview_path'     => $this->getOverviewPath(),
         );
-        return $data;
     }
 }

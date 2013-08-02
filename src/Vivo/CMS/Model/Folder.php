@@ -28,13 +28,13 @@ class Folder extends Entity implements SymRefDataExchangeInterface
      * @var bool
      */
     protected $allowListingInNavigation = true;
-    
+
     /**
      * Allows listing documents in overview
      * @var bool
      */
     protected $allowListing = true;
-    
+
     /**
      * Allows listing documents in sitemap
      * @var bool
@@ -109,63 +109,75 @@ class Folder extends Entity implements SymRefDataExchangeInterface
         return $this->title;
     }
 
-    public function getLanguage() {
+    public function getLanguage()
+    {
         return $this->language;
     }
 
-    public function setLanguage($language) {
+    public function setLanguage($language)
+    {
         $this->language = $language;
     }
 
-    public function getDescription() {
+    public function getDescription()
+    {
         return $this->description;
     }
 
-    public function setDescription($description) {
+    public function setDescription($description)
+    {
         $this->description = $description;
-    }  
-    
+    }
+
     /**
      * Returns bool value determinates if document can be included to overview.
      * @return bool
      */
-    public function getAllowListing() {
+    public function getAllowListing()
+    {
         return $this->allowListing;
     }
-    
+
     /**
      * Returns bool value determinates if document can be included to navigation.
      * @return bool
      */
-    public function getAllowListingInNavigation() {
+    public function getAllowListingInNavigation()
+    {
         return $this->allowListingInNavigation;
     }
-    
+
     /**
      * Returns bool value determinates if document can be included to sitemap.
      * @return bool
      */
-    public function getAllowListingInSitemap() {
+    public function getAllowListingInSitemap()
+    {
         return $this->allowListingInSitemap;
     }
 
-    public function getPosition() {
+    public function getPosition()
+    {
         return $this->position;
     }
 
-    public function getSorting() {
+    public function getSorting()
+    {
         return $this->sorting;
     }
 
-    public function setSorting($sorting) {
+    public function setSorting($sorting)
+    {
         $this->sorting = $sorting;
     }
 
-    public function getSecurity() {
+    public function getSecurity()
+    {
         return $this->security;
     }
 
-    public function setSecurity(Security $security) {
+    public function setSecurity(Security $security)
+    {
         $this->security = $security;
     }
 
@@ -185,7 +197,7 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     {
         $this->allowListing = (bool)$allowListing;
     }
-    
+
     /**
      * Sets bool property determining if document can be listed in navigation
      * @param bool $allowListingInNavigation
@@ -194,24 +206,14 @@ class Folder extends Entity implements SymRefDataExchangeInterface
     {
         $this->allowListingInNavigation = (bool)$allowListingInNavigation;
     }
-    
+
     /**
-     * Sets bool property determining if document can be listed in sitemap     
+     * Sets bool property determining if document can be listed in sitemap
      * @param bool $allowListingInSitemap
      */
     public function setAllowListingInSitemap($allowListingInSitemap = true)
     {
         $this->allowListingInSitemap = (bool)$allowListingInSitemap;
-    }
-
-    /**
-     * @param array $field_names
-     * @return string
-     */
-    public function getTextContent($field_names = array())
-    {
-        return parent::getTextContent(
-                array_merge($field_names, array('description')));
     }
 
     /**
@@ -232,8 +234,6 @@ class Folder extends Entity implements SymRefDataExchangeInterface
      */
     public function getArrayCopySymRef()
     {
-        $data                   = array();
-        $data['description']    = $this->getDescription();
-        return $data;
+        return array('description' => $this->getDescription());
     }
 }

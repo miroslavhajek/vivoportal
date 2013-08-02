@@ -23,15 +23,6 @@ class Site extends Folder
     protected $hosts = array();
 
     /**
-     * @param string Path to entity.
-     * @param Vivo\CMS\Model\Entity\Security
-     */
-    public function __construct($path = null, $security = null)
-    {
-        parent::__construct($path, $security);
-    }
-
-    /**
      * @param string $domain Security domain name.
      */
     public function setDomain($domain)

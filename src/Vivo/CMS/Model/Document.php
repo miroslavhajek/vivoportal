@@ -37,14 +37,14 @@ class Document extends Folder
      * @var string Title which can be seen in overview
      */
     protected $overviewTitle;
-    
+
     /**
      * @var string Title which can be seen in navigation
      */
     protected $navigationTitle;
 
     /**
-     * Keywords are used to describe content of the document. 
+     * Keywords are used to describe content of the document.
      * Keywords could make fulltext searches faster and more effective.
      * Please separate each word by comma.
      *
@@ -119,7 +119,7 @@ class Document extends Folder
     protected $image;
 
     /**
-     * Date and time when the document was published. 
+     * Date and time when the document was published.
      * Typically it is used for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
      *
@@ -128,7 +128,7 @@ class Document extends Folder
     protected $published;
 
     /**
-     * Name of the person who actually created the document. 
+     * Name of the person who actually created the document.
      * It is used typically for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in a name of the logged editor.
      * @var string
@@ -158,15 +158,6 @@ class Document extends Folder
     protected $injectComponentViewModelToLayout     = false;
 
     /**
-     * @param string $path Repository path.
-     * @param null $security
-     */
-    public function __construct($path = null, $security = null)
-    {
-        parent::__construct($path, $security);
-    }
-
-    /**
      * Page header. If heading is not set, default document name will be returned.
      *
      * @return string
@@ -175,13 +166,14 @@ class Document extends Folder
     {
         return $this->heading ? $this->heading : $this->title;
     }
-    
+
     /**
      * Sets heading property which is the same as title by default
-     * 
+     *
      * @param string $heading
      */
-    public function setHeading($heading) {
+    public function setHeading($heading)
+    {
         $this->heading = $heading;
     }
 
@@ -194,16 +186,17 @@ class Document extends Folder
     {
         return $this->overviewTitle ? $this->overviewTitle : $this->title;
     }
-    
+
     /**
      * Sets title which can be seen in overview
-     * 
+     *
      * @param string $overviewTitle
      */
-    public function setOverviewTitle($overviewTitle) {
+    public function setOverviewTitle($overviewTitle)
+    {
         $this->overviewTitle = $overviewTitle;
     }
-    
+
     /**
      * Document navigation title. If navigation title is not set, document title will be returned.
      *
@@ -213,16 +206,17 @@ class Document extends Folder
     {
         return $this->navigationTitle ? $this->navigationTitle : $this->title;
     }
-    
+
     /**
      * Sets title which can be seen in overview
-     * 
+     *
      * @param string $overviewTitle
      */
-    public function setNavigationTitle($navigationTitle) {
+    public function setNavigationTitle($navigationTitle)
+    {
         $this->navigationTitle = $navigationTitle;
     }
-    
+
     /**
      * @param string $keywords
      */
@@ -267,18 +261,6 @@ class Document extends Folder
     public function getWorkflow()
     {
         return $this->workflow;
-    }
-
-    /**
-     * Returns a key chain for indexer. Through this chain, the document sought.
-     *
-     * @param array $field_names Field names will be indexed.
-     * @return string
-     */
-    public function getTextContent($field_names = array())
-    {
-        return parent::getTextContent(
-                array_merge($field_names, array('title', 'keywords')));
     }
 
     public function getType()
@@ -366,68 +348,84 @@ class Document extends Folder
     {
         $this->published = $published;
     }
-    
-    public function getUriPrecedence() {
+
+    public function getUriPrecedence()
+    {
         return $this->uriPrecedence;
     }
 
-    public function setUriPrecedence($uriPrecedence) {
+    public function setUriPrecedence($uriPrecedence)
+    {
         $this->uriPrecedence = $uriPrecedence;
     }
 
-    public function getNavigable() {
+    public function getNavigable()
+    {
         return $this->navigable;
     }
 
-    public function setNavigable($navigable) {
+    public function setNavigable($navigable)
+    {
         $this->navigable = $navigable;
     }
 
-    public function getAutoVersioning() {
+    public function getAutoVersioning()
+    {
         return $this->autoVersioning;
     }
 
-    public function setAutoVersioning($autoVersioning) {
+    public function setAutoVersioning($autoVersioning)
+    {
         $this->autoVersioning = $autoVersioning;
     }
 
-    public function getSecured() {
+    public function getSecured()
+    {
         return $this->secured;
     }
 
-    public function setSecured($secured) {
+    public function setSecured($secured)
+    {
         $this->secured = $secured;
     }
 
-    public function getLinkAttributes() {
+    public function getLinkAttributes()
+    {
         return $this->linkAttributes;
     }
 
-    public function setLinkAttributes($linkAttributes) {
+    public function setLinkAttributes($linkAttributes)
+    {
         $this->linkAttributes = $linkAttributes;
     }
 
-    public function getVocabularies() {
+    public function getVocabularies()
+    {
         return $this->vocabularies;
     }
 
-    public function setVocabularies($vocabularies) {
+    public function setVocabularies($vocabularies)
+    {
         $this->vocabularies = $vocabularies;
     }
 
-    public function getExpiration() {
+    public function getExpiration()
+    {
         return $this->expiration;
     }
 
-    public function setExpiration($expiration) {
+    public function setExpiration($expiration)
+    {
         $this->expiration = $expiration;
     }
 
-    public function getInternalNotice() {
+    public function getInternalNotice()
+    {
         return $this->internalNotice;
     }
 
-    public function setInternalNotice($internalNotice) {
+    public function setInternalNotice($internalNotice)
+    {
         $this->internalNotice = $internalNotice;
     }
 

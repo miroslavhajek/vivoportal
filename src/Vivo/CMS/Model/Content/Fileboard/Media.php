@@ -31,21 +31,37 @@ class Media extends Content\File implements OrderableInterface
         return $this->name;
     }
 
+    /**
+     * Sets media description text
+     * @param string $description
+     */
     public function setDescription($description)
     {
         $this->description = $description;
     }
 
+    /**
+     * Returns media description text
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\Stdlib\OrderableInterface::setOrder()
+     */
     public function setOrder($order)
     {
         $this->order = intval($order);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\Stdlib\OrderableInterface::getOrder()
+     */
     public function getOrder()
     {
         return $this->order;
