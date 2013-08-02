@@ -71,7 +71,7 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     {
         return $this->formFactory->createForm(array(
             'name' => 'editor-'.$this->content->getUuid(),
-            'hydrator' => 'Zend\Stdlib\Hydrator\ArraySerializable',
+            'hydrator' => 'Vivo\Stdlib\Hydrator\EntityClassMethods',
                 'elements' => array(
                    array('spec' => array(
                             'type' => 'Vivo\Form\Element\Textarea',

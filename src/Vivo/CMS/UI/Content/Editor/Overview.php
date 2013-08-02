@@ -6,7 +6,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 
 class Overview extends AbstractForm implements EditorInterface
 {

@@ -11,8 +11,7 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\UI\Content\Editor\EditorInterface;
 use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
 use Vivo\LookupData\LookupDataManager;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 
 class Content extends AbstractForm
 {
