@@ -15,7 +15,7 @@ class KeyValueStringToArray extends AbstractFilter
      * Regular expression used for matching particular row in textarea
      * @var string
      */
-    protected $pattern = '(?:[\t\ ]*([\w]+)[\t\ ]*=)?[\t\ ]*"?([^"]+)"?[\t\ ]*';
+    protected $pattern = '(?:[\t\ ]*([\w]+)[\t\ ]*=)?[\t\ ]*"?([^"]*)"?[\t\ ]*';
 
     /**
      * Decodes input string into array
@@ -49,8 +49,10 @@ class KeyValueStringToArray extends AbstractFilter
                         }
 
                         // remove quotes from value
-                        if ($value[0] == '"' || $value[0] == "'") {
-                            $value = mb_substr($value, 1, -1);
+                        if (isset($value[0])) {
+                            if ($value[0] == '"' || $value[0] == "'") {
+                                $value = mb_substr($value, 1, -1);
+                            }
                         }
 
                         // insert value
