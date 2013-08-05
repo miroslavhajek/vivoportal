@@ -37,7 +37,7 @@
 				<span class="separator"></span>
 
 				<span class="dialogItem dialogContentVersion dialogItemInput">
-					
+
 				<select onchange="$(this).parents(&quot;form&quot;).find(&quot;input[name=view_type]&quot;).val(&quot;VERSION&quot;).end().submit();" class="" name="view_version">
 					<option value="0">1.0</option>
 				</select>
@@ -50,4 +50,4 @@
 		</div>
 	</div>
 </form>
-<iframe style="width:100%; height:100%" src="<?=$this->url('backend/cms/query', array('path' => $entityPath), false)?>" class="viewFrame"></iframe>
+<iframe style="width:100%; height:100%" src="<?=$this->url('backend/cms/query', array('path' => $entityPath))?>" class="viewFrame"></iframe>

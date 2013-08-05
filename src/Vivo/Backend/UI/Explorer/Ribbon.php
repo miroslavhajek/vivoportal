@@ -1,6 +1,10 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
+use Vivo\UI\Ribbon\Tab;
+use Vivo\UI\Ribbon\Group;
+use Vivo\UI\Ribbon\Item;
+
 /**
  * Ribbon for explorer.
  *

@@ -37,7 +37,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
      * @param string $name
      * @return bool
      */
-    function __isset($name)
+    public function __isset($name)
     {
         return $this->hasComponent($name);
     }
@@ -46,7 +46,7 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
      * Removes the specified component
      * @param string $name
      */
-    function __unset($name)
+    public function __unset($name)
     {
         if ($this->hasComponent($name))
             $this->removeComponent($name);

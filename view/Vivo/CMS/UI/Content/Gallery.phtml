@@ -6,16 +6,20 @@
                         : max($this->info['image_thumbnail_width'], $this->info['image_thumbnail_height']);
         ?>
             <li>
-                <a href="<?=$this->resource('resource.'.$file->getExt(), $file, null,
+                <a href="<?=$this->resource('resource.'.$file->getExt(), $file,
                                     array(
-                                        'width' => $this->info['image_preview_width'],
-                                        'height' => $this->info['image_preview_height'],
-                                        'quality' => $this->info['image_quality']
+                                        'query' => array(
+                                            'width' => $this->info['image_preview_width'],
+                                            'height' => $this->info['image_preview_height'],
+                                            'quality' => $this->info['image_quality']
+                                        )
                                     )
-                )?>"><img src="<?=$this->resource('resource.'.$file->getExt(), $file, null,
+                )?>"><img src="<?=$this->resource('resource.'.$file->getExt(), $file,
                                     array(
-                                        'size' => $size,
-                                        'quality' => $this->info['image_quality']
+                                        'query' => array(
+                                            'size' => $size,
+                                            'quality' => $this->info['image_quality']
+                                        )
                                     )
                 )?>" alt="<?=htmlspecialchars($file->getName())?>"></a>
                 <p><?=htmlspecialchars($file->getDescription())?></p>

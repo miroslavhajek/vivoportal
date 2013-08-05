@@ -18,7 +18,7 @@ if($form->get('gl-new')) {
             $fieldset = $form->get('gl-file-container')->get($u); /* @var $fieldset \Vivo\Form\Fieldset */
         ?>
             <li style="border:1px solid gray; margin:6px;">
-                <img src="<?=$this->resource('resource.'.$file->getExt(), $file, null, array('size'=>120));?>" alt="" />
+                <img src="<?=$this->resource('resource.'.$file->getExt(), $file, array('query' => array('size'=>120)));?>" alt="" />
                 <a href="<?=htmlspecialchars($this->actionUrl('delete', array('uuid'=>$u)))?>" title="Delete">delete</a>
                 <? if($file->getMain()) : ?>
                     | <a href="<?=htmlspecialchars($this->actionUrl('setAsMain', array('uuid'=>$u)))?>" title="Set As Main">main</a>

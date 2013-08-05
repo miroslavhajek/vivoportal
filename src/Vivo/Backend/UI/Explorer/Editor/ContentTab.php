@@ -7,6 +7,7 @@ use Vivo\Form\Form;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
 use Vivo\UI\ComponentEventInterface;
+use Vivo\CMS\Model\Content;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
 {
@@ -106,18 +107,57 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     }
 
     /**
-     * Get Label of Content Type Class
-     * @param $class
+     * Extracts label name from content config array
+     * @param array $contentConfig
      * @return string
      */
-    private function getContentLabelFromClass($class)
+    private function extractLabel($contentConfig) {
+        return isset($contentConfig['label']) ? $contentConfig['label'] : $contentConfig['class'];
+    }
+
+    /**
+     * Extracts mime type from content config array
+     * @param array $contentConfig
+     * @return string|null
+     */
+    private function extractMimeType($contentConfig) {
+        return isset($contentConfig['options']['mimeType']) ? $contentConfig['options']['mimeType'] : null;
+    }
+
+    /**
+     * Get Label of Content Type Class
+     * @param \Vivo\CMS\Model\Content $content
+     * @return string
+     */
+    private function getContentLabel(Content $content)
     {
-        foreach ($this->availableContents as $ctKey => $ac) {
-            if ($ac['class'] == $class) {
-                return isset($ac['label']) ? $ac['label'] : $ac['class'];
+        $contentLabel = null;
+        $contentClass = get_class($content);
+
+        foreach ($this->availableContents as $ac) {
+            if ($ac['class'] === $contentClass) {
+                // File content type must be checked for mime type
+                // to get correct label
+                if ($contentClass === 'Vivo\CMS\Model\Content\File') {
+                    // when 'text/html' is the case
+                    // exctracted mime type must also be text/html
+                    if ($content->getMimeType() === 'text/html') {
+                        if ($this->extractMimeType($ac) === 'text/html') {
+                            $contentLabel = $this->extractLabel($ac);
+                        }
+                    } else {
+                        $contentLabel = $this->extractLabel($ac);
+                    }
+                } else {
+                    $contentLabel = $this->extractLabel($ac);
+                }
+                // not null labels are immediatelly returned
+                if ($contentLabel !== null)
+                    return $contentLabel;
             }
         }
-        return $class;
+        // if no label is matched, return class name
+        return $contentClass;
     }
 
     protected function doGetForm()
@@ -125,13 +165,13 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $options    = array();
         //$optionKey will be used to initialize the select value
         $optionKey = null;
-        
+
         /** @var $content \Vivo\CMS\Model\Content */
         foreach ($this->contents as $k => $content) {
             $optionKey  = 'EDIT:' . $content->getUuid();
             $options[$optionKey] = sprintf('1.%d [%s] %s {%s}',
                     $k, $content->getState(),
-                    $this->getContentLabelFromClass(get_class($content)),
+                    $this->getContentLabel($content),
                     $content->getUuid());
         }
 

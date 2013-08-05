@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -18,8 +18,6 @@ class FetchErrorDocumentListenerFactory implements FactoryInterface
     {
         $config = $sm->get('cms_config');
 
-        $listener = new FetchErrorDocumentListener($sm->get('Vivo\CMS\Api\Document'), $config['error_documents']);
-
-        return $listener;
+        return new FetchErrorDocumentListener($sm->get('Vivo\CMS\Api\Document'), $config['error_documents']);
     }
 }

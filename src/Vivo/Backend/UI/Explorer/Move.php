@@ -7,11 +7,11 @@ use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\Backend\Form\Move as MoveForm;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
-use Vivo\CMS\Model\Document;
 use Vivo\Util\RedirectEvent;
 use Vivo\UI\Alert;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\CMS\Exception\EntityAlreadyExistsException;
+use Vivo\Util\UrlHelper;
 
 use Zend\I18n\Translator\Translator;
 
@@ -63,19 +63,27 @@ class Move extends AbstractForm implements TranslatorAwareInterface
     protected $translator;
 
     /**
+     * Url helper
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\UI\Alert $alert
+     * @param UrlHelper $urlHelper
      */
     public function __construct(CMS $cmsApi, DocumentApiInterface $documentApi, PathBuilderInterface $pathBuilder,
-                                Alert $alert)
+                                Alert $alert, UrlHelper $urlHelper)
     {
         $this->cmsApi       = $cmsApi;
         $this->documentApi  = $documentApi;
         $this->pathBuilder  = $pathBuilder;
         $this->alert        = $alert;
+        $this->urlHelper    = $urlHelper;
     }
 
     public function init()
@@ -112,12 +120,15 @@ class Move extends AbstractForm implements TranslatorAwareInterface
                 $movedDoc   = $this->documentApi->moveDocument($doc, $this->explorer->getSite(), $validData['path'],
                     $validData['name_in_path'], $validData['name'], $createHyperlink);
                 $movedDocRelPath   = $this->cmsApi->getEntityRelPath($movedDoc);
-                $this->explorer->setEntity($movedDoc);
-                $this->explorer->setCurrent('editor');
+                $routeParams = array(
+                    'path' => $movedDoc->getUuid(),
+                    'explorerAction' => 'editor',
+                );
                 $message = sprintf($this->translator->translate(
                     "Document at path '%s' has been moved to path '%s'"), $docRelPath, $movedDocRelPath);
                 $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-                $this->getEventManager()->trigger(new RedirectEvent());
+                $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+                $this->getEventManager()->trigger(new RedirectEvent($url));
             } catch (EntityAlreadyExistsException $e) {
                 $message = $this->translator->translate("An entity already exists at the target path");
                 $this->alert->addMessage($message, Alert::TYPE_ERROR);

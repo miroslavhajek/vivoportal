@@ -1,24 +1,19 @@
 <?php
 namespace Vivo\Backend\UI;
 
-use Vivo\CMS\Api\Site as SiteApi;
-use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\UI\Component;
-use Vivo\UI\PersistableInterface;
+use Vivo\CMS\Model\Site as SiteModel;
 
 /**
  * Component for selecting site for editing.
  */
-class SiteSelector extends Component implements PersistableInterface
+class SiteSelector extends Component
 {
 
     /**
      * @var \Vivo\CMS\Api\Site
-     */
-    protected $siteApi;
-
-    /**
-     * @var \Vivo\CMS\Model\Site
+     * Current site
+     * @var SiteModel
      */
     protected $site;
 
@@ -30,58 +25,13 @@ class SiteSelector extends Component implements PersistableInterface
 
     /**
      * Constructor.
-     * @param \Vivo\CMS\Api\Site $siteApi
-     * @param SiteEvent $siteEvent
+     * @param SiteModel $site
+     * @param SiteModel[] $sites
      */
-    public function __construct(SiteApi $siteApi, SiteEvent $siteEvent)
+    public function __construct(SiteModel $site, array $sites)
     {
-        $this->siteApi = $siteApi;
-        $this->siteEvent = $siteEvent;
-        $this->sites = $this->siteApi->getManageableSites();
-
-        $this->site = $siteEvent->getSite();
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Vivo\UI\PersistableInterface::loadState()
-     */
-    public function loadState($state)
-    {
-//        $this->site = isset($state['site']) ? $state['site']
-//                : reset($this->sites);
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Vivo\UI\PersistableInterface::saveState()
-     */
-    public function saveState()
-    {
-  //      return array('site' => $this->site);
-    }
-
-    /**
-     * Sets currently edited site.
-     * @param string $siteName
-     * @throws \Exception
-     */
-    public function set($siteName)
-    {
-        if (!array_key_exists($siteName, $this->sites)) {
-            throw new \Exception('Site is not accessible.');
-        }
-        $this->setSite($this->sites[$siteName]);
-    }
-
-    /**
-     * @param string $site
-     * @throws \Exception
-     */
-    public function setSite(Site $site)
-    {
+        $this->sites = $sites;
         $this->site = $site;
-        $this->getEventManager()->trigger(__FUNCTION__, $this, array('site' => $site));
     }
 
     /**
@@ -96,6 +46,7 @@ class SiteSelector extends Component implements PersistableInterface
     }
 
     /**
+     * Returns site
      * @return \Vivo\CMS\Model\Site
      */
     public function getSite()

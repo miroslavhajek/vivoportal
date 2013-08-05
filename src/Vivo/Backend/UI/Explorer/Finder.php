@@ -42,35 +42,9 @@ class Finder extends Component implements TranslatorAwareInterface
         return parent::view();
     }
 
-    /**
-     * @param string $relPath
-     */
-    public function set($relPath)
-    {
-        try {
-            $this->explorer->setEntityByRelPath($relPath);
-        } catch (EntityNotFoundException $e) {
-            //TODO translate message
-
-            $message = sprintf($this->translator->translate(
-                    'Document with path `%s` does not exist.'), $relPath);
-            $this->alert->addMessage($message, Alert::TYPE_ERROR);
-        }
-    }
-
     public function setExplorer(ExplorerInterface $explorer)
     {
         $this->explorer = $explorer;
-        $this->explorer->getEventManager()->attach('setEntity', array ($this, 'onEntityChange'));
-    }
-
-    /**
-     * Callback for entity change event.
-     * @param Event $e
-     */
-    public function onEntityChange(Event $e)
-    {
-        $this->entity = $e->getParam('entity');
     }
 
     /**

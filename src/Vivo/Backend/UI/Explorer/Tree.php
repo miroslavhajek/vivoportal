@@ -67,16 +67,6 @@ class Tree extends Component
     }
 
     /**
-     * Show browser with opened path.
-     * @param string $relPath
-     */
-    public function showMore($relPath)
-    {
-        $this->explorer->setEntityByRelPath($relPath);
-        $this->explorer->setCurrent('browser');
-    }
-
-    /**
      * (non-PHPdoc)
      * @see \Vivo\UI\Component::view()
      */

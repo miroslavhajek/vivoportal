@@ -9,6 +9,7 @@ use Vivo\Form\Form;
 use Vivo\Util\RedirectEvent;
 use Vivo\UI\Alert;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
+use Vivo\Util\UrlHelper;
 
 use Zend\I18n\Translator\Translator;
 
@@ -42,16 +43,24 @@ class Delete extends AbstractForm implements TranslatorAwareInterface
     protected $translator;
 
     /**
+     * Url helper
+     * @var UrlHelper
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\DocumentInterface $docApi
      * @param \Vivo\UI\Alert $alert
+     * @param UrlHelper $urlHelper
      */
-    public function __construct(CMS $cmsApi, DocumentApiInterface $docApi, Alert $alert)
+    public function __construct(CMS $cmsApi, DocumentApiInterface $docApi, Alert $alert, UrlHelper $urlHelper)
     {
-        $this->cmsApi   = $cmsApi;
-        $this->docApi   = $docApi;
-        $this->alert    = $alert;
+        $this->cmsApi    = $cmsApi;
+        $this->docApi    = $docApi;
+        $this->alert     = $alert;
+        $this->urlHelper = $urlHelper;
     }
 
     public function view()
@@ -78,11 +87,14 @@ class Delete extends AbstractForm implements TranslatorAwareInterface
             $relPath    = $this->cmsApi->getEntityRelPath($doc);
             $docParent  = $this->cmsApi->getParent($doc);
             $this->cmsApi->removeEntity($doc);
-            $explorer->setEntity($docParent);
-            $explorer->setCurrent('viewer');
+            $routeParams = array(
+                'path' => $docParent->getUuid(),
+                'explorerAction' => 'editor',
+            );
             $message = sprintf($this->translator->translate("Document at path '%s' has been deleted"), $relPath);
             $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
-            $this->getEventManager()->trigger(new RedirectEvent());
+            $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+            $this->getEventManager()->trigger(new RedirectEvent($url));
         } else {
             $message = $this->translator->translate("Form data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);
