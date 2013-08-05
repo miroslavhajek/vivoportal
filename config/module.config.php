@@ -382,11 +382,12 @@ return array(
     //Input filter conditions plugin manager config
     'input_filter_conditions'   => array(
         'invokables'    => array(
-            'input'         => 'Vivo\InputFilter\Condition\Input',
-            'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
-            'equals'        => 'Vivo\InputFilter\Condition\Equals',
-            'inArray'       => 'Vivo\InputFilter\Condition\InArray',
-            'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
+            'input'             => 'Vivo\InputFilter\Condition\Input',
+            'notEmpty'          => 'Vivo\InputFilter\Condition\NotEmpty',
+            'equals'            => 'Vivo\InputFilter\Condition\Equals',
+            'inArray'           => 'Vivo\InputFilter\Condition\InArray',
+            'allEmpty'          => 'Vivo\InputFilter\Condition\AllEmpty',
+            'multiConditionAnd' => 'Vivo\InputFilter\Condition\MultiConditionAnd',
         ),
         'initializers'  => array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
