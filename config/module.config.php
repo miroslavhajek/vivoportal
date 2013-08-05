@@ -290,6 +290,7 @@ return array(
             'Zend\Session\SessionManager'       => 'session_manager',
             'form_factory'                      => 'Vivo\form_factory',
             'input_filter_factory'              => 'Vivo\input_filter_factory',
+            'Vivo\input_filter_conditions'      => 'input_filter_conditions',
         ),
         'shared' => array(
             'view_model'                    => false,
