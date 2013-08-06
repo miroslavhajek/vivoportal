@@ -38,5 +38,9 @@ class Initializer implements InitializerInterface
         if ($instance instanceof \Vivo\Service\Initializer\ValidatorPluginManagerAwareInterface) {
             $instance->setValidatorPluginManager($serviceLocator);
         }
+        if ($instance instanceof \Vivo\Service\Initializer\FilterPluginManagerAwareInterface) {
+            $filterPluginManager    = $sm->get('filter_manager');
+            $instance->setFilterPluginManager($filterPluginManager);
+        }
     }
 }

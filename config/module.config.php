@@ -391,6 +391,19 @@ return array(
             'vivo_site_map'     => 'Vivo\View\Helper\Navigation\SiteMap',
         ),
     ),
+    //Filter plugin manager configuration
+    'filters'       => array(
+        'invokables'    => array(
+            'Vivo\date_time'    => 'Vivo\Filter\DateTime',
+        ),
+        'factories'     => array(
+
+        ),
+        'initializers'  => array(
+
+        ),
+    ),
+    //Validator plugin manager configuration
     'validators'    => array(
         'invokables' => array(
             'conditional'                   => 'Vivo\Validator\Conditional',
@@ -398,6 +411,8 @@ return array(
             'vivo_personal_number_cz'       => 'Vivo\Validator\PersonalNumberCZ',
             'vivo_unique_entity_path'       => 'Vivo\CMS\Validator\UniqueEntityPath',
             'vivo_in_array_dynamic'         => 'Vivo\Validator\InArrayDynamic',
+            'vivo_age'                      => 'Vivo\Validator\Age',
+            'vivo_before_after'             => 'Vivo\Validator\BeforeAfter',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
