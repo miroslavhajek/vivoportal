@@ -393,13 +393,17 @@ return array(
     ),
     'validators'    => array(
         'invokables' => array(
-            'conditional'   => 'Vivo\Validator\Conditional',
-            'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
-            'vivo_personal_number_cz'  => 'Vivo\Validator\PersonalNumberCZ',
-            'vivo_unique_entity_path' => 'Vivo\CMS\Validator\UniqueEntityPath',
+            'conditional'                   => 'Vivo\Validator\Conditional',
+            'vivo_invalid'                  => 'Vivo\Validator\VivoInvalid',
+            'vivo_personal_number_cz'       => 'Vivo\Validator\PersonalNumberCZ',
+            'vivo_unique_entity_path'       => 'Vivo\CMS\Validator\UniqueEntityPath',
+            'vivo_in_array_dynamic'         => 'Vivo\Validator\InArrayDynamic',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
+        ),
+        'aliases'           => array(
+            'vivo_conditional'  => 'conditional',
         ),
     ),
     //Input filter conditions plugin manager config
