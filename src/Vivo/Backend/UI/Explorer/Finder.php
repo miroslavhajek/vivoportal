@@ -289,10 +289,10 @@ class Finder extends Component implements TranslatorAwareInterface
             $events->trigger(new RedirectEvent($url));
         }
         catch(\Vivo\CMS\Exception\InvalidArgumentException $e) {
-            $this->alert->addMessage('Neplatný formát URL', Alert::TYPE_WARNING);
+            $this->alert->addMessage('Wrong URL format', Alert::TYPE_WARNING);
         }
         catch(\Vivo\Repository\Exception\EntityNotFoundException $e) {
-            $this->alert->addMessage('Entita na zadané URL neexistuje', Alert::TYPE_WARNING);
+            $this->alert->addMessage('Entity for requested URL not found', Alert::TYPE_WARNING);
         }
     }
 
