@@ -2,8 +2,10 @@
 namespace Vivo\Form\Element;
 
 use Zend\Form\Element\Date as ZendDate;
+use Zend\Form\ElementPrepareAwareInterface;
+use Zend\Form\FormInterface;
 
-class Date extends ZendDate
+class Date extends ZendDate implements ElementPrepareAwareInterface
 {
     /**
      * @see \Zend\Form\Element::setOptions()
@@ -17,5 +19,20 @@ class Date extends ZendDate
 
         parent::setOptions($options);
         return $this;
+    }
+
+    /**
+     * Prepare the form element (mostly used for rendering purposes)
+     * @param FormInterface $form
+     * @return mixed
+     */
+    public function prepareElement(FormInterface $form)
+    {
+        //Add 'id' attribute
+        if (!$this->getAttribute('id')) {
+            $id = str_replace(']', '', $this->getName());
+            $id = str_replace('[', '-', $id);
+            $this->setAttribute('id', $id);
+        }
     }
 }

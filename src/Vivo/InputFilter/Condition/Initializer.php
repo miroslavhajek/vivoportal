@@ -23,5 +23,8 @@ class Initializer implements InitializerInterface
             $inputFilterFactory = $sm->get('input_filter_factory');
             $instance->setInputFilterFactory($inputFilterFactory);
         }
+        if ($instance instanceof \Zend\ServiceManager\ServiceLocatorAwareInterface) {
+            $instance->setServiceLocator($serviceLocator);
+        }
     }
 }

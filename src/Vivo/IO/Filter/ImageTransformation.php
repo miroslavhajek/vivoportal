@@ -8,7 +8,7 @@ use Vivo\IO\InputStreamInterface;
  * @todo implement
  *
  */
-class ImageTransforation implements InputStreamInterface
+class ImageTransformation implements InputStreamInterface
 {
 
     /**

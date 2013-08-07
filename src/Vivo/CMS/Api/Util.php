@@ -85,6 +85,6 @@ class Util
         if (!$this->eventManager) {
             $this->eventManager = new EventManager();
         }
-        return $this->eventManager;
+        return $this->getEventManager();
     }
 }

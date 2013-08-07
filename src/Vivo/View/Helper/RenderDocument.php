@@ -5,6 +5,7 @@ use Vivo\CMS\Model;
 use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\ComponentFactory;
 use Vivo\UI\ComponentTreeController;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\View\Helper\AbstractHelper;
 use Zend\View\View;
@@ -100,7 +101,7 @@ class RenderDocument extends AbstractHelper
             //Return rendered document
             $frontComponent = $this->componentFactory->getFrontComponent($document, array('noLayout' => true));
             $this->componentTreeController->setRoot($frontComponent);
-            $this->componentTreeController->init();
+            $this->componentTreeController->init(); //replace by lazy init
             $viewModel      = $this->componentTreeController->view();
             $this->componentTreeController->done();
             $this->viewManager->render($viewModel);

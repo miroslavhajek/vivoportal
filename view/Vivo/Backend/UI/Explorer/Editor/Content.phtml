@@ -1,6 +1,6 @@
 <?
 $formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-foreach ($form->get('content')->getElements() as $name=>$element) {
+foreach ($this->fieldset->getElements() as $name => $element) {
     if($name != 'state') {
         echo $this->formRowTwb($element, $formType);
     }
@@ -9,5 +9,5 @@ echo $this->editorComponent;
 ?>
 <hr />
 <?php
-echo $this->formRowTwb($form->get('content')->get('state'), $formType);
+echo $this->formRowTwb($this->fieldset->get('state'), $formType);
 ?>

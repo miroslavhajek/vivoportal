@@ -196,7 +196,9 @@ return array(
             'indexer_document_builder'  => 'Vivo\Indexer\DocumentBuilder',
             'view_model'                => 'Zend\View\Model\ViewModel',
             'Vivo\Http\Filter\OutputFilterListener' => 'Vivo\Http\Filter\OutputFilterListener',
+            'Vivo\Http\Filter\ImageTransform' => 'Vivo\Http\Filter\ImageTransform',
             'Vivo\watcher'              => 'Vivo\Repository\Watcher',
+            'Vivo\component_event_listener' => 'Vivo\UI\ComponentEventListener',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -233,7 +235,7 @@ return array(
             'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
             'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
-            'component_factory'         => 'Vivo\Service\ComponentFactoryFactory',
+            'component_factory'         => 'Vivo\CMS\ComponentFactoryFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
             'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
@@ -272,7 +274,8 @@ return array(
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
             'Vivo\nav_overview_defaults_processor' => 'Vivo\Service\EntityProcessor\NavAndOverviewDefaultsFactory',
-            'Vivo\repository_storage'       => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\repository_storage'   => 'Vivo\Repository\RepositoryStorageFactory',
+            'Vivo\component_creator'    => 'Vivo\UI\ComponentCreatorFactory',
             'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
             'Vivo\apihelper_document_compare' => 'Vivo\CMS\Api\Helper\DocumentCompareFactory',
         ),
@@ -287,6 +290,7 @@ return array(
             'Zend\Session\SessionManager'       => 'session_manager',
             'form_factory'                      => 'Vivo\form_factory',
             'input_filter_factory'              => 'Vivo\input_filter_factory',
+            'Vivo\input_filter_conditions'      => 'input_filter_conditions',
         ),
         'shared' => array(
             'view_model'                    => false,
@@ -387,31 +391,52 @@ return array(
             'vivo_site_map'     => 'Vivo\View\Helper\Navigation\SiteMap',
         ),
     ),
+    //Filter plugin manager configuration
+    'filters'       => array(
+        'invokables'    => array(
+            'Vivo\date_time'    => 'Vivo\Filter\DateTime',
+        ),
+        'factories'     => array(
+
+        ),
+        'initializers'  => array(
+
+        ),
+    ),
+    //Validator plugin manager configuration
     'validators'    => array(
         'invokables' => array(
-            'conditional'   => 'Vivo\Validator\Conditional',
-            'vivo_invalid'  => 'Vivo\Validator\VivoInvalid',
-            'vivo_personal_number_cz'  => 'Vivo\Validator\PersonalNumberCZ',
-            'vivo_unique_entity_path' => 'Vivo\CMS\Validator\UniqueEntityPath',
+            'conditional'                   => 'Vivo\Validator\Conditional',
+            'vivo_invalid'                  => 'Vivo\Validator\VivoInvalid',
+            'vivo_personal_number_cz'       => 'Vivo\Validator\PersonalNumberCZ',
+            'vivo_unique_entity_path'       => 'Vivo\CMS\Validator\UniqueEntityPath',
+            'vivo_in_array_dynamic'         => 'Vivo\Validator\InArrayDynamic',
+            'vivo_age'                      => 'Vivo\Validator\Age',
+            'vivo_before_after'             => 'Vivo\Validator\BeforeAfter',
         ),
         'initializers'      => array(
             'validator_initializer'     => 'Vivo\Validator\Initializer',
+        ),
+        'aliases'           => array(
+            'vivo_conditional'  => 'conditional',
         ),
     ),
     //Input filter conditions plugin manager config
     'input_filter_conditions'   => array(
         'invokables'    => array(
-            'input'         => 'Vivo\InputFilter\Condition\Input',
-            'notEmpty'      => 'Vivo\InputFilter\Condition\NotEmpty',
-            'equals'        => 'Vivo\InputFilter\Condition\Equals',
-            'allEmpty'      => 'Vivo\InputFilter\Condition\AllEmpty',
+            'input'             => 'Vivo\InputFilter\Condition\Input',
+            'notEmpty'          => 'Vivo\InputFilter\Condition\NotEmpty',
+            'equals'            => 'Vivo\InputFilter\Condition\Equals',
+            'inArray'           => 'Vivo\InputFilter\Condition\InArray',
+            'allEmpty'          => 'Vivo\InputFilter\Condition\AllEmpty',
+            'multiConditionAnd' => 'Vivo\InputFilter\Condition\MultiConditionAnd',
         ),
         'initializers'  => array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
         ),
     ),
-    'di' => array(
-    ),
+//    'di' => array(
+//    ),
     'metadata_manager' => array(
         'config_path' => __DIR__ . '/../config/metadata',
     ),

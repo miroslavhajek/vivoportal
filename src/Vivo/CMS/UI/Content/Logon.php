@@ -69,7 +69,7 @@ class Logon extends AbstractForm
                     $redirUrl   = $model->getErrorUrl();
                 }
             }
-        $this->events->trigger(new RedirectEvent($redirUrl));
+        $this->getEventManager()->trigger(new RedirectEvent($redirUrl));
         }
     }
 
@@ -87,7 +87,7 @@ class Logon extends AbstractForm
             $redirUrl   = $model->getLogoffUrl();
         }
 
-        $this->events->trigger(new RedirectEvent($redirUrl));
+        $this->getEventManager()->trigger(new RedirectEvent($redirUrl));
     }
 
     /**
