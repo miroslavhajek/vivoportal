@@ -78,7 +78,9 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         if ($this->content->getUuid()) {
             $idSuffix   = $this->content->getUuid();
         } else {
-            $idSuffix   = 'new';
+            /** @var $parentContentTab \Vivo\Backend\UI\Explorer\Editor\ContentTab */
+            $parentContentTab   = $this->getParent('Vivo\Backend\UI\Explorer\Editor\ContentTab');
+            $idSuffix   = 'new-' . $parentContentTab->getName();
         }
         $fieldset   = $this->formFactory->createFieldset(array(
 //            'name' => 'editor-'.$this->content->getUuid(),

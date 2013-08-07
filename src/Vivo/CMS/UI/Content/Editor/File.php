@@ -88,16 +88,8 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
      */
     public function save(Model\ContentContainer $contentContainer)
     {
-        //TODO - Remove!
-        \Zend\Debug\Debug::dump($_POST, 'POST');
-
         if($this->isValid()) {
             $formData   = $this->getData();
-
-            //TODO - Remove!
-            \Zend\Debug\Debug::dump($formData, 'Form data');
-            die(sprintf("%s: Debug die", __METHOD__));
-
             $data = $formData['upload-file'];
             if ($data["tmp_name"] != "") {
                 $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
@@ -110,21 +102,9 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
                 $this->content->setExt($ext);
 
                 $adapter = $this->getAdapter();
-
-                //TODO - Remove!
-                echo 'A';
-
                 if ($adapter instanceof ResourceEditorInterface && $adapter->dataChanged()) {
-                    //TODO - Remove!
-                    echo 'B';
                     $data = $adapter->getData();
-
-                    //TODO - Remove!
-                    \Zend\Debug\Debug::dump($data, 'adapter data');
-                    die(sprintf("%s: Debug die", __METHOD__));
-
                     $this->content->setSize(mb_strlen($data, 'UTF-8'));
-
                     $this->saveContent($contentContainer);
                     $this->saveResource($data);
                 }
