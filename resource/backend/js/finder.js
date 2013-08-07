@@ -251,6 +251,8 @@ function multiFinder(_id, last) {
 	$('#' + _id).find(".inputFinder input").keyup(function(e) {
 		var inputVal = $(this).val();
 
+		var redirectAction = $('#' + _id).find("input[name='getPath[redirectToUrl]']").attr("value");
+
 		if (jQuery.trim(inputVal) != "" && inputVal.substring(0,1) != "/" && jQuery.inArray(e.keyCode, [37, 38, 39, 40, 13]) == -1) { // 37 left, 38 up, 39 right, 40 down
 			multiFinderSearch = false;
 			clearTimeout(searchTimer0);
@@ -344,8 +346,8 @@ function multiFinder(_id, last) {
 				if (e.keyCode == 13) {
 					var inputVal_ = inputVal;
 					inputVal_ = (inputVal_.substring(inputVal_.length - 1) != "/") ? inputVal_ + "/" : inputVal_;
-					console.log(actionURL+"&args[]=" + inputVal_);
-					location.href = actionURL+"&args[]=" + inputVal_;
+					console.log(actionURL+"?act="+redirectAction+"&args[]=" + inputVal_);
+					location.href = actionURL+"?act="+redirectAction+"&args[]=" + inputVal_;
 				}
 			}
 

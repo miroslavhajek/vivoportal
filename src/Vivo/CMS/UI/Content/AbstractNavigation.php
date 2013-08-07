@@ -6,7 +6,6 @@ use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Content;
-use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
 use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
 use Vivo\CMS\UI\Component;
@@ -300,7 +299,8 @@ abstract class AbstractNavigation extends Component
                 continue;
             }
             if ($doc instanceof Document) {
-                $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
+                $children = isset($docArray['children']) ? $docArray['children'] : array();
+                $documents[] = array('doc' => $doc, 'children' => $children);
             }
         }
         $documents = $this->sortDocuments($documents);

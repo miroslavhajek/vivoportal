@@ -32,6 +32,7 @@ return array(
             'Vivo\Backend\UI\Logon'                           => __DIR__.'/../view/Vivo/Backend/UI/Logon.phtml',
             'Vivo\Backend\UI\ModulesPanel'                    => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                    => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
+            'Vivo\Backend\UI\Site'                            => __DIR__.'/../view/Vivo/Backend/UI/Site.phtml',
             'Vivo\UI\TabContainer'                            => __DIR__.'/../view/Vivo/Backend/UI/TabContainerMultiContent.phtml',
             'Vivo\UI\Ribbon'                                  => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
         ),

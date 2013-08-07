@@ -161,6 +161,20 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
+     * @param string $site
+     */
+    private function redirectToHomepage($site)
+    {
+        $entity = $this->cmsApi->getSiteEntity('/', $site);
+        $routeParams = array(
+            'path' => $entity->getUuid(),
+            'explorerAction' => $this->explorerAction,
+        );
+        $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+        $this->getEventManager()->trigger(new RedirectEvent($url));
+    }
+
+    /**
      * Loads entity from url
      */
     protected function loadEntity()
@@ -168,9 +182,26 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
         $site = $this->getSite();
         if ($site) {
             $entity = NULL;
+            // 'url' param can come from frontend via /?edit
             $relPath = $this->request->getQuery('url', false);
             if ($relPath) {
-                $entity = $this->cmsApi->getSiteEntity($relPath, $site);
+                // redirect to backend/explorer route
+                // try to load entity from repository
+                try {
+                    $entity = $this->cmsApi->getSiteEntity($relPath, $site);
+
+                    $routeParams = array(
+                        'path' => $entity->getUuid(),
+                        'explorerAction' => 'editor',
+                    );
+                    $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+                    $this->getEventManager()->trigger(new RedirectEvent($url));
+                } catch (\Exception $ex) {
+                    // provided $relPath is not valid
+                    // redirect to homepage (/) editor
+                    $this->explorerAction = 'editor';
+                    $this->redirectToHomepage($site);
+                }
             } else {
                 // try to load entity from repository
                 // if no exception id thrown, uuid is valid
@@ -182,14 +213,8 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
                     $this->cmsApi->getSiteEntity($entity->getPath(), $site);
                 } catch (\Exception $ex) {
                     // provided UUID is not valid
-                    // load site home page and trigger redirect event
-                    $entity = $this->cmsApi->getSiteEntity('/', $site);
-                    $routeParams = array(
-                        'path' => $entity->getUuid(),
-                        'explorerAction' => $this->explorerAction,
-                    );
-                    $url = $this->urlHelper->fromRoute(null, $routeParams);
-                    $this->getEventManager()->trigger(new RedirectEvent($url));
+                    // redirect to homepage (/)
+                    $this->redirectToHomepage($site);
                 }
             }
             // load entity and create explorer component
@@ -205,6 +230,15 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     public function getEntity()
     {
         return $this->entity;
+    }
+    
+    /**
+     * Sets entity
+     * @param \Vivo\CMS\Model\Entity
+     */
+    public function setEntity(\Vivo\CMS\Model\Entity $entity)
+    {
+        $this->entity = $entity;
     }
 
     /**
