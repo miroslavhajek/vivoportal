@@ -12,9 +12,11 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\UI\Alert;
 use Vivo\UI\Component;
 use Vivo\Util\UrlHelper;
+use Vivo\Util\RedirectEvent;
 use Zend\EventManager\Event;
 use Zend\I18n\Translator\Translator;
 use Zend\View\Model\JsonModel;
+use Zend\EventManager\EventManager;
 
 class Finder extends Component implements TranslatorAwareInterface
 {
@@ -55,9 +57,14 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $iconUrlHelper;
 
     /**
-     * @var ExplorerInterface
+     * @var \Vivo\Backend\UI\Explorer\ExplorerInterface
      */
     protected $explorer;
+
+    /**
+     * @var \Vivo\UI\Alert
+     */
+    protected $alert;
 
     /**
      * @var \Vivo\CMS\Model\Entity
@@ -65,7 +72,7 @@ class Finder extends Component implements TranslatorAwareInterface
     protected $entity;
 
     /**
-     * @var Translator
+     * @var \Zend\I18n\Translator\Translator
      */
     protected $translator;
 
@@ -134,7 +141,7 @@ class Finder extends Component implements TranslatorAwareInterface
     private function getParentsByUrl($url)
     {
         $path = explode('/', trim($url, '/'));
-        $realPaths = array();
+        $realPaths = array('/');
         $titles = array();
         $i = 0;
         foreach ($path as $part) {
@@ -144,6 +151,8 @@ class Finder extends Component implements TranslatorAwareInterface
             $realPaths[$i] = $path;
             $i++;
         }
+
+        array_unshift($realPaths, '/');
 
         foreach($realPaths as $realPath) {
             $entity = $this->cmsApi->getSiteEntity($realPath, $this->site);
@@ -245,6 +254,7 @@ class Finder extends Component implements TranslatorAwareInterface
         }
 
         $condition = $qb->andX($qb->cond($this->site->getPath().'/*', '\path'), $qb->orX($fieldCons));
+        $condition = $qb->andX($qb->cond('Vivo\CMS\Model\Document', '\class'), $condition);
         $hits      = $this->indexer->find($condition)->getHits();
 
         foreach ($hits as $hit) {
@@ -264,6 +274,26 @@ class Finder extends Component implements TranslatorAwareInterface
         $view->documentsCount = count($documents);
 
         return $view;
+    }
+
+    /**
+     * Opens entity editor by URL / UUID
+     * @param string $url
+     */
+    public function redirectToUrl($url)
+    {
+        try {
+            $document = $this->cmsApi->getSiteEntity($url, $this->site);
+            $url = $this->urlHelper->fromRoute('backend/explorer', array('path' => $document->getUuid()));
+            $events = new EventManager();
+            $events->trigger(new RedirectEvent($url));
+        }
+        catch(\Vivo\CMS\Exception\InvalidArgumentException $e) {
+            $this->alert->addMessage('Wrong URL format', Alert::TYPE_WARNING);
+        }
+        catch(\Vivo\Repository\Exception\EntityNotFoundException $e) {
+            $this->alert->addMessage('Entity for requested URL not found', Alert::TYPE_WARNING);
+        }
     }
 
     /**

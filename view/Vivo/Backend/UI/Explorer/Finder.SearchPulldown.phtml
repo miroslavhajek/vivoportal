@@ -5,7 +5,8 @@
         $documentUrl = $this->document($document);
     ?>
     <li<?=($documentsCount == $i) ? ' class="last"' : '';?>>
-        <a href="<?=$this->actionURL('set', array($documentUrl))?>">
+        <a href="<?=$this->actionURL('redirectToUrl', array($documentUrl))?>">
+            <img src="<?=$this->iconUrl($document)?>" alt="" class="icon" />
             <?=htmlspecialchars($document->getTitle()) ?>
             <span class="path" style="font-size: 13px; color: #606070"><?=$documentUrl?></span>
             <?if ($docData['published']): ?><span class="published"></span><? endif; ?>

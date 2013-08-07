@@ -117,16 +117,16 @@ return array(
     ),
     'contents' => array (
         'available_contents' => array (
-            'file'    => array(
-                'class'     => 'Vivo\CMS\Model\Content\File',
-                'label'     => 'Vivo: File - general file',
-            ),
             'file_text/html'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\File',
                 'label'     => 'Vivo: File - HTML file',
                 'options'   => array(
                     'mimeType'  => 'text/html',
                 ),
+            ),
+            'file'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\File',
+                'label'     => 'Vivo: File - general file',
             ),
             'overview'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\Overview',

@@ -96,7 +96,10 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
      */
     public function dataChanged()
     {
-        return ($this->data != $this->getData());
+        // using of !== is important
+        // returns true on nonexisting resource
+        // causes inital creation of empty resource
+        return ($this->data !== $this->getData());
     }
 
     /**

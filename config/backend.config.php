@@ -97,6 +97,10 @@ return array(
                         'type' => 'text/javascript',
                     ),
                     array(
+                        'src' => '.Vivo.resource/backend/js/jquery.scrollTo.js?v=1',
+                        'type' => 'text/javascript',
+                    ),
+                    array(
                         'src' => '.Vivo.resource/backend/js/jquery.icheck.js?v=1',
                         'type' => 'text/javascript',
                     ),
@@ -153,7 +157,7 @@ return array(
             'site' => array (
                 'name' => 'site',
                 'title' => 'Site',
-                'componentClass' => 'Vivo\Backend\UI\Site',
+                'componentClass' => 'Vivo\CMS\UI\Blank',
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
             ),
             'blank' => array (
