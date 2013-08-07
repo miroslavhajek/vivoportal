@@ -95,10 +95,10 @@ class BeforeAfter extends AbstractValidator implements FilterPluginManagerAwareI
                 sprintf("%s: Cannot convert datetime value '%s' to DateTime object", __METHOD__, $value));
         }
         $refDate    = $this->getRefDate();
-        if ($this->type == self::TYPE_BEFORE && ($valueObject > $refDate)) {
+        if ($this->type == self::TYPE_BEFORE && ($valueObject >= $refDate)) {
             $this->error(self::ERR_MSG_NOT_BEFORE);
             $valid  = false;
-        } elseif ($this->type == self::TYPE_AFTER && ($valueObject < $refDate)) {
+        } elseif ($this->type == self::TYPE_AFTER && ($valueObject <= $refDate)) {
             $this->error(self::ERR_MSG_NOT_AFTER);
             $valid  = false;
         } else {
