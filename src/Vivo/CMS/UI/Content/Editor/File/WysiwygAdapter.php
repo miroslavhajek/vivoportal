@@ -75,6 +75,11 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
      */
     protected function doGetFieldset()
     {
+        if ($this->content->getUuid()) {
+            $idSuffix   = $this->content->getUuid();
+        } else {
+            $idSuffix   = 'new';
+        }
         $fieldset   = $this->formFactory->createFieldset(array(
 //            'name' => 'editor-'.$this->content->getUuid(),
             'name' => 'html_wysiwyg_edit',
@@ -85,7 +90,7 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
                     'attributes' => array(
                         'rows' => 10,
                         'cols' => 30,
-                        'id'   => 'content-resource-'.$this->content->getUuid(),
+                        'id'   => 'content-resource-' . $idSuffix,
                     ),
                     'options' => array(
                         'label' => 'Wysiwig',
@@ -104,8 +109,8 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     public function dataChanged()
     {
         // using of !== is important
-        // returns true on nonexisting resource
-        // causes inital creation of empty resource
+        // returns true on non-existing resource
+        // causes initial creation of empty resource
         return ($this->data !== $this->getData());
     }
 
