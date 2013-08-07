@@ -1,15 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\Security\Principal\UserInterface;
-use Vivo\CMS\Model\Folder;
-use Vivo\CMS\Model\Document;
-use Vivo\CMS\Api\Document as DocumentApi;
-use Vivo\Metadata\MetadataManager;
-use Vivo\CMS\Model\Content;
-use Vivo\CMS\Model\Content\File;
-use Vivo\Util\MIME;
-
+use Vivo\CMS\Util\IconUrlHelper;
 use Zend\View\Helper\AbstractHelper;
 use Zend\Stdlib\ArrayUtils;
 
@@ -19,44 +11,21 @@ use Zend\Stdlib\ArrayUtils;
  */
 class IconUrl extends AbstractHelper
 {
-    
-    protected $options = array(
-        'icon_path'    => 'backend/img/icons/16x16/',
-        'ext'          => '.png',
-        'default_icon' => 'Document',
-    );
-    
+
     /**
-     *
-     * @var MetadataManager
+     * @var array
      */
-    protected $metadataManager;
-    
+    private $options = array();
+
     /**
-     *
-     * @var DocumentApi
+     * @var IconUrlHelper
      */
-    protected $documentApi;
-    
-    /**
-     *
-     * @var MIME
-     */
-    protected $mime;
-    
-    /**
-     * 
-     * @param \Vivo\Metadata\MetadataManager $metadataManager
-     */
-    public function __construct(MetadataManager $metadataManager,
-                                DocumentApi $documentApi,
-                                MIME $mime,
-                                array $options = array())
+    private $iconUrlHelper;
+
+    public function __construct(IconUrlHelper $iconUrlHelper, array $options = array())
     {
-        $this->options         = array_merge($this->options, $options);
-        $this->metadataManager = $metadataManager;
-        $this->documentApi     = $documentApi;
-        $this->mime            = $mime;
+        $this->iconUrlHelper    = $iconUrlHelper;
+        $this->options          = array_merge($this->options, $options);
     }
     
     /**
@@ -67,25 +36,7 @@ class IconUrl extends AbstractHelper
      */
     public function getByFolder(Folder $folder)
     {
-        if ($folder instanceof Document) {
-            $contents = $this->documentApi->getPublishedContents($folder);
-            
-            if ($contents) {
-                $content = reset($contents);
-                
-                if ($content instanceof File) {
-                    return $this->getByMimeType($content->getMimeType());
-                }
-                
-                return $this->getByContentType(get_class($content));
-            } else {
-                return $this->getIconUrl($this->options['default_icon']);
-            }
-        } elseif ($folder instanceof Folder) {
-            return $this->getByContentType(get_class($folder));
-        } else {
-            return $this->getIconUrl($this->options['default_icon']);
-        }
+        return $this->iconUrlHelper->getByFolder($folder);
     }
     
     /**
@@ -93,14 +44,9 @@ class IconUrl extends AbstractHelper
      * @param string contentType class
      * @return string url
      */
-    public function getByContentType($contentType) {
-        $md = $this->metadataManager->getMetadata($contentType);
-        
-        if (isset($md['icon']['file'])) {
-            return $this->getIconUrl($md['icon']['file']);
-        } else {
-            return $this->getIconUrl($this->options['default_icon']);
-        }
+    public function getByContentType($contentType)
+    {
+        return $this->iconUrlHelper->getByContentType($contentType);
     }
     
     /**
@@ -111,11 +57,7 @@ class IconUrl extends AbstractHelper
      */
     public function getByContent(Content $content)
     {
-        if ($content instanceof File) {
-            return $this->getByMimeType($content->getMimeType());
-        } else {
-            return $this->getByContentType(get_class($content));
-        }
+        return $this->iconUrlHelper->getByContent($content);
     }
     
     /**
@@ -126,32 +68,12 @@ class IconUrl extends AbstractHelper
      */
     public function getByMimeType($mimeType)
     {
-        return $this->getIconUrl($this->mime->getIconBaseName($mimeType));
-    }
-    
-    /**
-     * 
-     * @param string $icon
-     * @return string url
-     */
-    private function getIconUrl($icon) {
-        $resourceHelper = $this->view->plugin('resource');
-        return $resourceHelper->__invoke($this->options['icon_path'].$icon.$this->options['ext'], 'Vivo');
+        return $this->iconUrlHelper->getByMimeType($mimeType);
     }
     
     public function __invoke($mixed = null)
     {
-        if (is_null($mixed)) {
-            return $this;
-        } elseif ($mixed instanceof Folder) {
-            return $this->getByFolder($mixed);
-        } elseif ($mixed instanceof Content) {
-            return $this->getByContent($mixed);
-        } elseif (is_string($mixed)) {
-            return $this->getByMimeType($mixed);
-        } else {
-            return $this;
-        }
+        return $this->iconUrlHelper->getIconUrl($mixed);
     }
     
 }

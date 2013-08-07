@@ -20,7 +20,8 @@ class CopyFactory implements FactoryInterface
         $documentApi        = $serviceLocator->get('Vivo\CMS\Api\Document');
         $pathBuilder        = $serviceLocator->get('path_builder');
         $alert              = $serviceLocator->get('Vivo\UI\Alert');
-        $copy               = new Copy($cmsApi, $documentApi, $pathBuilder, $alert);
+        $urlHelper          = $serviceLocator->get('Vivo\Util\UrlHelper');
+        $copy               = new Copy($cmsApi, $documentApi, $pathBuilder, $alert, $urlHelper);
         return $copy;
     }
 }

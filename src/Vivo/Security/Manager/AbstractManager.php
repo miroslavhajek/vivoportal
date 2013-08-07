@@ -4,6 +4,7 @@ namespace Vivo\Security\Manager;
 use Vivo\Security\Principal;
 
 use Zend\Session;
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * AbstractManager
@@ -29,12 +30,22 @@ abstract class AbstractManager
     protected $session;
 
     /**
+     * Security manager options
+     * @var array
+     */
+    protected $options  = array(
+        'use_external_authentication'   => true,
+    );
+
+    /**
      * Constructor
      * @param Session\SessionManager $sessionManager
+     * @param array $options
      */
-    public function __construct(Session\SessionManager $sessionManager)
+    public function __construct(Session\SessionManager $sessionManager, array $options = array())
     {
-        $this->session = new Session\Container(__CLASS__, $sessionManager);
+        $this->session  = new Session\Container(__CLASS__, $sessionManager);
+        $this->options  = ArrayUtils::merge($this->options, $options);
     }
 
     /**
@@ -186,27 +197,29 @@ abstract class AbstractManager
                 && $this->session['security.principal'] instanceof Principal\UserInterface) {
             $principal = $this->session['security.principal'];
         }
-        //TODO - refactor not to use $_SERVER
-        if (!$principal && isset($_SERVER['REMOTE_USER']) && ($remoteUser = $_SERVER['REMOTE_USER'])) {
-            $principal = new Principal\User();
-            if ($pos = strpos($remoteUser, '@')) {
-                //Kerberos format
-                $principal->setDomain(substr($remoteUser, $pos + 1));
-                $principal->setUsername(strtolower(substr($remoteUser, 0, $pos)));
-            } else {
-                //Winbind format
-                //Replace the standard winbind separator on Linux
-                $remoteUser = str_replace('+', '\\', $remoteUser);
-                $pos        = strpos($remoteUser, '\\');
-                if ($pos === false) {
-                    //Format without domain
-                    $principal->setUsername($remoteUser);
+        if (isset($this->options['use_external_authentication']) && $this->options['use_external_authentication']) {
+            //TODO - refactor not to use $_SERVER
+            if (!$principal && isset($_SERVER['REMOTE_USER']) && ($remoteUser = $_SERVER['REMOTE_USER'])) {
+                $principal = new Principal\User();
+                if ($pos = strpos($remoteUser, '@')) {
+                    //Kerberos format
+                    $principal->setDomain(substr($remoteUser, $pos + 1));
+                    $principal->setUsername(strtolower(substr($remoteUser, 0, $pos)));
                 } else {
-                    $principal->setDomain(substr($remoteUser, 0, $pos));
-                    $principal->setUsername(strtolower(substr($remoteUser, $pos + 1)));
+                    //Winbind format
+                    //Replace the standard winbind separator on Linux
+                    $remoteUser = str_replace('+', '\\', $remoteUser);
+                    $pos        = strpos($remoteUser, '\\');
+                    if ($pos === false) {
+                        //Format without domain
+                        $principal->setUsername($remoteUser);
+                    } else {
+                        $principal->setDomain(substr($remoteUser, 0, $pos));
+                        $principal->setUsername(strtolower(substr($remoteUser, $pos + 1)));
+                    }
                 }
+                $this->setUserPrincipal($principal);
             }
-            $this->setUserPrincipal($principal);
         }
         return $principal;
     }

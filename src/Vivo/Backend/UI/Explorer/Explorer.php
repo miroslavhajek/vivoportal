@@ -11,7 +11,6 @@ use Vivo\UI\PersistableInterface;
 use Vivo\Util\UrlHelper;
 use Vivo\Util\RedirectEvent;
 
-use Zend\EventManager\Event;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\ServiceManager\ServiceManager;
@@ -112,17 +111,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
 
     /**
      * (non-PHPdoc)
-     * @see \Vivo\UI\ComponentContainer::init()
-     */
-    public function init()
-    {
-        //attach events
-        $this->siteSelector->getEventManager()->attach('setSite', array($this, 'onSiteChange'));
-        //$this->ribbon->getEventManager()->attach('itemClick', array($this, 'onRibbonClick'));
-    }
-
-    /**
-     * (non-PHPdoc)
      * @see \Vivo\UI\PersistableInterface::loadState()
      */
     public function loadState($state)
@@ -164,21 +152,6 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
-     * Sets current explorer component.
-     * @param string $name
-     */
-    public function setCurrent($name)
-    {
-        if ($name == $this->explorerAction){
-            return;
-        }
-        $this->removeComponent($this->explorerAction);
-        $this->explorerAction = $name;
-        $this->createComponent(true);
-        $this->updateRibbon();
-    }
-
-    /**
      * Sets component tree controller.
      * @param \Vivo\UI\ComponentTreeController $tree
      */
@@ -188,55 +161,66 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     }
 
     /**
+     * @param string $site
+     */
+    private function redirectToHomepage($site)
+    {
+        $entity = $this->cmsApi->getSiteEntity('/', $site);
+        $routeParams = array(
+            'path' => $entity->getUuid(),
+            'explorerAction' => $this->explorerAction,
+        );
+        $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+        $this->getEventManager()->trigger(new RedirectEvent($url));
+    }
+
+    /**
      * Loads entity from url
      */
     protected function loadEntity()
     {
-        if ($site = $this->getSite()) {
+        $site = $this->getSite();
+        if ($site) {
             $entity = NULL;
-            if ($relPath = $this->request->getQuery('url', false)) {
-                $entity = $this->cmsApi->getSiteEntity($relPath, $site);
+            // 'url' param can come from frontend via /?edit
+            $relPath = $this->request->getQuery('url', false);
+            if ($relPath) {
+                // redirect to backend/explorer route
+                // try to load entity from repository
+                try {
+                    $entity = $this->cmsApi->getSiteEntity($relPath, $site);
+
+                    $routeParams = array(
+                        'path' => $entity->getUuid(),
+                        'explorerAction' => 'editor',
+                    );
+                    $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
+                    $this->getEventManager()->trigger(new RedirectEvent($url));
+                } catch (\Exception $ex) {
+                    // provided $relPath is not valid
+                    // redirect to homepage (/) editor
+                    $this->explorerAction = 'editor';
+                    $this->redirectToHomepage($site);
+                }
             } else {
                 // try to load entity from repository
                 // if no exception id thrown, uuid is valid
                 try {
+                    /* @var $entity Model\Entity */
                     $entity = $this->cmsApi->getEntity($this->uuid);
+                    // ensure the entity is in given site
+                    // TODO do not get entity twice from repository
+                    $this->cmsApi->getSiteEntity($entity->getPath(), $site);
                 } catch (\Exception $ex) {
                     // provided UUID is not valid
-                    // load site home page and trigger redirect event
-                    $entity = $this->cmsApi->getSiteEntity('/', $site);
-                    $routeParams = array(
-                        'path' => $entity->getUuid(),
-                        'explorerAction' => $this->explorerAction,
-                    );
-                    $url = $this->urlHelper->fromRoute(null, $routeParams);
-                    $this->getEventManager()->trigger(new RedirectEvent($url));
+                    // redirect to homepage (/)
+                    $this->redirectToHomepage($site);
                 }
             }
             // load entity and create explorer component
             $this->entity = $entity;
             $this->createComponent();
         }
-    }
-
-    /**
-     * Callback for site change event.
-     *
-     * When site is changed, load root document.
-     * @param Event $event
-     */
-    public function onSiteChange(Event $event)
-    {
-        $this->setEntityByRelPath('/');
-    }
-
-    /**
-     * Callback for ribbon click event.
-     * @param Event $event
-     */
-    public function onRibbonClick(Event $event)
-    {
-        $this->setCurrent($event->getParam('itemName'));
     }
 
     /**
@@ -247,25 +231,14 @@ class Explorer extends ComponentContainer implements EventManagerAwareInterface,
     {
         return $this->entity;
     }
-
+    
     /**
-     * @param \Vivo\CMS\Model\Entity $entity
+     * Sets entity
+     * @param \Vivo\CMS\Model\Entity
      */
-    public function setEntity(Model\Entity $entity)
+    public function setEntity(\Vivo\CMS\Model\Entity $entity)
     {
         $this->entity = $entity;
-        //recreate component when entity is changed.
-        $this->createComponent(true);
-        $this->eventManager->trigger(__FUNCTION__, $this, array('entity' => $entity));
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Vivo\Backend\UI\Explorer\ExplorerInterface::setEntityByRelPath()
-     */
-    public function setEntityByRelPath($relPath)
-    {
-        $this->setEntity($this->cmsApi->getSiteEntity($relPath, $this->getSite()));
     }
 
     /**

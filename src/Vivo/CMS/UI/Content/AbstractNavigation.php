@@ -6,7 +6,6 @@ use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Content;
-use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
 use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
 use Vivo\CMS\UI\Component;
@@ -299,11 +298,10 @@ abstract class AbstractNavigation extends Component
                     'level' => \VpLogger\Log\Logger::WARN));
                 continue;
             }
-            if (!$doc instanceof Document) {
-                throw new Exception\UnexpectedValueException(
-                    sprintf("%s: Entity specified by path '%s' is not a document", __METHOD__, $docPath));
+            if ($doc instanceof Document) {
+                $children = isset($docArray['children']) ? $docArray['children'] : array();
+                $documents[] = array('doc' => $doc, 'children' => $children);
             }
-            $documents[] = array('doc' => $doc, 'children' => $docArray['children']);
         }
         $documents = $this->sortDocuments($documents);
         if($limit && count($documents) > 0) {

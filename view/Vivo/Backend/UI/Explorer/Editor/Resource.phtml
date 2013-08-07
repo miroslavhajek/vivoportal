@@ -3,15 +3,4 @@
     <li class="resource-editor-item"><span class="rei-name"><?=++$i?>. <?=$resource?></span> <span class="rei-delete"><a href="<?=$this->actionUrl('delete', array('name'=>$resource))?>" title="Delete?">X</a></span></li>
 <? endforeach; ?>
 </ul>
-
-
-
-<?php
-	/** @var $resourceElement \Vivo\Form\Element\File */
-
-	$resourceElement = $form->get('resource');
-
-	$resourceElement->setAttribute('class', 'moje-classa');
-	
-	echo $this->formElementTwb($resourceElement);
-?>
+<? echo $this->formTwb($form, DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL); ?>
