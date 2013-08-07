@@ -100,49 +100,27 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function init()
     {
-        $this->doInit(ComponentEventInterface::EVENT_INIT_EARLY);
-        $this->doInit(ComponentEventInterface::EVENT_INIT);
-        $this->doInit(ComponentEventInterface::EVENT_INIT_LATE);
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_EARLY);
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT);
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_LATE);
     }
 
-    protected function doInit($event)
+    /**
+     * Triggers an event on the root component
+     * @param string $event
+     */
+    protected function triggerEventOnRootComponent($event)
     {
         $rootEvents     = $this->root->getEventManager();
         $rootEvent      = $this->root->getEvent();
         $rootEvent->setParams(array(
             'log'   => array(
-                'message'   => sprintf('Init component (%s): %s', $event, $this->root->getPath()),
+                'message'   => sprintf("Event '%s' triggered on the root component '%s'",
+                                $event, $this->root->getPath()),
                 'priority'  => \VpLogger\Log\Logger::PERF_FINER,
             ),
         ));
         $rootEvents->trigger($event, $rootEvent);
-    }
-
-    /**
-     * OBOSLETE? The original doInit which iterated over the components 'from outside'
-     * Initialize component tree
-     * @param string $event Init event to trigger (one of ComponentEventInterface::EVENT_INIT_... constants)
-     */
-    protected function doInitOld($event)
-    {
-//        $components = $this->getCurrentComponents();
-//        foreach ($components as $component) {
-//            //A component might have been removed from the tree in an init() (as is the case with ResourceEditor
-//            //=> check the component is still in the tree, if not, do not try to initialize it
-//            //TODO - Optimization? This is n^2, as all components are read for every component
-//            $currentComponents  = $this->getCurrentComponents();
-//            if (in_array($component, $currentComponents)) {
-//                $componentEvents    = $component->getEventManager();
-//                $componentEvent     = $component->getEvent();
-//                $componentEvent->setParams(array(
-//                    'log'   => array(
-//                        'message'   => sprintf('Init component (%s): %s', $event, $component->getPath()),
-//                        'priority'  => \VpLogger\Log\Logger::PERF_FINER,
-//                    ),
-//                ));
-//                $componentEvents->trigger($event, $componentEvent);
-//            }
-//        }
     }
 
     /**

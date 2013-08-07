@@ -17,11 +17,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
 {
     const ADAPTER_COMPONENT_NAME    = 'resourceAdapter';
 
-//    /**
-//     * @var \Vivo\CMS\Model\Content\File
-//     */
-//    private $content;
-
     /**
      * @var \Vivo\CMS\Api\Content\File
      */
@@ -51,15 +46,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
         $this->symRefConvertor  = $symRefConvertor;
         $this->autoAddCsrf      = false;
     }
-
-//    /**
-//     * (non-PHPdoc)
-//     * @see Vivo\CMS\UI\Content\Editor.EditorInterface::setContent()
-//     */
-//    public function setContent(Model\Content $content)
-//    {
-//        $this->content = $content;
-//    }
 
     /**
     * Sets the editor adapter

@@ -89,9 +89,11 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
      * Constructor.
      * @param CMS $cmsApi
      * @param SiteSelector $siteSelector
-     * @param ExplorerComponentFactory $explorerComponentFactory
-     * @param string $uuid
      * @param \Zend\ServiceManager\ServiceManager $serviceManager
+     * @param \Vivo\Util\UrlHelper $urlHelper
+     * @param string $uuid
+     * @param $explorerAction
+     * @internal param \Vivo\Backend\UI\Explorer\ExplorerComponentFactory $explorerComponentFactory
      */
     public function __construct(CMS $cmsApi,
                                 \Vivo\Backend\UI\SiteSelector $siteSelector,
@@ -119,8 +121,8 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
 
     /**
      * Create explorer component.
-     *
      * @param boolean $needInit
+     * @throws Exception
      */
     protected function createComponent($needInit = false)
     {
@@ -139,10 +141,6 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
             $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
             $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
             $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
-
-
-//            $this->tree->setRoot($component);
-//            $this->tree->init();
         }
     }
 

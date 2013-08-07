@@ -64,20 +64,6 @@ class LookupDataManager
                 if ($provider instanceof LookupDataProviderInterface) {
                     $value = $provider->getLookupData($propertyName, $this->metadata[$propertyName], $entity);
                 }
-
-//            elseif (strpos($value, '\\') && class_exists($value)) {
-//                if (PHP_VERSION_ID >= 50307 && is_subclass_of($value, 'Vivo\LookupData\LookupDataProviderInterface')) {
-//                    /* @var $provider LookupDataProviderInterface */
-//                    $provider = $this->serviceManager->get($value);
-//                    $value    = $provider->getLookupData($propertyName, $this->metadata[$propertyName], $entity);
-//                }
-//                else {
-//                    //Old php version fix 5.3.7
-//                    $provider = $this->serviceManager->get($value);
-//                    if ($provider instanceof LookupDataProviderInterface) {
-//                        $value = $provider->getLookupData($propertyName, $this->metadata[$propertyName], $entity);
-//                    }
-//                }
             }
         }
         return $metadata;

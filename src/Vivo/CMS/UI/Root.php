@@ -50,6 +50,5 @@ class Root extends Component
         $eventManager->detach($this->listeners['viewListenerChildViews']);
         unset($this->listeners['viewListenerInitView']);
         unset($this->listeners['viewListenerChildViews']);
-//        $listeners  = $this->listeners;
     }
 }

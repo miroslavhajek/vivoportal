@@ -83,7 +83,6 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
             $idSuffix   = 'new-' . $parentContentTab->getName();
         }
         $fieldset   = $this->formFactory->createFieldset(array(
-//            'name' => 'editor-'.$this->content->getUuid(),
             'name' => 'html_wysiwyg_edit',
             'elements' => array(
                 array('spec' => array(

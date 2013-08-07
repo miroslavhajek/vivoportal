@@ -188,12 +188,6 @@ class Content extends AbstractFieldset
                 'options' => $states,
             ),
         ));
-
-//        $form = new Form('content-'.$id);
-//        $form->setWrapElements(true);
-//        $form->setAttribute('method', 'post');
-//        $form->add($fieldset);
-
         return $fieldset;
     }
 
