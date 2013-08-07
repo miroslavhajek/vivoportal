@@ -252,6 +252,7 @@ class Finder extends Component implements TranslatorAwareInterface
         }
 
         $condition = $qb->andX($qb->cond($this->site->getPath().'/*', '\path'), $qb->orX($fieldCons));
+        $condition = $qb->andX($qb->cond('Vivo\CMS\Model\Document', '\class'), $condition);
         $hits      = $this->indexer->find($condition)->getHits();
 
         foreach ($hits as $hit) {
