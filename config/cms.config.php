@@ -241,6 +241,9 @@ return array(
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
             'Vivo\UI\ComponentContainer'           => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
+            'Vivo\Backend\UI\HeaderBar'            => 'Vivo\Backend\UI\HeaderBar',
+            'Vivo\Backend\UI\FooterBar'            => 'Vivo\Backend\UI\FooterBar',
+            'Vivo\Backend\Provider\Language'       => 'Vivo\Backend\Provider\Language',
         ),
         'factories' => array (
             // Content factories
@@ -305,6 +308,7 @@ return array(
             'Vivo\Backend\UI\Explorer\Ribbon'   => 'Vivo\Backend\UI\Explorer\RibbonFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
+            'Vivo\Backend\UI\ModulesPanel'      => 'Vivo\Backend\UI\ModulesPanelFactory',
 
             'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
         ),
