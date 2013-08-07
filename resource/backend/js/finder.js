@@ -6,17 +6,14 @@ $(document).ready(function() {
 	if (_mainFinderMultiId)	{
 		window.loaded = 1;
 		//init multiFinder
-		//var entities = getAllEntities(_mainFinderMultiId);
+		
 		var getPath = $('#' + _mainFinderMultiId).find("input[name='getPath[getEntities]']").attr("value");
 		var pathPart = $('#' + _mainFinderMultiId).find("input[name='input']").attr("value");
 		action({
 				data: "act="+getPath+"&args[]="+pathPart,
 				error: function() {
-					console.log("error");
 				}, 
 				success: function(res, textStatus, jqXHR) {
-					console.log("finder data");
-					console.log(res.data);
 					initMultiFinder(_mainFinderMultiId, res.data.length);
 				}
 			});
@@ -126,9 +123,6 @@ function getPathPart(part, _id) {
 	var pathPart = "";
 	if (typeof part == "undefined") part = 0;
 		var InputField = $("#" + _id).find("input[name='input']").attr("value");
-		//alert(InputField);
-		//var InputField = (_InputField != "" && _InputField != "/") ? _InputField + "/" : _InputField;
-		//alert(InputField);
 		var InputFieldParts = new Array();
 		InputFieldParts = InputField.split("/");
 
@@ -150,34 +144,19 @@ function multiFinder(_id, last) {
 
 	var InputFieldParts = new Array();
 	InputFieldParts = InputField.split("/");
-	//InputFieldParts.pop();
-	/*
-	if (InputField.length > 1)
-		InputFieldParts[InputFieldParts.length] = "";
-	*/
-	//console.log(urldecode(pathsField));
-	//console.log($.parseJSON(urldecode(pathsField)));
 
 	var pathsFieldParts = new Array();
-	//pathsFieldParts = pathsField.split("###");
-	//pathsFieldParts = $.parseJSON(urldecode(pathsField));
 	pathsFieldParts = window.finder_data[_id];
-	//pathsFieldParts.splice(0, 0, {title: "", actionUrl: ""});
-
-	console.log(pathsFieldParts);
-
+	
 	$("#finderMulti_" + _id).html("");
 	$("#finderMulti_" + _id).css("cursor", "text");
 
-	//var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
 	var actionURL = location.pathname;
 
 	//sitename
 	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+pathsFieldParts[0].actionUrl+"'><span>" + siteName + "</span></a>");
 
 	jQuery.each(InputFieldParts, function(i, val) {
-		console.log(i);
-		console.log(typeof pathsFieldParts[i]);
 		if (typeof pathsFieldParts[i] == 'undefined') return;
 
 		var pathTitle = pathsFieldParts[i].title;
@@ -268,11 +247,8 @@ function multiFinder(_id, last) {
 					action({
 						data: "act="+act+"&args[]="+newSearchstr,
 						error: function() {
-							console.log("error");
 						}, 
 						success: function(res, textStatus, jqXHR) {
-							console.log("finder data");
-							console.log(res);
 							html = res;
 							//initMultiFinder(_id, res.data.length);
 
@@ -302,10 +278,7 @@ function multiFinder(_id, last) {
 							multiFinderSearch = true;	
 
 						}
-					});
-
-					//searchPullDownContent = action(getPath, "renderSearchPulldown", newSearchstr);
-					
+					});				
 				}
 			}, 500);
 		}	
@@ -346,7 +319,6 @@ function multiFinder(_id, last) {
 				if (e.keyCode == 13) {
 					var inputVal_ = inputVal;
 					inputVal_ = (inputVal_.substring(inputVal_.length - 1) != "/") ? inputVal_ + "/" : inputVal_;
-					console.log(actionURL+"?act="+redirectAction+"&args[]=" + inputVal_);
 					location.href = actionURL+"?act="+redirectAction+"&args[]=" + inputVal_;
 				}
 			}
@@ -415,20 +387,14 @@ function showEntities(part, _id) {
 
 		var getPath = $('#' + _id).find("input[name='getPath[getEntities]']").attr("value");
 		var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
-		console.log(getPath);
-		console.log(pathPart);
 		var entities = action({
 								data: "act="+getPath+"&args[]="+pathPart,
 								error: function() {
-									console.log("error");
+									
 								}, 
 								success: function(res, textStatus, jqXHR) {
-									console.log("finder data");
-									console.log(res.data);
-
 									for (var i = 0; i < res.data.length; i++) {
 									var entity = res.data[i];
-									console.log(entity);
 									entity.path = entity.path.replace("//", "/");
 									var value = entity.path.substring(entity.path.indexOf('/', 1));
 									value = value.substring(value.indexOf('/', 1)) + ''; // ve value je cesta k nastaveni do finderu
@@ -467,11 +433,6 @@ function showEntities(part, _id) {
 								}
 							});
 		var entities = {};
-		//alert(serialize(entities));
-		
-
-		//$('#'+_id+'_'+part+'_entities > div').dropShadow();
-
 		
 	} else {
 		$('#'+_id+'_'+part+'_entities').html("");
@@ -482,9 +443,7 @@ function showEntities(part, _id) {
 
 function getAllEntities(_id) {
 	var InputField = $('#' + _id).find("input[name='input']").attr("value");
-	//var InputField = (_InputField != "" && _InputField != "/") ? _InputField + "/" : _InputField;
 	var getPath = $('#' + _id).find("input[name='getPath[getEntities]']").attr("value");
-	//var entities = action(getPath, InputField);
 	var entities = {};
 	return entities;
 }

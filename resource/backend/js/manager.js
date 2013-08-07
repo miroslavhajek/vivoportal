@@ -482,7 +482,7 @@ function action(act) {
         }
         return_complete = false;
         var data = act.data || "";
-        console.log(data);
+        //console.log(data);
     }
 
     var result;
