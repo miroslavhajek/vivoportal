@@ -243,7 +243,6 @@ return array(
             'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
             'Vivo\Backend\UI\HeaderBar'            => 'Vivo\Backend\UI\HeaderBar',
             'Vivo\Backend\UI\FooterBar'            => 'Vivo\Backend\UI\FooterBar',
-            'Vivo\Backend\Provider\Language'       => 'Vivo\Backend\Provider\Language',
         ),
         'factories' => array (
             // Content factories
@@ -309,8 +308,9 @@ return array(
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
             'Vivo\Backend\UI\ModulesPanel'      => 'Vivo\Backend\UI\ModulesPanelFactory',
-
             'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
+            'Vivo\Backend\Provider\Language'    => 'Vivo\Backend\Provider\LanguageFactory',
+            'Vivo\Backend\Provider\Sorting'     => 'Vivo\Backend\Provider\SortingFactory',
         ),
         'aliases' => array(
         ),
