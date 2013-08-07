@@ -257,7 +257,9 @@ class Finder extends Component implements TranslatorAwareInterface
             }
         }
 
-        $condition = $qb->andX($qb->cond($this->site->getPath().'/*', '\path'), $qb->orX($fieldCons));
+        $condition = $qb->orX($qb->cond('Vivo\CMS\Model\Folder', '\class'), $qb->cond('Vivo\CMS\Model\Document', '\class'));
+        $condition = $qb->andX($condition, $qb->cond($this->site->getPath().'/*', '\path'));
+        $condition = $qb->andX($condition, $qb->orX($fieldCons));
         $hits      = $this->indexer->find($condition)->getHits();
 
         foreach ($hits as $hit) {
@@ -267,7 +269,7 @@ class Finder extends Component implements TranslatorAwareInterface
 
             $documents[] = array(
                 'document' => $document,
-                'published' => intval($published),
+                'published' => $published,
             );
         }
 

@@ -261,7 +261,7 @@ function multiFinder(_id, last) {
 					$('#' + _id).find(".inputFinder .searchBox").remove();
 					var act = $('#' + _id).find("input[name='getPath[search]']").attr("value");
 
-					
+					var html;
 
 					action({
 						data: "act="+act+"&args[]="+newSearchstr,
@@ -270,36 +270,40 @@ function multiFinder(_id, last) {
 						}, 
 						success: function(res, textStatus, jqXHR) {
 							console.log("finder data");
-							console.log(res.data);
-							initMultiFinder(_mainFinderMultiId, res.data.length);
+							console.log(res);
+							html = res;
+							//initMultiFinder(_id, res.data.length);
+
+							searchPullDownContent = "";
+							searchTimer0 = null;
+							$('#' + _id).find(".inputFinder").append($(document.createElement("div")).addClass("searchBox"));
+							$('#' + _id).find(".inputFinder .searchBox")
+								.html(html)
+								.slideDown(200, function() {
+									$(this).dropShadow({
+										left: 3,
+										top: 3,
+										blur: 2,
+										opacity: .7,
+										color: "#8ba9c8",
+										swap: false
+									});
+			
+									firstSearchResult = 0;
+									searchResultCount = 0;
+									searchResultPosition = 0;
+									$(this).find("a").each(function() {
+										searchResultCount++;
+										$(this).attr("id", "pos-" + searchResultCount);
+									});
+								});
+							multiFinderSearch = true;	
+
 						}
 					});
 
 					//searchPullDownContent = action(getPath, "renderSearchPulldown", newSearchstr);
-					searchPullDownContent = "";
-					searchTimer0 = null;
-					$('#' + _id).find(".inputFinder").append($(document.createElement("div")).addClass("searchBox"));
-					$('#' + _id).find(".inputFinder .searchBox")
-						.html(searchPullDownContent)
-						.slideDown(200, function() {
-							$(this).dropShadow({
-								left: 3,
-								top: 3,
-								blur: 2,
-								opacity: .7,
-								color: "#8ba9c8",
-								swap: false
-							});
-	
-							firstSearchResult = 0;
-							searchResultCount = 0;
-							searchResultPosition = 0;
-							$(this).find("a").each(function() {
-								searchResultCount++;
-								$(this).attr("id", "pos-" + searchResultCount);
-							});
-						});
-					multiFinderSearch = true;
+					
 				}
 			}, 500);
 		}	
@@ -519,4 +523,17 @@ function viewBookmark(_id) {
 
 function urldecode(url) {
   return decodeURIComponent(url.replace(/\+/g, ' '));
+}
+
+//moving in search result box
+function moveSearchResults(_id, step) {
+	var li = $('#' + _id).find(".inputFinder .searchBox li");
+	searchResultPosition += step;
+	if (searchResultPosition > searchResultCount) searchResultPosition = 1;//searchResultCount;
+	if (searchResultPosition < 0) searchResultPosition = 0;
+	$(li).removeClass("active");
+	if (searchResultPosition > 0) {
+		$(li[searchResultPosition - 1]).addClass("active");
+		$(li).parent().scrollTo(li[searchResultPosition - 1], 200);
+	}
 }
