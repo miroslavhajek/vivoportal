@@ -12,10 +12,11 @@ use Vivo\Indexer\QueryBuilder;
 use Vivo\UI\Alert;
 use Vivo\UI\Component;
 use Vivo\Util\UrlHelper;
+use Vivo\Util\RedirectEvent;
 use Zend\EventManager\Event;
 use Zend\I18n\Translator\Translator;
 use Zend\View\Model\JsonModel;
-use Vivo\Util\RedirectEvent;
+use Zend\EventManager\EventManager;
 
 class Finder extends Component implements TranslatorAwareInterface
 {
@@ -282,7 +283,8 @@ class Finder extends Component implements TranslatorAwareInterface
             $document = $this->documentApi->getEntity($url);
 
             $url = $this->urlHelper->fromRoute('backend/explorer', array('path' => $document->getUuid()));
-            $this->events->trigger(new RedirectEvent($url));
+            $events = new EventManager();
+            $events->trigger(new RedirectEvent($url));
         }
         catch(\Vivo\CMS\Exception\InvalidArgumentException $e) {
             $this->alert->addMessage('Neplatný formát URL', Alert::TYPE_WARNING);
