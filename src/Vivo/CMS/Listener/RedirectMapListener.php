@@ -1,8 +1,9 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
+use Vivo\CMS\Api;
+use Vivo\CMS\Event\CMSEvent;
 use Vivo\Util\RedirectEvent;
-
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
@@ -50,7 +51,7 @@ class RedirectMapListener implements ListenerAggregateInterface, EventManagerAwa
      */
     public function attach(EventManagerInterface $events)
     {
-        $this->listeners[] = $events->attach(Event\CMSEvent::EVENT_REDIRECT, array($this, 'redirect'));
+        $this->listeners[] = $events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'redirect'));
     }
 
     /**
@@ -73,7 +74,7 @@ class RedirectMapListener implements ListenerAggregateInterface, EventManagerAwa
      * @param \Vivo\CMS\Event\CMSEvent $e
      * @return null|Model\Document
      */
-    public function redirect(Event\CMSEvent $cmsEvent)
+    public function redirect(CMSEvent $cmsEvent)
     {
         try {
             $redirectMap = $this->cmsApi->getResource($cmsEvent->getSite(), 'redirect.map');

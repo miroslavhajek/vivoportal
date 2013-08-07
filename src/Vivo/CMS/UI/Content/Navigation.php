@@ -85,7 +85,7 @@ class Navigation extends AbstractNavigation
     {
         $concat = '';
         foreach ($enumeratedDocs as $enumDoc) {
-            $concat .= $enumDoc['docPath'];
+            $concat .= $enumDoc['doc_path'];
             if (isset($enumDoc['children'])) {
                 $concat .= $this->concatEnumeratedDocs($enumDoc['children']);
             }
@@ -257,15 +257,20 @@ class Navigation extends AbstractNavigation
         return (bool) $doc->getAllowListingInNavigation() === false;
     }
 
+    /**
+     * Sorts documents by provided criteria
+     * By default it doesn't do anything
+     * @param array $documents
+     * @return array
+     */
     protected function sortDocuments($documents)
     {
-        $currentDoc = $this->cmsEvent->getDocument();
-        if($this->navModel->getNavigationSorting() !== null) {
-            $sorting = $this->navModel->getNavigationSorting();
-            $parentSorting = $currentDoc->getSorting();
-            if(strpos($sorting, "parent") !== false && $parentSorting != null) {
-                $sorting = $parentSorting;
-            }
+        $sorting = $this->navModel->getNavigationSorting();
+        if (strpos($sorting, "parent") !== false) {
+            $currentDoc = $this->cmsEvent->getDocument();
+            $sorting = $currentDoc->getSorting();
+        }
+        if($sorting !== null && $sorting != 'none') {
             $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
         }
 

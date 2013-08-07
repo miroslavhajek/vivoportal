@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\CMS;
+namespace Vivo\CMS\Listener;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -16,7 +16,6 @@ class RedirectMapListenerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $sm)
     {
-        $listener = new RedirectMapListener($sm->get('Vivo\CMS\Api\CMS'));
-        return $listener;
+        return new RedirectMapListener($sm->get('Vivo\CMS\Api\CMS'));
     }
 }

@@ -141,6 +141,14 @@ interface RepositoryInterface extends TransactionalInterface
     public function getResourceMtime(PathInterface $entity, $name);
 
     /**
+     * Returns resource size in bytes
+     * @param \Vivo\CMS\Model\PathInterface $entity
+     * @param string $name
+     * @return int
+     */
+    public function getResourceSize(PathInterface $entity, $name);
+
+    /**
      * Returns parent folder
      * If there is no parent folder (ie this is a root), returns null
      * @param PathInterface $folder

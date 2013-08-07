@@ -2,6 +2,7 @@
 namespace Vivo\Form\Element;
 
 use Vivo\Filter\ArrayToKeyValueString;
+
 use Zend\InputFilter\InputProviderInterface;
 
 class ArrayInTextarea extends Textarea implements InputProviderInterface
@@ -22,6 +23,10 @@ class ArrayInTextarea extends Textarea implements InputProviderInterface
         parent::setValue($value);
     }
 
+    /**
+     * Get input specification
+     * @return array
+     */
     public function getInputSpecification()
     {
         return array(

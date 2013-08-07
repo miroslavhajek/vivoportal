@@ -87,3 +87,4 @@ class Site extends Folder
         return $this->bodyAttributes;
     }
 }
+

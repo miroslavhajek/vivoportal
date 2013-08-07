@@ -3,7 +3,6 @@ namespace Vivo\CMS;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\CMS;
-use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
 use Vivo\Controller\Exception;
 use Vivo\IO\InputStreamInterface;
@@ -26,6 +25,7 @@ use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
+use Zend\Stdlib\ArrayUtils;
 use Zend\View\Model\ModelInterface;
 
 /**
@@ -36,6 +36,13 @@ class FrontController implements DispatchableInterface,
                                  EventManagerAwareInterface,
                                  ServiceLocatorAwareInterface
 {
+    /**
+     * @var array
+     */
+    protected $options = array(
+        'listeners' => array(),
+    );
+
     /**
      * @var MvcEvent
      */
@@ -67,11 +74,6 @@ class FrontController implements DispatchableInterface,
     protected $documentApi;
 
     /**
-     * @var ComponentFactory
-     */
-    protected $componentFactory;
-
-    /**
      * @var ComponentTreeController
      */
     protected $tree;
@@ -97,21 +99,25 @@ class FrontController implements DispatchableInterface,
     protected $urlHelper;
 
     /**
+     * @param array $options Configuration.
+     */
+    public function __construct(array $options)
+    {
+        $this->options = ArrayUtils::merge($this->options, $options);
+    }
+
+    /**
      * Attaches default listeners.
      */
-    public function attachListeners()
+    private function attachListeners()
     {
-        //fetch document
-        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentListener'), 100);
-        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchDocumentByUrlListener'), 200);
-        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\FetchErrorDocumentListener'), 100);
+        //fetch listeners
+        foreach ($this->options['listeners'] as $service => $priority) {
+            $this->events->attachAggregate($this->serviceManager->get($service), $priority);
+        }
 
         //redirect
-        $this->events->attachAggregate($this->serviceManager->get('Vivo\CMS\RedirectMapListener'), 100);
         $this->events->attach(CMSEvent::EVENT_REDIRECT, array($this, 'performRedirects'), 200);
-
-        //create
-        $this->events->attach(CMSEvent::EVENT_CREATE, array($this, 'createTreeFromDocument'), 100);
 
         //render
         $this->events->attach(CMSEvent::EVENT_RENDER, array($this, 'render'), 100);
@@ -184,14 +190,19 @@ class FrontController implements DispatchableInterface,
             }
             //throw exception when document hasn't any published content
             if (!$this->documentApi->isPublished($document)) {
-            throw new \Exception(sprintf('%s: Document `%s` is not published',
-                        __METHOD__,
-                        $document->getPath()),
-                    \Zend\Http\Response::STATUS_CODE_404);
+                throw new \Exception(sprintf('%s: Document `%s` is not published',
+                            __METHOD__,
+                            $document->getPath()),
+                        \Zend\Http\Response::STATUS_CODE_404);
             }
 
             //create ui component tree
-            $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
+            $eventResult = $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent,
+                    function ($result) {
+                        //stop event propagation when UI is fetched
+                        return ($result instanceof Component);
+                    });
+            $this->cmsEvent->setRoot($eventResult->last());
 
             //Performance log
             $this->events->trigger('log', $this,
@@ -250,7 +261,12 @@ class FrontController implements DispatchableInterface,
             }
 
             //create ui component tree
-            $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent);
+            $eventResult = $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent,
+                    function ($result) {
+                        //stop event propagation when UI is fetched
+                        return ($result instanceof Component);
+                    });
+            $this->cmsEvent->setRoot($eventResult->last());
 
             //perform tree operations
             $result = $this->dispatchTree($this->cmsEvent);
@@ -307,7 +323,7 @@ class FrontController implements DispatchableInterface,
 
         //parse resource map file
         foreach ($lines as $line) {
-            if ($line = trim($line)) { //skip empty rows
+            if (($line = trim($line))) { //skip empty rows
                 $lineColums = array_values(array_filter(explode(' ', $line)));
                 if (count($lineColums) == 3) {
                     list($path, $source, $resource) = $lineColums;
@@ -329,16 +345,6 @@ class FrontController implements DispatchableInterface,
             return $controller->dispatch($this->mvcEvent->getRequest(), $this->mvcEvent->getResponse());
         }
         return null;
-    }
-
-    /**
-     * Creates UI component tree from document.
-     * @param \Vivo\CMS\Event\CMSEvent $cmsEvent
-     */
-    public function createTreeFromDocument(\Vivo\CMS\Event\CMSEvent $cmsEvent)
-    {
-        $root = $this->componentFactory->getRootComponent($cmsEvent->getDocument());
-        $cmsEvent->setRoot($root);
     }
 
     /**
@@ -367,8 +373,9 @@ class FrontController implements DispatchableInterface,
             if ($handleAction) {
                 $result = $this->handleAction();
                 if($result != null) {
+                    $type = is_object($result) ? get_class($result) : gettype($result);
                     throw new Exception\RuntimeException(sprintf("%s: Action returns not null result; returns '%s'",
-                            __METHOD__, gettype($result)));
+                            __METHOD__, $type));
                 }
             }
             if (!$this->redirector->isRedirect()) {
@@ -512,14 +519,6 @@ class FrontController implements DispatchableInterface,
     public function getEvent()
     {
         return $this->mvcEvent;
-    }
-
-    /**
-     * @param ComponentFactory $componentFactory
-     */
-    public function setComponentFactory(ComponentFactory $componentFactory)
-    {
-        $this->componentFactory = $componentFactory;
     }
 
     /**

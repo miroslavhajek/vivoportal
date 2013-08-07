@@ -9,6 +9,7 @@ use Vivo\CMS\Exception as CMSException;
 use Vivo\CMS\Model;
 use Vivo\CMS\Model\Content;
 use Vivo\Transliterator\TransliteratorInterface;
+use Vivo\CMS\Api\Helper\DocumentCompare;
 
 use DateTime;
 
@@ -49,9 +50,16 @@ class Document implements DocumentInterface
     protected $transliteratorDocTitleToPath;
 
     /**
+     * Helper for document comparison
+     * @var DocumentCompare
+     */
+    protected $documentCompareHelper;
+
+    /**
      * @var array
      */
     protected $options = array();
+
 
     /**
      * Constructor
@@ -60,6 +68,7 @@ class Document implements DocumentInterface
      * @param \Vivo\Storage\PathBuilder\PathBuilderInterface $pathBuilder
      * @param \Vivo\Uuid\GeneratorInterface $uuidGenerator
      * @param \Vivo\Transliterator\TransliteratorInterface $transliteratorDocTitleToPath
+     * @param DocumentCompare $documentCompareHelper
      * @param array $options
      */
     public function __construct(CMS $cmsApi,
@@ -67,6 +76,7 @@ class Document implements DocumentInterface
                                 PathBuilderInterface $pathBuilder,
                                 UuidGeneratorInterface $uuidGenerator,
                                 TransliteratorInterface $transliteratorDocTitleToPath,
+                                DocumentCompare $documentCompareHelper,
                                 array $options)
     {
         $this->cmsApi                       = $cmsApi;
@@ -74,6 +84,7 @@ class Document implements DocumentInterface
         $this->pathBuilder                  = $pathBuilder;
         $this->uuidGenerator                = $uuidGenerator;
         $this->transliteratorDocTitleToPath = $transliteratorDocTitleToPath;
+        $this->documentCompareHelper = $documentCompareHelper;
         $this->options = array_merge($this->options, $options);
     }
 
@@ -325,17 +336,29 @@ class Document implements DocumentInterface
      * @throws Exception\InvalidTitleException
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Folder $parent, Model\Folder $document)
+    public function createDocument(Model\Folder $parent, Model\Folder $document, $nameInPath = null)
     {
-        $title = trim($document->getTitle());
+        $title = $pathSlug = trim($document->getTitle());
         if($title == '') {
             throw new \Vivo\CMS\Api\Exception\InvalidTitleException('Document title is not set');
         }
         $document->setTitle($title);
 
-        $titleTranslit  = $this->transliteratorDocTitleToPath->transliterate($document->getTitle());
-//        $titleLc = mb_strtolower($document->getTitle());
-        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $titleTranslit));
+        // use $nameInPath param?
+        if ($nameInPath !== null) {
+            $nameInPath = trim($nameInPath);
+            if($nameInPath == '') {
+                throw new \Vivo\CMS\Api\Exception\InvalidPathException('Document path is not set');
+            }
+            $pathSlug = $nameInPath;
+        }
+
+        $pathSlugTranslit  = $this->transliteratorDocTitleToPath->transliterate($pathSlug);
+        $path = $this->pathBuilder->buildStoragePath(array($parent->getPath(), $pathSlugTranslit));
+
+        if ($this->repository->hasEntity($path)) {
+            throw new \Vivo\CMS\Api\Exception\InvalidPathException(sprintf("Path '%s' already exists", $path));
+        }
 
         $document->setPath($path);
         $document = $this->cmsApi->prepareEntityForSaving($document);
@@ -520,73 +543,25 @@ class Document implements DocumentInterface
     }
 
     /**
-     * Sort array of documents/folders by specified criteria. You can also pass array with dependencies
-     * where doc index is Model\Document and 'children' is custom array sorted with document.
+     * Sort array of documents/folders by specified criteria.
+     * Structure of input array may be as follows:
+     * 1) Model\Folder[]
+     * 2) structured array:
      * array(
-     *     'doc' => Model\Document,
+     *     'doc' => Model\Folder,
      *     'children' => array(...)
      * )
      *
      * @param array $documents Array of documents/folders
      * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
-     * @return array
+     * @return array Sorted array of documents structured the same way as input array
      */
     public function sortDocumentsByCriteria(array $documents, $criteriaString)
     {
         if (is_string($criteriaString)) {
-            if(strpos($criteriaString, ":") !== false) {
-                $propertyName = substr($criteriaString, 0,  strpos($criteriaString,':'));
-                $sortWay = substr($criteriaString,strpos($criteriaString,':')+1);
-            } else {
-                $propertyName = $criteriaString;
-                $sortWay = 'asc';
-            }
-            $criteria = array(
-                'propertyName' => $propertyName,
-                'order' => ($sortWay == 'desc') ? SORT_DESC : SORT_ASC
-            );
-
-            uasort($documents, function($a, $b) use ($criteria) {
-                $getPropertyByName = function($node, $prop) {
-                    $getter = 'get' . $prop;
-                    if(method_exists($node, $getter)){
-                        return $node->$getter();
-                    } else {
-                        return null;
-                    }
-                };
-
-                if($criteria['propertyName'] === 'random') {
-                    return rand(-1,1);
-                }
-
-                if(is_array($a)) {
-                    $aProp = $getPropertyByName($a['doc'], $criteria['propertyName']);
-                } else {
-                    $aProp = $getPropertyByName($a, $criteria['propertyName']);
-                }
-                if(is_array($b)) {
-                    $bProp = $getPropertyByName($b['doc'], $criteria['propertyName']);
-                } else {
-                    $bProp = $getPropertyByName($b, $criteria['propertyName']);
-                }
-
-                //comparison functions
-                if ($aProp != $bProp) {
-                    if($aProp instanceof \DateTime && $bProp instanceof \DateTime){
-                        if($criteria['order'] === SORT_ASC) {
-                            return $aProp > $bProp ? 1 : -1;
-                        } else {
-                            return $bProp > $aProp ? 1 : -1;
-                        }
-                    } else {
-                        return ($criteria['order'] == SORT_ASC)
-                            //@TODO Check behavior with multi-byte strings
-                            ? strnatcasecmp($aProp, $bProp)
-                            : strnatcasecmp($bProp, $aProp);
-                    }
-                }
-                return 0;
+            $documentCompareHelper = $this->documentCompareHelper;
+            uasort($documents, function($a, $b) use ($documentCompareHelper, $criteriaString) {
+                return $documentCompareHelper->compare($a, $b, $criteriaString);
             });
         }
 

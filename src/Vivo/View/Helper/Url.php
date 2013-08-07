@@ -6,8 +6,6 @@ use Vivo;
 /**
  * Url view helper.
  *
- * Has the same function as \Zend\View\Helper\Url, it only modifies reused params.
- * Helper always reuses 'path' and 'host' router match param and never reuses 'controller' param.
  */
 class Url extends \Zend\View\Helper\AbstractHelper
 {
@@ -29,14 +27,13 @@ class Url extends \Zend\View\Helper\AbstractHelper
     /**
      * Assemble url using route and router params.
      * @param string|null $name Route name
-     * @param array $params
+     * @param array $params Route params
      * @param array $options
-     * @param bool $reuseMatchedParams
      * @return string
      */
-    public function __invoke($name = null, array $params = array(), $options = array(), $reuseMatchedParams = false)
+    public function __invoke($name = null, array $params = array(), array $options = array())
     {
-        $route = $this->urlHelper->fromRoute($name, $params, $options, $reuseMatchedParams);
+        $route = $this->urlHelper->fromRoute($name, $params, $options);
         return $route;
     }
 }

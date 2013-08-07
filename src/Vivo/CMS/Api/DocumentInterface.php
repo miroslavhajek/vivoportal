@@ -82,9 +82,10 @@ interface DocumentInterface
     /**
      * @param Model\Folder $parent
      * @param Model\Folder $document
+     * @param string $nameInPath
      * @return \Vivo\CMS\Model\Document
      */
-    public function createDocument(Model\Folder $parent, Model\Folder $document);
+    public function createDocument(Model\Folder $parent, Model\Folder $document, $nameInPath = null);
 
     /**
      * Copies document to a new location
@@ -159,4 +160,20 @@ interface DocumentInterface
      */
     public function getDocumentsOnBranch(Model\Document $leaf, $rootPath = '/', $includeRoot = true,
                                          $includeLeaf = true);
+
+    /**
+     * Sort array of documents/folders by specified criteria.
+     * Structure of input array may be as follows:
+     * 1) Model\Folder[]
+     * 2) structured array:
+     * array(
+     *     'doc' => Model\Folder,
+     *     'children' => array(...)
+     * )
+     *
+     * @param array $documents Array of documents/folders
+     * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
+     * @return array Sorted array of documents structured the same way as input array
+     */
+    public function sortDocumentsByCriteria(array $documents, $criteriaString);
 }
