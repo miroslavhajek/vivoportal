@@ -1,0 +1,30 @@
+<<??>?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+    <channel>
+        <title><?=htmlspecialchars($document->getTitle())?> | <?=htmlspecialchars($site->getTitle())?></title>
+        <link><?=$this->document($document, array('full_url'=>true))?></link>
+        <description><?=htmlspecialchars($document->getDescription())?></description>
+        <language><?=$document->getLanguage()?></language>
+        <image>
+            <link></link>
+            <title><?=htmlspecialchars($site->getTitle())?></title>
+            <url></url>
+        </image>
+    <? foreach ($items as $item) : /* @var $item \Vivo\CMS\Model\Document */ ?>
+        <item>
+            <title><?=htmlspecialchars($item->getTitle())?></title>
+            <link><?=$this->document($item, array('full_url'=>true))?></link>
+            <description><?=htmlspecialchars($item->getDescription())?></description>
+            <dc:creator><?=htmlspecialchars($item->getAuthor()) ?></dc:creator>
+            <pubDate><?=$item->getPublished() instanceof \DateTime
+                            ? $item->getPublished()->format(\DateTime::RSS)
+                            : $item->getCreated()->format(\DateTime::RSS)?></pubDate>
+            <? if ($item->getImage()) {
+                $imageURL = $this->resource($item->getImage(), $item, array('full_url'=>true));
+                $info = $this->resourceInfo($item->getImage(), $item);
+                echo sprintf('<enclosure length="%s" type="%s" url="%s" />', $info['size'], $info['mime'], $imageURL);
+            } ?>
+        </item>
+    <? endforeach; ?>
+    </channel>
+</rss>

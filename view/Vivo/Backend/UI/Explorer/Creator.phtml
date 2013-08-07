@@ -1,4 +1,6 @@
 <?php
+$this->headScript()->appendFile('/.Vivo.resource/js/update-path.js');
+
 $formType = DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
 echo $this->formTwb()->openTag($form, $formType);
 $type = $form->get('__type')
@@ -6,6 +8,18 @@ $type = $form->get('__type')
     ->setAttribute('onchange',
         sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('create')));
 echo $this->formRowTwb($type, $formType);
+
+// manual render of 'title' element of 'entity' fieldset to get 'title' to the first position
+// fieldset 'entity' is rendered below - 'title' element must be removed (it would be rendered twice)
+$name = $form->get('entity')->get('title');
+$name->setAttribute('onkeyup', 'this.form.name_in_path.value = updatePath(this.form.name_in_path.value, this.value)');
+echo $this->formRowTwb($form->get('entity')->get('title'), $formType);
+$form->get('entity')->remove('title');
+
+// render of 'name_in_path' which is not part of 'entity' fieldset
+$nameInPath = $form->get('name_in_path');
+$nameInPath->setAttribute('style', 'width:100%');
+echo $this->formRowTwb($nameInPath, $formType);
 
 echo $this->formFieldsetTwb($form->get('entity'), $formType);
 echo $contentTab;

@@ -46,6 +46,7 @@ class Creator extends Editor
     protected function doGetForm()
     {
         $form = parent::doGetForm();
+
         $form->add(array(
             'name' => '__type',
             'type' => 'Vivo\Form\Element\Select',
@@ -56,6 +57,32 @@ class Creator extends Editor
                 )
             )
         ));
+
+        $form->add(array(
+            'type' => 'Vivo\Form\Element\Text',
+            'name' => 'name_in_path',
+            'options' => array(
+                'label' => 'Name in path',
+            ),
+        ));
+
+        $parentEntity = $this->explorer->getEntity();
+
+        $form->getInputFilter()->add(
+            array(
+                'name' => 'name_in_path',
+                'required' => true,
+                'validators' => array(
+                    array(
+                        'name' => 'vivo_unique_entity_path',
+                        'options' => array(
+                            'parentDocumentPath' => $parentEntity->getPath(),
+                        ),
+                    ),
+                ),
+            )
+        );
+
         return $form;
     }
 
@@ -69,14 +96,17 @@ class Creator extends Editor
         $this->loadFromRequest();
     }
 
+    /**
+     * Stores new entity to repository
+     */
     public function save()
     {
-        if($this->getForm()->isValid()) {
+        if ($this->getForm()->isValid()) {
             $parent = $this->explorer->getEntity();
-            $this->entity = $this->documentApi->createDocument($parent, $this->entity);
+            $nameInPath = $this->getForm()->get('name_in_path')->getValue();
+            $this->entity = $this->documentApi->createDocument($parent, $this->entity, $nameInPath);
             $this->explorer->setEntity($this->entity);
             $this->saveProcess();
-            $this->explorer->setCurrent('editor');
             $routeParams = array(
                 'path' => $this->entity->getUuid(),
                 'explorerAction' => 'editor',

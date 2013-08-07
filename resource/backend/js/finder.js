@@ -6,8 +6,18 @@ $(document).ready(function() {
 	if (_mainFinderMultiId)	{
 		window.loaded = 1;
 		//init multiFinder
-		var entities = getAllEntities(_mainFinderMultiId);
-		initMultiFinder(_mainFinderMultiId, entities.length);
+		
+		var getPath = $('#' + _mainFinderMultiId).find("input[name='getPath[getEntities]']").attr("value");
+		var pathPart = $('#' + _mainFinderMultiId).find("input[name='input']").attr("value");
+		action({
+				data: "act="+getPath+"&args[]="+pathPart,
+				error: function() {
+				}, 
+				success: function(res, textStatus, jqXHR) {
+					initMultiFinder(_mainFinderMultiId, res.data.length);
+				}
+			});
+
 		//$(".inputFinder").show();
 
 		//view bookmarks from finder
@@ -113,9 +123,6 @@ function getPathPart(part, _id) {
 	var pathPart = "";
 	if (typeof part == "undefined") part = 0;
 		var InputField = $("#" + _id).find("input[name='input']").attr("value");
-		//alert(InputField);
-		//var InputField = (_InputField != "" && _InputField != "/") ? _InputField + "/" : _InputField;
-		//alert(InputField);
 		var InputFieldParts = new Array();
 		InputFieldParts = InputField.split("/");
 
@@ -132,31 +139,31 @@ function getPathPart(part, _id) {
 //--vykresluje samotny multifinder
 function multiFinder(_id, last) {
 	var InputField = $("#" + _id).find("input[name='input']").attr("value");
-	var pathsField = $("#" + _id).find("input[name='paths']").attr("value");
+	var pathsField = $("#" + _id).find("input[name='input']").attr("data-titles");
 	var siteName = $("#" + _id).find("input[name='site[name]']").attr("value");
 
 	var InputFieldParts = new Array();
 	InputFieldParts = InputField.split("/");
-	/*
-	if (InputField.length > 1)
-		InputFieldParts[InputFieldParts.length] = "";
-	*/
 
 	var pathsFieldParts = new Array();
-	pathsFieldParts = pathsField.split("###");
-
+	pathsFieldParts = window.finder_data[_id];
+	
 	$("#finderMulti_" + _id).html("");
 	$("#finderMulti_" + _id).css("cursor", "text");
 
-	var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
+	var actionURL = location.pathname;
 
 	//sitename
-	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+actionURL+"&args[]=/'><span>" + siteName + "</span></a>");
+	$("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + 0 + "_holder' href='"+pathsFieldParts[0].actionUrl+"'><span>" + siteName + "</span></a>");
 
 	jQuery.each(InputFieldParts, function(i, val) {
-		var pathTitle = (pathsFieldParts[i] == '-') ? val : pathsFieldParts[i];
+		if (typeof pathsFieldParts[i] == 'undefined') return;
+
+		var pathTitle = pathsFieldParts[i].title;
+		var pathUrl = pathsFieldParts[i].actionUrl;
+		
 		if (i < InputFieldParts.length - 1) {
-			if (i > 0) $("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + i + "_holder' href='"+actionURL+"&args[]="+getPathPart(i, _id)+"'><span>" + pathTitle + "</span></a>");
+			if (i > 0) $("#finderMulti_" + _id).append("<a class='finderMultiPart' id='"+_id+"_a_" + i + "_holder' href='"+pathUrl+"'><span>" + pathTitle + "</span></a>");
 			if (last != 0 || i != InputFieldParts.length - 2) $("#finderMulti_" + _id).append("<div class='finderMultiPartDir'><a href='javascript:void(0)' id='"+_id+"_a_" + i + "_entities' class='finderMultiPartDira'><span>&gt;</span></a><div id='"+_id+"_" + i + "_entities' class='finderMultiPartDirEntities'></div></div>");
 			$('#'+_id+'_'+i+'_entities').hide();
 			$('#'+_id+'_a_'+i+'_entities').click(function(e) {
@@ -223,6 +230,8 @@ function multiFinder(_id, last) {
 	$('#' + _id).find(".inputFinder input").keyup(function(e) {
 		var inputVal = $(this).val();
 
+		var redirectAction = $('#' + _id).find("input[name='getPath[redirectToUrl]']").attr("value");
+
 		if (jQuery.trim(inputVal) != "" && inputVal.substring(0,1) != "/" && jQuery.inArray(e.keyCode, [37, 38, 39, 40, 13]) == -1) { // 37 left, 38 up, 39 right, 40 down
 			multiFinderSearch = false;
 			clearTimeout(searchTimer0);
@@ -231,32 +240,45 @@ function multiFinder(_id, last) {
 				if (jQuery.trim(newSearchstr) != "" && newSearchstr.substring(0,1) != "/") {
 					$('#' + _id).find(".inputFinder .searchBox").removeShadow();
 					$('#' + _id).find(".inputFinder .searchBox").remove();
-					var getPath = $('#' + _id).find("input[name='finder[output]']").attr("value");
-					//searchPullDownContent = action(getPath, "renderSearchPulldown", newSearchstr);
-					searchPullDownContent = "";
-					searchTimer0 = null;
-					$('#' + _id).find(".inputFinder").append($(document.createElement("div")).addClass("searchBox"));
-					$('#' + _id).find(".inputFinder .searchBox")
-						.html(searchPullDownContent)
-						.slideDown(200, function() {
-							$(this).dropShadow({
-								left: 3,
-								top: 3,
-								blur: 2,
-								opacity: .7,
-								color: "#8ba9c8",
-								swap: false
-							});
-	
-							firstSearchResult = 0;
-							searchResultCount = 0;
-							searchResultPosition = 0;
-							$(this).find("a").each(function() {
-								searchResultCount++;
-								$(this).attr("id", "pos-" + searchResultCount);
-							});
-						});
-					multiFinderSearch = true;
+					var act = $('#' + _id).find("input[name='getPath[search]']").attr("value");
+
+					var html;
+
+					action({
+						data: "act="+act+"&args[]="+newSearchstr,
+						error: function() {
+						}, 
+						success: function(res, textStatus, jqXHR) {
+							html = res;
+							//initMultiFinder(_id, res.data.length);
+
+							searchPullDownContent = "";
+							searchTimer0 = null;
+							$('#' + _id).find(".inputFinder").append($(document.createElement("div")).addClass("searchBox"));
+							$('#' + _id).find(".inputFinder .searchBox")
+								.html(html)
+								.slideDown(200, function() {
+									$(this).dropShadow({
+										left: 3,
+										top: 3,
+										blur: 2,
+										opacity: .7,
+										color: "#8ba9c8",
+										swap: false
+									});
+			
+									firstSearchResult = 0;
+									searchResultCount = 0;
+									searchResultPosition = 0;
+									$(this).find("a").each(function() {
+										searchResultCount++;
+										$(this).attr("id", "pos-" + searchResultCount);
+									});
+								});
+							multiFinderSearch = true;	
+
+						}
+					});				
 				}
 			}, 500);
 		}	
@@ -297,7 +319,7 @@ function multiFinder(_id, last) {
 				if (e.keyCode == 13) {
 					var inputVal_ = inputVal;
 					inputVal_ = (inputVal_.substring(inputVal_.length - 1) != "/") ? inputVal_ + "/" : inputVal_;
-					location.href = actionURL+"&args[]=" + inputVal_;
+					location.href = actionURL+"?act="+redirectAction+"&args[]=" + inputVal_;
 				}
 			}
 
@@ -365,48 +387,53 @@ function showEntities(part, _id) {
 
 		var getPath = $('#' + _id).find("input[name='getPath[getEntities]']").attr("value");
 		var actionURL = $('#' + _id).find("input[name='actionURL[set]']").attr("value");
-		//var entities = action(getPath, pathPart);
+		var entities = action({
+								data: "act="+getPath+"&args[]="+pathPart,
+								error: function() {
+									
+								}, 
+								success: function(res, textStatus, jqXHR) {
+									for (var i = 0; i < res.data.length; i++) {
+									var entity = res.data[i];
+									entity.path = entity.path.replace("//", "/");
+									var value = entity.path.substring(entity.path.indexOf('/', 1));
+									value = value.substring(value.indexOf('/', 1)) + ''; // ve value je cesta k nastaveni do finderu
+									var name = entity.path.substring(entity.path.lastIndexOf('/') + 1); // v name je zobrazeny nazev entity
+									$('#'+_id+'_'+part+'_entities > div').append($(document.createElement("a"))
+														.attr("href", entity.actionUrl)
+														//.attr("class", "multiFinderEntitiesHref")
+														.addClass("multiFinderEntitiesHref")
+														.addClass("multiFinderEntitiesHrefIcon")
+														.addClass(entity.folder ? "multiFinderEntitiesHrefFolder" : "")
+														.css({"background-image" : "url('"+entity.icon+"')"})
+														.text(entity.title ? entity.title : name)
+														.attr('title', (entity.title ? entity.title : name) + ' - ' + value + '/')
+														.wrapInner($(document.createElement("span")))
+														.prepend($(document.createElement("span")).addClass(entity.published ? "published" : "not-published"))
+														).hide();
+								}
+
+								$('#'+_id+'_'+part+'_entities').show();
+								$('#'+_id+'_'+part+'_entities > div').slideDown(200, function() {
+									$(this).dropShadow({
+										left: 3,
+										top: 3,
+										blur: 2,
+										opacity: .7,
+										color: "#8ba9c8",
+										swap: false
+									});
+								});
+								$('#'+_id+'_'+part+'_entities').click(function(e) {
+									e.stopPropagation();
+									e.cancelBubble = true;
+								});
+								$('#'+_id+'_'+part+'_entities').show();
+								
+								}
+							});
 		var entities = {};
-		//alert(serialize(entities));
-		for (var i = 0; i < entities.length; i++) {
-			var entity = entities[i];
-			entity.path = entity.path.replace("//", "/");
-			var value = entity.path.substring(entity.path.indexOf('/', 1));
-			value = value.substring(value.indexOf('/', 1)) + ''; // ve value je cesta k nastaveni do finderu
-			var name = entity.path.substring(entity.path.lastIndexOf('/') + 1); // v name je zobrazeny nazev entity
-			$('#'+_id+'_'+part+'_entities > div').append($(document.createElement("a"))
-								.attr("href", actionURL+"&args[]=" + value + "/")
-								//.attr("class", "multiFinderEntitiesHref")
-								.addClass("multiFinderEntitiesHref")
-								.addClass("multiFinderEntitiesHrefIcon")
-								.addClass(entity.is_folder ? "multiFinderEntitiesHrefFolder" : "")
-								.css({"background-image" : "url('"+entity.icon+"')"})
-								.text(entity.title ? entity.title : name)
-							.attr('title', (entity.title ? entity.title : name) + ' - ' + value + '/')
-								.wrapInner($(document.createElement("span")))
-								.prepend($(document.createElement("span")).addClass(entity.is_published ? "published" : "not-published"))
-								).hide();
-		}
-
-		$('#'+_id+'_'+part+'_entities').show();
-		$('#'+_id+'_'+part+'_entities > div').slideDown(200, function() {
-			$(this).dropShadow({
-				left: 3,
-				top: 3,
-				blur: 2,
-				opacity: .7,
-				color: "#8ba9c8",
-				swap: false
-			});
-		});
-
-		//$('#'+_id+'_'+part+'_entities > div').dropShadow();
-
-		$('#'+_id+'_'+part+'_entities').click(function(e) {
-			e.stopPropagation();
-			e.cancelBubble = true;
-		});
-		$('#'+_id+'_'+part+'_entities').show();
+		
 	} else {
 		$('#'+_id+'_'+part+'_entities').html("");
 		$('#'+_id+'_'+part+'_entities').hide();
@@ -416,9 +443,7 @@ function showEntities(part, _id) {
 
 function getAllEntities(_id) {
 	var InputField = $('#' + _id).find("input[name='input']").attr("value");
-	//var InputField = (_InputField != "" && _InputField != "/") ? _InputField + "/" : _InputField;
 	var getPath = $('#' + _id).find("input[name='getPath[getEntities]']").attr("value");
-	//var entities = action(getPath, InputField);
 	var entities = {};
 	return entities;
 }
@@ -457,3 +482,19 @@ function viewBookmark(_id) {
 		});
 }
 
+function urldecode(url) {
+  return decodeURIComponent(url.replace(/\+/g, ' '));
+}
+
+//moving in search result box
+function moveSearchResults(_id, step) {
+	var li = $('#' + _id).find(".inputFinder .searchBox li");
+	searchResultPosition += step;
+	if (searchResultPosition > searchResultCount) searchResultPosition = 1;//searchResultCount;
+	if (searchResultPosition < 0) searchResultPosition = 0;
+	$(li).removeClass("active");
+	if (searchResultPosition > 0) {
+		$(li[searchResultPosition - 1]).addClass("active");
+		$(li).parent().scrollTo(li[searchResultPosition - 1], 200);
+	}
+}

@@ -18,10 +18,22 @@ class Initializer implements InitializerInterface
      */
     public function initialize($instance, ServiceLocatorInterface $serviceLocator)
     {
+        $sm = $serviceLocator->getServiceLocator();
         if ($instance instanceof \Vivo\Service\Initializer\InputFilterFactoryAwareInterface) {
-            $sm                 = $serviceLocator->getServiceLocator();
             $inputFilterFactory = $sm->get('input_filter_factory');
             $instance->setInputFilterFactory($inputFilterFactory);
+        }
+        if ($instance instanceof \Vivo\Service\Initializer\PathBuilderAwareInterface) {
+            $pathBuilder = $sm->get('path_builder');
+            $instance->setPathBuilder($pathBuilder);
+        }
+        if ($instance instanceof \Vivo\Service\Initializer\DocTitleToPathTransliteratorAwareInterface) {
+            $docTitleToPathTransliterator = $sm->get('Vivo\Transliterator\DocTitleToPath');
+            $instance->setTransliterator($docTitleToPathTransliterator);
+        }
+        if ($instance instanceof \Vivo\Service\Initializer\RepositoryAwareInterface) {
+            $repository = $sm->get('repository');
+            $instance->setRepository($repository);
         }
     }
 }

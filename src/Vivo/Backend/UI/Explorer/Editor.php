@@ -4,7 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\UI\AbstractForm;
 use Vivo\UI\Alert;
 use Vivo\Form;
-use Vivo\Backend\UI\Form\Fieldset\EntityEditor as EntityEditorFieldset;
+use Vivo\Backend\Form\Fieldset\EntityEditor as EntityEditorFieldset;
 use Vivo\CMS\AvailableContentsProvider;
 use Vivo\CMS\Api\DocumentInterface as DocumentApiInterface;
 use Vivo\CMS\Model\Document;
@@ -13,6 +13,8 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
+use Vivo\InputFilter\Factory as InputFilterFactory;
+use Vivo\InputFilter\VivoInputFilter;
 
 use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 use Zend\I18n\Translator\Translator;
@@ -80,12 +82,20 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     protected $csrfTimeout          = 3600;
 
     /**
+     * New form factory
+     * @var Form\NewFormFactory
+     */
+    protected $newFormFactory;
+
+    /**
      * Constructor
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param \Vivo\LookupData\LookupDataManager $lookupDataManager
      * @param \Vivo\CMS\Api\DocumentInterface $documentApi
      * @param \Vivo\CMS\AvailableContentsProvider $availableContentsProvider
+     * @param \Vivo\Util\UrlHelper $urlHelper
+     * @param \Vivo\Form\NewFormFactory $newFormFactory
      */
     public function __construct(
         \Zend\ServiceManager\ServiceManager $sm,
@@ -93,7 +103,8 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         LookupDataManager $lookupDataManager,
         DocumentApiInterface $documentApi,
         AvailableContentsProvider $availableContentsProvider,
-        UrlHelper $urlHelper)
+        UrlHelper $urlHelper,
+        Form\NewFormFactory $newFormFactory)
     {
         $this->sm = $sm;
         $this->metadataManager = $metadataManager;
@@ -101,6 +112,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
         $this->documentApi = $documentApi;
         $this->availableContentsProvider = $availableContentsProvider;
         $this->urlHelper = $urlHelper;
+        $this->newFormFactory = $newFormFactory;
     }
 
     public function init()
@@ -211,7 +223,8 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
             ),
         ));
 
-        $form = new Form\Form('entity-' . $this->entity->getUuid());
+        // create form
+        $form = $this->newFormFactory->create('entity-' . $this->entity->getUuid());
         $form->setAttribute('action', $action);
         $form->setAttribute('method', 'post');
         $form->add(array(

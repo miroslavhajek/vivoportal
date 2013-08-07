@@ -7,7 +7,7 @@ use Zend\ServiceManager\FactoryInterface;
 /**
  * ResourceFactory
  */
-class ResourceFactory implements  FactoryInterface
+class ResourceFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,18 +16,10 @@ class ResourceFactory implements  FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm                     = $serviceLocator->getServiceLocator();
-        /** @var $application \Zend\Mvc\Application */
-        $application            = $sm->get('application');
-        $mvcEvent               = $application->getMvcEvent();
-        $routeMatch             = $mvcEvent->getRouteMatch();
-        $routeName              = $routeMatch->getMatchedRouteName();
-        $cmsApi                 = $sm->get('Vivo\CMS\Api\CMS');
-        $moduleResourceManager  = $sm->get('module_resource_manager');
-        $resourceHelperOptions  = array(
-            'vivo_resource_path'    => realpath(__DIR__ . '/../../../../resource/'),
-        );
-        $helper                 = new Resource($cmsApi, $moduleResourceManager, $routeName, $resourceHelperOptions);
+        $sm = $serviceLocator->getServiceLocator();
+        /* @var $resourceUrlHelper \Vivo\CMS\Util\ResourceUrlHelper */
+        $resourceUrlHelper = $sm->get('Vivo\resource_url_helper');
+        $helper = new Resource($resourceUrlHelper);
         return $helper;
     }
 }
