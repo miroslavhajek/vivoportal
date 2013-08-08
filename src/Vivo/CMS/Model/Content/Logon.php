@@ -108,11 +108,10 @@ class Logon extends Model\Content implements Model\SymRefDataExchangeInterface
      */
     public function getArrayCopySymRef()
     {
-        $data   = array(
-            'error_url'     => $this->getErrorUrl(),
-            'logoff_url'    => $this->getLogoffUrl(),
-            'logon_url'     => $this->getLogonUrl(),
+        return array(
+            'error_url'  => $this->getErrorUrl(),
+            'logoff_url' => $this->getLogoffUrl(),
+            'logon_url'  => $this->getLogonUrl(),
         );
-        return $data;
     }
 }

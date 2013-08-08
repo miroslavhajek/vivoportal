@@ -12,8 +12,7 @@ use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\CMS\Event\CMSEvent;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 use Zend\I18n\Translator\Translator;
 
 class Site extends AbstractForm implements TranslatorAwareInterface

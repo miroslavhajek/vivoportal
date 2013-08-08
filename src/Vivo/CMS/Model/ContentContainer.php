@@ -17,14 +17,6 @@ class ContentContainer extends Entity
     protected $order;
 
     /**
-     * @param string $path
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
-    /**
      * @return string
      */
     public function getContainerName()

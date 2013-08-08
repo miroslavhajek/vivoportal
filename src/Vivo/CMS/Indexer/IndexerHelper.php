@@ -23,7 +23,6 @@ class IndexerHelper implements IndexerHelperInterface
      */
     protected $indexerFieldHelper;
 
-
     /**
      * Constructor
      * @param FieldHelperInterface $indexerFieldHelper
@@ -50,25 +49,18 @@ class IndexerHelper implements IndexerHelperInterface
             if (array_key_exists('published_content_types', $options)
                 && is_array($options['published_content_types'])) {
                 //There are some published contents
-                $field  = new Field('\publishedContents', $options['published_content_types']);
-                $doc->addField($field);
+                $doc->addField(new Field('\publishedContents', $options['published_content_types']));
             }
         }
         //Class field
-        $field  = new Field('\class', $entityClass);
-        $doc->addField($field);
+        $doc->addField(new Field('\class', $entityClass));
 
         //Fields added by metadata config
         $indexerConfigs  = $this->indexerFieldHelper->getIndexerConfig($entityClass);
         foreach ($indexerConfigs as $property => $indexerConfig) {
             $getter = 'get' . ucfirst($property);
-            if (!method_exists($entity, $getter)) {
-                throw new Exception\MethodNotFoundException(
-                    sprintf("%s: Method '%s' not found in '%s'", __METHOD__, $getter, get_class($entity)));
-            }
             $value  = $entity->$getter();
-            $field  = new Field($indexerConfig['name'], $value);
-            $doc->addField($field);
+            $doc->addField(new Field($indexerConfig['name'], $value));
         }
         return $doc;
     }
@@ -104,7 +96,6 @@ class IndexerHelper implements IndexerHelperInterface
      */
     public function buildEntityTerm(Entity $entity)
     {
-        $term   = new IndexerTerm($entity->getUuid(), '\uuid');
-        return $term;
+        return new IndexerTerm($entity->getUuid(), '\uuid');
     }
 }

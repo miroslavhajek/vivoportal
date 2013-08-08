@@ -11,9 +11,8 @@ use Vivo\CMS\Exception\InvalidArgumentException;
 use Vivo\CMS\UI\Content\Editor\EditorInterface;
 use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterface;
 use Vivo\LookupData\LookupDataManager;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 use Vivo\UI\ComponentEventInterface;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
 
 class Content extends AbstractFieldset
 {

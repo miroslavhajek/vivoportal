@@ -14,15 +14,6 @@ class Layout extends Model\Content implements Model\SymRefDataExchangeInterface
     private $panels = array();
 
     /**
-     * Setting default values
-     * @param string $path Entity path
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
-    /**
      * Returns array of paths of documents.
      * @return array
      */
@@ -58,9 +49,6 @@ class Layout extends Model\Content implements Model\SymRefDataExchangeInterface
      */
     public function getArrayCopySymRef()
     {
-        $data   = array(
-            'panels'    => $this->getPanels(),
-        );
-        return $data;
+        return array('panels' => $this->getPanels());
     }
 }

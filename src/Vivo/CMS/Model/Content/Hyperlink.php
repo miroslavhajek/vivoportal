@@ -6,7 +6,6 @@ use Vivo\CMS\Model;
 /**
  * Content to redirects to the URL.
  * @todo recursive property?
- *
  */
 class Hyperlink extends Model\Content implements Model\SymRefDataExchangeInterface
 {
@@ -16,15 +15,6 @@ class Hyperlink extends Model\Content implements Model\SymRefDataExchangeInterfa
      * @var string
      */
     protected $url;
-
-    /**
-     * Setting default values.
-     * @param string $path Entity path
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
 
     /**
      * Returns hyperlink url.
@@ -39,17 +29,9 @@ class Hyperlink extends Model\Content implements Model\SymRefDataExchangeInterfa
      * Sets hyperlink url.
      * @param string $url
      */
-    public function setUrl($url) {
-        $this->url = $url;
-    }
-
-    /**
-     * @param array $field_names
-     * @return string
-     */
-    public function getTextContent($fieldNames = array())
+    public function setUrl($url)
     {
-        return parent::getTextContent(array_merge($fieldNames, array('url')));
+        $this->url = $url;
     }
 
     /**
@@ -70,9 +52,6 @@ class Hyperlink extends Model\Content implements Model\SymRefDataExchangeInterfa
      */
     public function getArrayCopySymRef()
     {
-        $data   = array(
-            'url'   => $this->getUrl(),
-        );
-        return $data;
+        return array('url' => $this->getUrl());
     }
 }

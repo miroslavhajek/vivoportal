@@ -10,8 +10,7 @@ use Vivo\Form\Form;
 use Vivo\Repository\Exception\PathNotSetException;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\Model\ContentContainer;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 
 class File extends AbstractForm implements EditorInterface, AdapterAwareInterface
 {

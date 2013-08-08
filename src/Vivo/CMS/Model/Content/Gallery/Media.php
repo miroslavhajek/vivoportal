@@ -120,11 +120,19 @@ class Media extends Content\File implements OrderableInterface
         return $this->originalWidth > $this->originalHeight;
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\Stdlib\OrderableInterface::setOrder()
+     */
     public function setOrder($order)
     {
         $this->order = intval($order);
     }
 
+    /**
+     * (non-PHPdoc)
+     * @see \Vivo\Stdlib\OrderableInterface::getOrder()
+     */
     public function getOrder()
     {
         return $this->order;

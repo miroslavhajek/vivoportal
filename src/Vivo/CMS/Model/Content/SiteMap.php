@@ -104,9 +104,7 @@ class SiteMap extends Model\Content implements Model\SymRefDataExchangeInterface
      */
     public function getArrayCopySymRef()
     {
-        $data                   = array();
-        $data['origin']         = $this->getOrigin();
-        return $data;
+        return array('origin' => $this->getOrigin());
     }
 
 }

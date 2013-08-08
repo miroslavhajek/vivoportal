@@ -15,14 +15,6 @@ class Component extends Model\Content implements ProvideFrontComponentInterface
     protected $frontComponent  = 'Vivo\CMS\UI\Blank';
 
     /**
-     * @param string $path Entity path in CMS repository
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
-    /**
      * Returns front component FQCN.
      * @return string
      */
