@@ -6,6 +6,7 @@
 <br />
 <?
     $formType = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-    echo $this->formFieldsetTwb($form, $formType, array(), false, false);
+    echo $this->formRowTwb($form->get('upload-file'));
+    //echo $this->formFieldsetTwb($form, $formType, array(), false, false);
 ?>
 

@@ -11,16 +11,17 @@ class SiteSelector extends Component
 {
 
     /**
+     * @var \Vivo\CMS\Api\Site
      * Current site
      * @var SiteModel
      */
     protected $site;
 
     /**
-     * Manageable sites
-     * @var SiteModel[]
+     * Sites array
+     * @var \Vivo\CMS\Model\Site[]
      */
-    protected $sites;
+    protected $sites    = array();
 
     /**
      * Constructor.

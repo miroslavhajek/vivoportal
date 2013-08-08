@@ -1,26 +1,26 @@
 <?$doc = $this->cms('requestedDocument');?>
 <?php
-	foreach ($links as $link) {
+    foreach ($links as $link) {
         $this->headLink()->prepend($link);
-	}
-	foreach ($scripts as $script) {
-	    $this->headScript()->prepend($script);
-	}
-	?>
-	<?=$this->doctype($doctype);?>
+    }
+    foreach ($scripts as $script) {
+        $this->headScript()->prepend($script);
+    }
+    ?>
+    <?=$this->doctype($doctype);?>
 <html>
-	<head>
-		<? foreach ($metas as $element): ?>
-		<meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
-		<? endforeach ?>
-		<?php echo $this->vivoHeadTitle($doc) ?>
-		<base href="<?php echo $this->basePath(); ?>/" />
-		<?= $this->headLink()?>
-	  <!--[if lt IE 9]>
-	    <script src="<?= $this->resource('js/html5.js','Vivo')?>"></script>
-	  <![endif]-->
+    <head>
+        <? foreach ($metas as $element): ?>
+        <meta<? foreach ($element as $name => $value) echo " $name=\"".htmlspecialchars($value).'"' ?> />
+        <? endforeach ?>
+        <?php echo $this->vivoHeadTitle($doc) ?>
+        <base href="<?php echo $this->basePath(); ?>/" />
+        <?= $this->headLink()?>
+      <!--[if lt IE 9]>
+        <script src="<?= $this->resource('js/html5.js','Vivo')?>"></script>
+      <![endif]-->
   </head>
-  <body>
+  <body<? foreach ($bodyAttributes as $name => $value) echo " $name=\"".htmlspecialchars($value).'"'?>>
     <?= $main ?>
     <?= $this->headScript() ?>
   </body>

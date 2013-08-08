@@ -142,7 +142,7 @@ class Resource extends AbstractForm
                     $this->addAlertMessage('Upload ok', Alert::TYPE_SUCCESS);
                 }
 
-                $this->events->trigger(new RedirectEvent());
+                $this->getEventManager()->trigger(new RedirectEvent());
             } else {
                 $this->addAlertMessage('Form not valid', Alert::TYPE_ERROR);
             }
@@ -160,7 +160,7 @@ class Resource extends AbstractForm
     {
         $this->cmsApi->removeResource($this->entity, $name);
         $this->addAlertMessage(sprintf('Resource %s has been deleted', $name), Alert::TYPE_SUCCESS);
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     public function view()

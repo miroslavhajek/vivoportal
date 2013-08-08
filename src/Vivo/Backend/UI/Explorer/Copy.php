@@ -107,7 +107,7 @@ class Copy extends AbstractForm implements TranslatorAwareInterface
                 "Document at path '%s' has been copied to path '%s'"), $docRelPath, $copiedDocRelPath);
             $this->alert->addMessage($message, Alert::TYPE_SUCCESS);
             $url = $this->urlHelper->fromRoute('backend/explorer', $routeParams);
-            $this->events->trigger(new RedirectEvent($url));
+            $this->getEventManager()->trigger(new RedirectEvent($url));
         } else {
             $message = $this->translator->translate("Form data is not valid");
             $this->alert->addMessage($message, Alert::TYPE_ERROR);

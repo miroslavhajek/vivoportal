@@ -2,8 +2,7 @@
 namespace Vivo\Validator\Exception;
 
 /**
- * Class ConfigException
- * @package Vivo\Validator\Exception
+ * ConfigException
  */
 class ConfigException extends \InvalidArgumentException implements ExceptionInterface
 {

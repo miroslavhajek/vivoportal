@@ -13,6 +13,7 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
 use VpLogger\Log\Logger;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -27,6 +28,7 @@ use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Stdlib\ArrayUtils;
 use Zend\View\Model\ModelInterface;
+use Zend\Stdlib\ParametersInterface;
 
 /**
  * The front controller which is responsible for dispatching all requests for documents in CMS repository.
@@ -364,12 +366,11 @@ class FrontController implements DispatchableInterface,
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->tree->init(); //replace by lazy init
             //if request is  ajax call, we use result of method
-
             if ($handleAction) {
                 $result = $this->handleAction();
             }
         } else {
-            $this->tree->init();
+            $this->tree->init(); //replace by lazy init
             if ($handleAction) {
                 $result = $this->handleAction();
                 if($result != null) {
@@ -473,27 +474,71 @@ class FrontController implements DispatchableInterface,
 
     /**
      * Handles action on component.
-     * @return mixed Result of component action method.
+     * @return mixed|null Result of component action method or null when no action is required
      */
     protected function handleAction()
     {
-        //TODO is a better way how to obtain params?
-        //TODO create router for asembling and matching path of action
+        //TODO is there a better way how to obtain params?
+        //TODO create router for assembling and matching path of action
         $request = $this->getRequest();
-        if (!$action = $request->getQuery('act')) {
-            if (!$action = $request->getPost('act')) {
-                return;
-            } else {
-                $params = $request->getPost('args', array());
-            }
-        } else {
-            $params = $request->getQuery('args', array());
+        //Try getting action from query
+        $paramsContainer    = $request->getQuery();
+        $action = $this->getActionFromParams($paramsContainer);
+        if ($action) {
+            //Action found in query string
+            $actionParams   = $paramsContainer->get('args', array());
+            return $this->doHandleAction($action, $actionParams);
         }
+        //Try getting action from POST
+        $paramsContainer    = $request->getPost();
+        $action = $this->getActionFromParams($paramsContainer);
+        if ($action) {
+            //Action found in POST data
+            $actionParams   = $paramsContainer->get('args', array());
+            return $this->doHandleAction($action, $actionParams);
+        }
+        //No action required
+        return null;
+    }
 
-        $parts = explode(Component::COMPONENT_SEPARATOR, $action);
+    /**
+     * The actual handling of a component action
+     * @param string $actionPath
+     * @param array $actionParams
+     * @return mixed
+     */
+    protected function doHandleAction($actionPath, array $actionParams)
+    {
+        $parts  = explode(Component::COMPONENT_SEPARATOR, $actionPath);
         $action = array_pop($parts);
-        $path = implode(Component::COMPONENT_SEPARATOR, $parts);
-        return $this->tree->invokeAction($path, $action, $params);
+        $path   = implode(Component::COMPONENT_SEPARATOR, $parts);
+        return $this->tree->invokeAction($path, $action, $actionParams);
+
+    }
+
+    /**
+     * Returns 'act' parameter found in params or null when not present
+     * @param ParametersInterface $params
+     * @return string|null
+     */
+    protected function getActionFromParams(ParametersInterface $params)
+    {
+        //Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
+        $action = $params->get('act');
+        if (is_string($action)) {
+            return $action;
+        }
+        //Variant 2: there is only one item in params data and 'act' parameter is under it (Wrap elements == true)
+        if ($params->count() == 1) {
+            $paramsArray    = $params->toArray();
+            $first          = reset($paramsArray);
+            if (isset($first['act']) && is_string($first['act'])) {
+                $action = $first['act'];
+                return $action;
+            }
+        }
+        //'act' parameter not found
+        return null;
     }
 
     /**
