@@ -8,6 +8,7 @@ use Vivo\CMS\UI\Content\Editor\AbstractAdapter;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
 use Vivo\Repository\Exception\PathNotSetException;
 use Vivo\Storage\Exception\IOException;
+use Vivo\UI\ComponentEventInterface;
 
 /**
  * Editor Adapter for editing HTML code via WYSIWYG Editor
@@ -26,6 +27,11 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     protected $data;
 
     /**
+     * @var \Vivo\Form\Factory
+     */
+    protected $formFactory;
+
+    /**
      * Constructor
      * @param \Vivo\CMS\Api\Content\File $fileApi
      * @param \Vivo\CMS\RefInt\SymRefConvertorInterface $symRefConvertor
@@ -38,22 +44,22 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
         $this->formFactory      = $formFactory;
     }
 
-    /**
-     * Initializes Adapter
-    */
-    public function init()
+    public function attachListeners()
     {
-        parent::init();
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerLoadResourceData'));
+    }
 
-        $form = $this->getForm();
-        $form->setAttribute('method', 'post');
+    public function initListenerLoadResourceData()
+    {
         try {
             if($this->content->getUuid()) {
                 $data = $this->fileApi->getResource($this->content);
                 $this->data = $data;
-
                 $data = $this->symRefConvertor->convertReferencesToURLs($data);
-                $form->get("resource")->setValue($data);
+                $fieldset   = $this->getFieldset();
+                $fieldset->get('resource')->setValue($data);
             }
         }
         catch (IOException $e) {
@@ -65,29 +71,36 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     }
 
     /**
-     * Creates form
+     * Creates fieldset
      */
-    protected function doGetForm()
+    protected function doGetFieldset()
     {
-        return $this->formFactory->createForm(array(
-            'name' => 'editor-'.$this->content->getUuid(),
-            'hydrator' => 'Vivo\Stdlib\Hydrator\EntityClassMethods',
-                'elements' => array(
-                   array('spec' => array(
-                            'type' => 'Vivo\Form\Element\Textarea',
-                            'name' => 'resource',
-                            'attributes' => array(
-                                'rows' => 10,
-                                'cols' => 30,
-                                'id'   => 'content-resource-'.$this->content->getUuid(),
-                            ),
-                            'options' => array(
-                                'label' => 'Wysiwig',
-                            ),
-                        ),
+        if ($this->content->getUuid()) {
+            $idSuffix   = $this->content->getUuid();
+        } else {
+            /** @var $parentContentTab \Vivo\Backend\UI\Explorer\Editor\ContentTab */
+            $parentContentTab   = $this->getParent('Vivo\Backend\UI\Explorer\Editor\ContentTab');
+            $idSuffix   = 'new-' . $parentContentTab->getName();
+        }
+        $fieldset   = $this->formFactory->createFieldset(array(
+            'name' => 'html_wysiwyg_edit',
+            'elements' => array(
+                array('spec' => array(
+                    'type' => 'Vivo\Form\Element\Textarea',
+                    'name' => 'resource',
+                    'attributes' => array(
+                        'rows' => 10,
+                        'cols' => 30,
+                        'id'   => 'content-resource-' . $idSuffix,
+                    ),
+                    'options' => array(
+                        'label' => 'Wysiwig',
                     ),
                 ),
+                ),
+            ),
         ));
+        return $fieldset;
     }
 
     /**
@@ -97,8 +110,8 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
     public function dataChanged()
     {
         // using of !== is important
-        // returns true on nonexisting resource
-        // causes inital creation of empty resource
+        // returns true on non-existing resource
+        // causes initial creation of empty resource
         return ($this->data !== $this->getData());
     }
 
@@ -108,14 +121,12 @@ class WysiwygAdapter extends AbstractAdapter implements ResourceEditorInterface
      */
     public function getData()
     {
-        $this->loadFromRequest();
-        $form = $this->getForm();
-        if($form->isValid()) {
-            $data = $form->get("resource")->getValue();
-            $data = $this->symRefConvertor->convertUrlsToReferences($data);
-
-            return $data;
+        $data   = $this->getFieldsetData(false);
+        if (isset($data['resource'])) {
+            $resourceData   = $this->symRefConvertor->convertUrlsToReferences($data['resource']);
+        } else {
+            $resourceData   = null;
         }
+        return $resourceData;
     }
-
 }

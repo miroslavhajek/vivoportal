@@ -21,9 +21,10 @@ class Text extends Component
     }
 
     /**
-     * @return string
+     * Returns view model of the Component or string to display directly
+     * @return \Zend\View\Model\ModelInterface|string
      */
-    public function view()
+    public function getView()
     {
         return $this->text;
     }

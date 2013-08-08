@@ -129,8 +129,6 @@ class LoadModulesListener implements ListenerAggregateInterface
         //disable overriding - modules & sites are not supposed to override existing services
         $this->serviceManager->setAllowOverride(false);
         $smConfig = new SmConfig($cmsConfig['service_manager']);
-        $di = $this->serviceManager->get('di');
-        $di->configure(new DiConfig($cmsConfig['di']));
         $smConfig->configureServiceManager($this->serviceManager);
     }
 

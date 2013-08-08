@@ -15,4 +15,13 @@ class Fieldset extends ZendFieldset
 
         return $this->factory;
     }
+
+    /**
+     * Extracts data from bound object and populates values
+     */
+    public function extractAndPopulate()
+    {
+        $values = $this->extract();
+        $this->populateValues($values);
+    }
 }

@@ -6,9 +6,10 @@ use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\Util\Redirector;
+use Vivo\Form\Multistep\MultistepStrategyInterface;
+use Vivo\UI\ZfFieldsetProviderInterface;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
+use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
 use Zend\Http\PhpEnvironment\Request;
@@ -23,10 +24,17 @@ use Zend\Stdlib\ArrayUtils;
  */
 abstract class AbstractForm extends ComponentContainer implements RequestAwareInterface,
                                                                   RedirectorAwareInterface,
-                                                                  EventManagerAwareInterface,
                                                                   TranslatorAwareInterface,
-                                                                  InputFilterFactoryAwareInterface
+                                                                  InputFilterFactoryAwareInterface,
+                                                                  ZfFieldsetProviderInterface
 {
+    /**#@+
+     * Events
+     */
+    const EVENT_LOAD_FROM_REQUEST_PRE   = 'load_from_request_pre';
+    const EVENT_LOAD_FROM_REQUEST_POST  = 'load_from_request_post';
+    /**#@-*/
+
     /**
      * @var ZfForm
      */
@@ -91,12 +99,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $forceLoadFromRequest = true;
 
     /**
-     * Event Manager
-     * @var EventManagerInterface
-     */
-    protected $events;
-
-    /**
      * Translator instance
      * @var Translator
      */
@@ -108,37 +110,42 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     protected $inputFilterFactory;
 
-    public function init()
-    {
-        parent::init();
-        //Load form data from request
-        if ($this->autoLoadFromRequest) {
-            $this->loadFromRequest();
-        }
-    }
+    /**
+     * Multistep strategy
+     * @var MultistepStrategyInterface
+     */
+    protected $multistepStrategy;
 
     /**
-     * Returns view model or string to display directly
-     * @return \Zend\View\Model\ModelInterface|string
+     * Name of the field containing the automatically added CSRF element
+     * @var string
      */
-    public function view()
-    {
-        $form = $this->getForm();
-        //Prepare the form
-        if ($this->autoPrepareForm) {
-            $form->prepare();
-        }
-        //Set form to view
-        $this->getView()->form = $form;
-        return parent::view();
-    }
+    protected $autoCsrfFieldName    = 'csrf';
+
+    /**
+     * Form data or an empty array when validation has not been performed yet
+     * @var array
+     */
+    protected $formData     = array();
+
+    /**
+     * Whether or not validation has occurred
+     * @var bool
+     */
+    protected $hasValidated = false;
+
+    /**
+     * Result of last validation operation
+     * @var bool
+     */
+    protected $isValid      = false;
 
     /**
      * Get ZF form
      * @throws Exception\InvalidArgumentException
      * @return ZfForm
      */
-    protected function getForm()
+    public function getForm()
     {
         if($this->form == null) {
             $this->form = $this->doGetForm();
@@ -153,7 +160,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 if (!$formName) {
                     throw new Exception\InvalidArgumentException(sprintf("%s: Form name not set", __METHOD__));
                 }
-                $elementName        = 'csrf';
                 /* Csrf validator name is used as a part of session container name; This is to prevent csrf session
                 container mix-up when there are more forms with csrf field on the same page. The unique Csrf element
                 name (using $form->setWrapElements(true) is of no use here, as the session container name is constructed
@@ -161,12 +167,16 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 element name, which is not unique. Explicitly setting the csrf validator name to unique value solves
                 this problem.
                 */
-                $csrfValidatorName  = 'csrf' . md5($formName . '_' . $elementName);
-                $csrf               = new \Vivo\Form\Element\Csrf($elementName);
+                $csrfValidatorName  = 'csrf' . md5($formName . '_' . $this->autoCsrfFieldName);
+                $csrf               = new \Vivo\Form\Element\Csrf($this->autoCsrfFieldName);
                 $csrfValidator      = $csrf->getCsrfValidator();
                 $csrfValidator->setName($csrfValidatorName);
                 $csrfValidator->setTimeout($this->csrfTimeout);
                 $this->form->add($csrf);
+            }
+            if ($this->multistepStrategy) {
+                $this->multistepStrategy->setForm($this->form);
+                $this->multistepStrategy->modifyForm();
             }
         }
         return $this->form;
@@ -208,6 +218,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         if ($this->dataLoaded && !$this->forceLoadFromRequest) {
             return;
         }
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
         $data   = $this->request->getQuery()->toArray();
         $data   = ArrayUtils::merge($data, $this->request->getPost()->toArray());
         $data   = ArrayUtils::merge($data, $this->request->getFiles()->toArray());
@@ -232,23 +244,135 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
 
         $form->setData($data);
         $this->dataLoaded   = true;
+        $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_POST, $this, array('data' => $data));
+    }
+
+    /**
+     * Check if the form has been validated
+     * @return bool
+     */
+    public function hasValidated()
+    {
+        return $this->hasValidated;
+    }
+
+    /**
+     * Returns validation group which should be used for validation
+     * Descendants may redefine if needed
+     * @return mixed
+     */
+    protected function getValidationGroup()
+    {
+        if ($this->multistepStrategy) {
+            $zfForm             = $this->getForm();
+            $validationGroup    = $this->multistepStrategy->getValidationGroup($zfForm);
+            if ($this->autoAddCsrf && ($validationGroup != FormInterface::VALIDATE_ALL) && (
+                    (is_array($validationGroup) && !in_array($this->autoCsrfFieldName, $validationGroup))
+                    || (is_string($validationGroup) && $validationGroup != $this->autoCsrfFieldName))) {
+                //Csrf field is missing in validation group, add it
+                if (!is_array($validationGroup)) {
+                    $validationGroup    = array($validationGroup);
+                }
+                $validationGroup[]  = $this->autoCsrfFieldName;
+            }
+        } else {
+            $validationGroup    = FormInterface::VALIDATE_ALL;
+        }
+        return $validationGroup;
+    }
+
+    /**
+     * Validates the form and returns the validation result
+     * @param bool $revalidate Force revalidation of the form even though it has been validated before
+     * @param mixed $validationGroup If not set, $this->getValidationGroup() will be used to provide the VG
+     * @return bool
+     */
+    public function isValid($revalidate = false, $validationGroup = null)
+    {
+        if ($revalidate) {
+            $this->hasValidated = false;
+        }
+        if ($this->hasValidated) {
+            return $this->isValid;
+        }
+        if (is_null($validationGroup)) {
+            $validationGroup    = $this->getValidationGroup();
+        }
+        $this->isValid      = false;
+        $this->formData     = array();
+        $form               = $this->getForm();
+        $form->setValidationGroup($validationGroup);
+        $this->isValid      = $form->isValid();
+        $this->hasValidated = true;
+        $formData           = $form->getData();
+        $this->setFormData($formData);
+        return $this->isValid;
+    }
+
+    /**
+     * Returns form data
+     * @param bool $recursive Return also data from child fieldsets?
+     * @throws Exception\DomainException
+     * @return array
+     */
+    public function getData($recursive = true)
+    {
+        if (!$this->hasValidated) {
+            throw new Exception\DomainException(sprintf('%s: cannot return data as validation has not yet occurred',
+                __METHOD__));
+        }
+        $data   = $this->formData;
+        if ($recursive) {
+            foreach ($this->components as $component) {
+                if ($component instanceof AbstractFieldset) {
+                    $childName  = $component->getUnwrappedZfFieldsetName();
+                    $childData  = $component->getFieldsetData($recursive);
+                    $data[$childName]   = $childData;
+                }
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Sets form data
+     * @param array $formData
+     */
+    protected function setFormData(array $formData)
+    {
+        foreach ($this->components as $component) {
+            if ($component instanceof AbstractFieldset) {
+                $unwrapped          = $component->getUnwrappedZfFieldsetName();
+                if (isset($formData[$unwrapped])) {
+                    $childData  = $formData[$unwrapped];
+                    //Remove the child data
+                    unset($formData[$unwrapped]);
+                } else {
+                    $childData  = array();
+                }
+                $component->setFieldsetData($childData);
+            }
+        }
+        $this->formData    = $formData;
     }
 
     /**
      * Validates a single form field
      * Facilitates single field AJAX validations
      * @param string $fieldName in array notation (eg 'fieldset1[fieldset2][fieldname]')
-     * @param string $fieldValue Value being tested
+     * @param string $formData the whole form data
      * @param array $messages Validation messages are returned in this array
      * @return boolean
      */
-    public function isFieldValid($fieldName, $fieldValue, array &$messages)
+    public function isFieldValid($fieldName, $formData, array &$messages)
     {
         $form       = $this->getForm();
         $fieldSpec  = $this->getFormDataFromArrayNotation($fieldName);
-        $data       = $this->getFormDataFromArrayNotation($fieldName, $fieldValue);
         $form->setValidationGroup($fieldSpec);
-        $form->setData($data);
+        if ($this->getForm()->wrapElements()) {
+            $formData = reset($formData);
+        }
+        $form->setData($formData);
         //Store the current bind on validate flag setting and set it to manual
         $bindOnValidateFlag = $form->bindOnValidate();
         $form->setBindOnValidate(FormInterface::BIND_MANUAL);
@@ -288,6 +412,9 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected function getFormDataFromArrayNotation($arrayNotation, $value = null)
     {
         $parts          = $this->getPartsFromArrayNotation($arrayNotation);
+        if ($this->getForm()->wrapElements()) {
+            array_shift($parts);
+        }
         $fieldName      = array_pop($parts);
         if (is_null($value)) {
             $fieldSpec      = array($fieldName);
@@ -310,6 +437,9 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected function getFieldMessages(array $messages, $fieldName)
     {
         $parts  = $this->getPartsFromArrayNotation($fieldName);
+        if ($this->getForm()->wrapElements()) {
+            array_shift($parts);
+        }
         foreach ($parts as $part) {
             if (!array_key_exists($part, $messages)) {
                 return array();
@@ -330,24 +460,6 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $arrayNotation  = str_replace(']', '', $arrayNotation);
         $parts          = explode('[', $arrayNotation);
         return $parts;
-    }
-
-    /**
-     * Sets eventmanager
-     * @param EventManagerInterface $eventManager
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->events = $eventManager;
-    }
-
-    /**
-     * Returns eventmanager.
-     * @return EventManagerInterface
-     */
-    public function getEventManager()
-    {
-        return $this->events;
     }
 
     /**
@@ -376,10 +488,14 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     public function ajaxValidateFormField()
     {
         $field      = $this->request->getPost('field');
-        $value      = $this->request->getPost('value');
+        $formData = $this->request->getPost('formData');
+        // parse data from request string if needed
+        if (is_string($formData)) {
+            parse_str($formData, $formData);
+        }
         $messages   = array();
         $jsonModel  = new \Zend\View\Model\JsonModel();
-        $isValid    = $this->isFieldValid($field, $value, $messages);
+        $isValid    = $this->isFieldValid($field, $formData, $messages);
         if ($isValid) {
             //Form field is valid
             $jsonModel->setVariable('valid', true);
@@ -399,5 +515,113 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     {
         $formFactory    = $form->getFormFactory();
         $formFactory->setInputFilterFactory($this->inputFilterFactory);
+    }
+
+    /**
+     * Returns ZF Fieldset
+     * @return ZfFieldset
+     */
+    public function getZfFieldset()
+    {
+        return $this->getForm();
+    }
+
+    /**
+     * Returns ZF Form
+     * @return ZfForm
+     */
+    public function getZfForm()
+    {
+        return $this->getForm();
+    }
+
+    /**
+     * Sets name of this ZfForm
+     * Use to override the underlying form name
+     * @param string $zfFormName
+     */
+    public function setZfFormName($zfFormName)
+    {
+        $form   = $this->getForm();
+        $form->setName($zfFormName);
+    }
+
+    /**
+     * Returns name of this ZfForm
+     * @return string
+     */
+    public function getZfFormName()
+    {
+        $form   = $this->getForm();
+        return $form->getName();
+    }
+
+    /**
+     * Sets multistep strategy
+     * @param MultistepStrategyInterface $multistepStrategy
+     */
+    public function setMultistepStrategy(MultistepStrategyInterface $multistepStrategy = null)
+    {
+        $this->multistepStrategy = $multistepStrategy;
+    }
+
+    /**
+     * Returns multistep strategy used on this form
+     * @return MultistepStrategyInterface
+     */
+    public function getMultistepStrategy()
+    {
+        return $this->multistepStrategy;
+    }
+
+    /**
+     * InitLate listener which loads data from request
+     * This listener must run late to let subcomponents attach their fieldsets to the form before loading data
+     */
+    public function initLateLoadFromRequest()
+    {
+        if ($this->autoLoadFromRequest) {
+            $this->loadFromRequest();
+        }
+    }
+
+    /**
+     * View listener
+     * Prepares the form and passes it to the view model
+     */
+    public function viewListenerPrepareAndSetForm()
+    {
+        $form = $this->getForm();
+        //Prepare the form
+        if ($this->autoPrepareForm) {
+            $form->prepare();
+        }
+        $viewModel          = $this->getView();
+        //Set form to view
+        $viewModel->form    = $form;
+        //Set current step name
+        if ($this->getMultistepStrategy()) {
+            $msStrategy = $this->getMultistepStrategy();
+            $viewModel->multistepInfo = array(
+                'currentStep' => $msStrategy->getStep(),
+            );
+        } else {
+            //No multistep strategy available, set multistep info to null
+            $viewModel->multistepInfo = null;
+        }
+    }
+
+    /**
+     * Attaches listeners
+     * @return void
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        //Init LATE
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT_LATE, array($this, 'initLateLoadFromRequest'));
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerPrepareAndSetForm'));
     }
 }

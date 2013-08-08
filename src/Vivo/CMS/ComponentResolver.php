@@ -7,7 +7,7 @@ use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Content\ProvideFrontComponentInterface;
 
 /**
- * Resolver is responsible for mapping model of content to aproptiate UI component.
+ * Resolver is responsible for mapping model of content to appropriate UI component.
  */
 class ComponentResolver
 {

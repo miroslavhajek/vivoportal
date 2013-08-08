@@ -8,8 +8,8 @@ use Vivo\UI;
  */
 class Group extends UI\ComponentContainer
 {
-
     /**
+     * Group label
      * @var string
      */
     protected $label;
@@ -18,9 +18,9 @@ class Group extends UI\ComponentContainer
      * Constructor.
      * @param string $label
      */
-    public function __construct($label)
+    public function __construct($label = null)
     {
-        $this->label = $label;
+        $this->setLabel($label);
     }
 
     /**
@@ -36,7 +36,7 @@ class Group extends UI\ComponentContainer
             }
         }
         $this->getView()->components = $items;
-        $this->getView()->label = $this->label;
+        $this->getView()->label = $this->getLabel();
 
         parent::init();
     }
@@ -49,5 +49,23 @@ class Group extends UI\ComponentContainer
     public function addItem(Item $item)
     {
         $this->addComponent($item, $item->getName());
+    }
+
+    /**
+     * Sets the group label
+     * @param string $label
+     */
+    public function setLabel($label = null)
+    {
+        $this->label = $label;
+    }
+
+    /**
+     * Returns the group label
+     * @return string
+     */
+    public function getLabel()
+    {
+        return $this->label;
     }
 }

@@ -11,14 +11,16 @@ use Zend\Form\ElementInterface;
 class HelperUtils
 {
     /**
-     * If the 'id' attribute of the element is not defined, it is set to equal the element's name value
+     * If the 'id' attribute of the element is not defined, it is set according to the element's name value
      * //TODO - escape html attr?
      * @param ElementInterface $element
      */
     public function addIdAttributeIfMissing(ElementInterface $element)
     {
         if (!$element->getAttribute('id')) {
-            $element->setAttribute('id', $element->getName());
+            $id = str_replace(']', '', $element->getName());
+            $id = str_replace('[', '-', $id);
+            $element->setAttribute('id', $id);
         }
     }
 

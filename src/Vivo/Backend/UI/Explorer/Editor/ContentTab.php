@@ -6,6 +6,7 @@ use Vivo\UI\TabContainerItemInterface;
 use Vivo\Form\Form;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
+use Vivo\UI\ComponentEventInterface;
 use Vivo\CMS\Model\Content;
 
 class ContentTab extends AbstractForm implements TabContainerItemInterface
@@ -46,6 +47,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->autoAddCsrf = false;
     }
 
+    public function init()
+    {
+        $this->loadContents();
+    }
+
     /**
      * @param \Vivo\CMS\Model\ContentContainer $contentContainer
      */
@@ -62,10 +68,12 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->availableContents = $contents;
     }
 
-    public function init()
+    /**
+     * Load from request post listener
+     * Changes content version to the version specified in the form
+     */
+    public function loadFromRequestPostListenerChangeVersion()
     {
-        $this->loadContents();
-        parent::init();
         $version = $this->getForm()->get('version')->getValue();
         $this->doChangeVersion($version);
     }
@@ -75,6 +83,17 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $this->loadContents();
         $version = $this->getForm()->get('version')->getValue();
         $this->doChangeVersion($version);
+    }
+
+    /**
+     * Attaches listeners
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(AbstractForm::EVENT_LOAD_FROM_REQUEST_POST,
+            array($this, 'loadFromRequestPostListenerChangeVersion'));
     }
 
     private function loadContents()
@@ -179,7 +198,6 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
                     'value' => $optionKey,
                 ),
         ));
-
         return $form;
     }
 
@@ -217,7 +235,11 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
         $component->setContentContainer($this->contentContainer);
         $component->setContent($content);
         $this->addComponent($component, 'contentEditor');
-        $component->init();
+        $componentEventManager  = $component->getEventManager();
+        $componentEvent         = $component->getEvent();
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_EARLY, $componentEvent);
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT, $componentEvent);
+        $componentEventManager->trigger(ComponentEventInterface::EVENT_INIT_LATE, $componentEvent);
     }
 
     /**
@@ -225,22 +247,23 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
      */
     public function save()
     {
-        $result = $this->contentEditor->save();
-
-        if($result) {
-            // Reload version selectbox
-            $value = $this->getForm()->get('version')->getValue();
-            $this->resetForm();
-            $this->loadContents();
-            $this->getForm()->get('version')->setValue($value);
+        if ($this->isValid()) {
+            $result = $this->contentEditor->save();
+            if($result) {
+                // Reload version selectbox
+                $value = $this->getForm()->get('version')->getValue();
+                $this->resetForm();
+                $this->loadContents();
+                $this->getForm()->get('version')->setValue($value);
+            }
+            return $result;
+        } else {
+            return false;
         }
-
-        return $result;
     }
 
     public function select()
     {
-
     }
 
     public function isDisabled()
@@ -252,5 +275,4 @@ class ContentTab extends AbstractForm implements TabContainerItemInterface
     {
         return $this->contentContainer->getContainerName() ? $this->contentContainer->getContainerName() : '+';
     }
-
 }

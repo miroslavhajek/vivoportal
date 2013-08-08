@@ -22,12 +22,10 @@ class FinderFactory implements FactoryInterface
         $urlHelper     = $serviceLocator->get('Vivo\Util\UrlHelper');
         $docUrlHelper  = $serviceLocator->get('Vivo\document_url_helper');
         $iconUrlHelper = $serviceLocator->get('Vivo\icon_url_helper');
+        $alert         = $serviceLocator->get('Vivo\UI\Alert');
         $siteEvent     = $serviceLocator->get('site_event');
         $site          = $siteEvent->getSite();
 
-        $finder = new Finder($cms, $document, $indexer, $urlHelper, $docUrlHelper, $iconUrlHelper, $site);
-        $finder->setAlert($serviceLocator->get('Vivo\UI\Alert'));
-
-        return $finder;
+        return new Finder($cms, $document, $indexer, $urlHelper, $docUrlHelper, $iconUrlHelper, $site, $alert);
     }
 }

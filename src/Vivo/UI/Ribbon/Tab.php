@@ -17,14 +17,20 @@ class Tab extends UI\ComponentContainer implements TabContainerItemInterface
      */
     protected $groupIndex = 0;
 
+    /**
+     * Tab label
+     * @var string
+     */
+    protected $label;
+
 
     /**
      * Constructor.
      * @param string $label
      */
-    public function __construct($label)
+    public function __construct($label = null)
     {
-        $this->label = $label;
+        $this->setLabel($label);
     }
 
     public function init()
@@ -71,5 +77,14 @@ class Tab extends UI\ComponentContainer implements TabContainerItemInterface
     public function getLabel()
     {
         return $this->label;
+    }
+
+    /**
+     * Sets the tab label
+     * @param string $label
+     */
+    public function setLabel($label = null)
+    {
+        $this->label = $label;
     }
 }

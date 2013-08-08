@@ -65,6 +65,11 @@ class Document extends Folder
     protected $layoutPanels = array();
 
     /**
+     * @var array HTML attributes.
+     */
+    protected $bodyAttributes = array();
+
+    /**
      * If this property is set, the document will appear in the lists of sub-documents (subpages)
      * on the front-end (overviews, sitemaps, menu, navigation, etc.)
      * @var bool
@@ -291,6 +296,24 @@ class Document extends Folder
     public function getLayoutPanels()
     {
         return $this->layoutPanels;
+    }
+
+    /**
+     * Sets HTML body attributes
+     * @param array $bodyAttributes
+     */
+    public function setBodyAttributes(array $bodyAttributes)
+    {
+        $this->bodyAttributes = $bodyAttributes;
+    }
+
+    /**
+     * Returns HTML body attributes
+     * @return array
+     */
+    public function getBodyAttributes()
+    {
+        return $this->bodyAttributes;
     }
 
     /**

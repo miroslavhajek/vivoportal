@@ -1,9 +1,8 @@
 <?
-$formType       = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-$form->get('version')
+$this->form->get('version')
     ->setAttribute('style', 'width:100%')
     ->setAttribute('onchange',
         sprintf('this.form.act.value = "%s"; this.form.submit();', $this->action('changeVersion')));
-echo $this->formFieldsetTwb($form, $formType, array(), false, false);
-echo $contentEditor;
+echo $this->formRowTwb($this->form->get('version'));
+echo $this->contentEditor;
 ?>

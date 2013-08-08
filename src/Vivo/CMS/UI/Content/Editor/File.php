@@ -1,10 +1,11 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
+use Vivo\CMS\Model\Content;
 use Vivo\CMS\UI\Content\Editor\ResourceEditorInterface;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model;
-use Vivo\UI\AbstractForm;
+use Vivo\CMS\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Repository\Exception\PathNotSetException;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
@@ -14,11 +15,6 @@ use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 class File extends AbstractForm implements EditorInterface, AdapterAwareInterface
 {
     const ADAPTER_COMPONENT_NAME    = 'resourceAdapter';
-
-    /**
-     * @var \Vivo\CMS\Model\Content\File
-     */
-    private $content;
 
     /**
      * @var \Vivo\CMS\Api\Content\File
@@ -51,15 +47,6 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
     }
 
     /**
-     * (non-PHPdoc)
-     * @see Vivo\CMS\UI\Content\Editor.EditorInterface::setContent()
-     */
-    public function setContent(Model\Content $content)
-    {
-        $this->content = $content;
-    }
-
-    /**
     * Sets the editor adapter
     * @param AdapterInterface $adapter
     * @return void
@@ -80,26 +67,15 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
         return $this->getComponent(self::ADAPTER_COMPONENT_NAME);
     }
 
-    public function init()
-    {
-        parent::init();
-
-        $adapter = $this->getComponent(self::ADAPTER_COMPONENT_NAME);
-        if ($adapter) {
-            $adapter->init();
-        }
-    }
     /**
      * (non-PHPdoc)
      * @see Vivo\CMS\UI\Content\Editor.EditorInterface::save()
      */
     public function save(Model\ContentContainer $contentContainer)
     {
-        $form = $this->getForm();
-
-        if($form->isValid()) {
-            $data = $form->get('upload-file')->getValue();
-
+        if($this->isValid()) {
+            $formData   = $this->getData();
+            $data = $formData['upload-file'];
             if ($data["tmp_name"] != "") {
                 $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
             }
@@ -113,9 +89,7 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
                 $adapter = $this->getAdapter();
                 if ($adapter instanceof ResourceEditorInterface && $adapter->dataChanged()) {
                     $data = $adapter->getData();
-
                     $this->content->setSize(mb_strlen($data, 'UTF-8'));
-
                     $this->saveContent($contentContainer);
                     $this->saveResource($data);
                 }

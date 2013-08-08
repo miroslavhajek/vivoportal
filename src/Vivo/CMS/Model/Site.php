@@ -23,6 +23,11 @@ class Site extends Folder
     protected $hosts = array();
 
     /**
+     * @var array HTML attributes.
+     */
+    protected $bodyAttributes = array();
+
+    /**
      * @param string $domain Security domain name.
      */
     public function setDomain($domain)
@@ -54,5 +59,22 @@ class Site extends Folder
     {
         return $this->hosts;
     }
-}
 
+    /**
+     * Sets HTML body attributes
+     * @param array $bodyAttributes
+     */
+    public function setBodyAttributes(array $bodyAttributes)
+    {
+        $this->bodyAttributes = $bodyAttributes;
+    }
+
+    /**
+     * Returns HTML body attributes
+     * @return array
+     */
+    public function getBodyAttributes()
+    {
+        return $this->bodyAttributes;
+    }
+}
