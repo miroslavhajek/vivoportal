@@ -363,13 +363,14 @@ return array(
     ),
     'view_helpers' => array(
         'invokables' => array(
-            'action'                => 'Vivo\View\Helper\Action',
-            'action_link'           => 'Vivo\View\Helper\ActionLink',
-            'action_url'            => 'Vivo\View\Helper\ActionUrl',
-            'vivoform'              => 'Vivo\View\Helper\VivoForm',
-            'vivoformfieldset'      => 'Vivo\View\Helper\VivoFormFieldset',
-            'container_component'   => 'Vivo\View\Helper\ContainerComponent',
-            'overview_title'        => 'Vivo\View\Helper\OverviewTitle',
+            'action'                        => 'Vivo\View\Helper\Action',
+            'action_link'                   => 'Vivo\View\Helper\ActionLink',
+            'action_url'                    => 'Vivo\View\Helper\ActionUrl',
+            'vivoform'                      => 'Vivo\View\Helper\VivoForm',
+            'vivoformfieldset'              => 'Vivo\View\Helper\VivoFormFieldset',
+            'container_component'           => 'Vivo\View\Helper\ContainerComponent',
+            'overview_title'                => 'Vivo\View\Helper\OverviewTitle',
+            'vivo_invalid_form_elements'    => 'Vivo\View\Helper\InvalidFormElements',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',

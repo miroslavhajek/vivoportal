@@ -23,11 +23,41 @@ use Zend\Validator\InArray;
  */
 class InArrayDynamic extends AbstractValidator implements ValidatorPluginManagerAwareInterface
 {
+    /**#@+
+     * Error message keys
+     */
+    const ERR_MSG_HAYSTACK_MISSING  = 'haystack_missing';
+    const ERR_MSG_NOT_IN_ARRAY      = 'not_in_array';
+    /**#@-*/
+
+    /**
+     * Variables used in error messages
+     * @var array
+     */
+    protected $messageVariables = array(
+        'cfVal' => 'controlFieldValue',
+    );
+
+    /**
+     * Error message templates
+     * @var array
+     */
+    protected $messageTemplates     = array(
+        self::ERR_MSG_HAYSTACK_MISSING  => "Haystack is not available for control field value '%cfVal%'",
+        self::ERR_MSG_NOT_IN_ARRAY      => 'The input was not found in the haystack',
+    );
+
     /**
      * Name of control field in context whose value governs which part of haystacks will be used as the actual haystack
      * @var string
      */
     protected $controlField             = null;
+
+    /**
+     * Current value of the control field
+     * @var mixed
+     */
+    protected $controlFieldValue;
 
     /**
      * All haystacks used for validation
@@ -86,18 +116,22 @@ class InArrayDynamic extends AbstractValidator implements ValidatorPluginManager
             throw new Exception\RuntimeException(
                 sprintf("%s: Control field '%s' missing in context", __METHOD__, $this->controlField));
         }
-        $cfValue    = $context[$this->controlField];
-        if (!array_key_exists($cfValue, $this->haystacks)) {
+        $this->controlFieldValue    = $context[$this->controlField];
+
+        if (!array_key_exists($this->controlFieldValue, $this->haystacks)) {
             //Haystack is missing (not defined) for the current value of the control field
             if (is_null($this->resultOnMissingHaystack)) {
                 throw new Exception\RuntimeException(
                     sprintf("%s: Haystack is not defined for control field '%s' with value '%s'",
-                        __METHOD__, $this->controlField, $cfValue));
+                        __METHOD__, $this->controlField, $this->controlFieldValue));
             }
             $retVal = $this->resultOnMissingHaystack;
+            if (!$retVal) {
+                $this->error(self::ERR_MSG_HAYSTACK_MISSING);
+            }
         } else {
             //Haystack is defined for the current value of the control field
-            $haystack           = $this->haystacks[$cfValue];
+            $haystack           = $this->haystacks[$this->controlFieldValue];
             /** @var $inArrayValidator InArray */
             $inArrayValidator   = $this->validatorPluginManager->get('inArray', array(
                 'haystack'  => $haystack,
@@ -105,6 +139,9 @@ class InArrayDynamic extends AbstractValidator implements ValidatorPluginManager
                 'strict'    => $this->strict,
             ));
             $retVal             = $inArrayValidator->isValid($value);
+            if (!$retVal) {
+                $this->error(self::ERR_MSG_NOT_IN_ARRAY);
+            }
         }
         return $retVal;
     }
