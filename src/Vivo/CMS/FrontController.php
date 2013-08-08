@@ -12,8 +12,8 @@ use Vivo\UI\ComponentTreeController;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
-use VpLogger\Log\Logger;
 use Vivo\UI\ComponentEventInterface;
+use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -140,7 +140,6 @@ class FrontController implements DispatchableInterface,
         $this->request = $request;
         $this->response = $response;
         $this->attachListeners();
-        $redirector = $this->redirector;
 
         if (!$this->siteEvent->getSite()) {
             throw new Exception\SiteNotFoundException(
@@ -155,6 +154,8 @@ class FrontController implements DispatchableInterface,
         }
 
         //dispatch document
+        $redirector = $this->redirector;
+
         try {
             //fetch document
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
