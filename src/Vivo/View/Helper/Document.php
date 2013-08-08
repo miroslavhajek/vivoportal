@@ -28,11 +28,11 @@ class Document extends AbstractHelper
 
     /**
      * Returns document url
-     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $folder
      * @param array $options
      * @return string
      */
-    public function __invoke(Model\Document $document, array $options = array())
+    public function __invoke(Model\Folder $document, array $options = array())
     {
         return $this->documentUrlHelper->getDocumentUrl($document, $options);
     }
