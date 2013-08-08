@@ -140,11 +140,20 @@ class Document implements DocumentInterface
      */
     public function isPublished(Model\Document $document)
     {
-        $components  = array($document->getPath(), 'Contents.0');
-        $contentPath = $this->pathBuilder->buildStoragePath($components);
-        $container = $this->getEntity($contentPath);
+        $components = array();
+        $components[] = array($document->getPath(), 'Contents.0');
+        $components[] = array($document->getPath(), 'Contents.1');
 
-        return $this->getPublishedContent($container) ? true : false;
+        foreach ($components as $c) {
+            $contentPath = $this->pathBuilder->buildStoragePath($c);
+            try {
+                $container = $this->getEntity($contentPath);
+
+                return $this->getPublishedContent($container) ? true : false;
+            } catch (EntityNotFoundException $e) { }
+        }
+
+        return false;
     }
 
     /**
