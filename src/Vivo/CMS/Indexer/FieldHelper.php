@@ -256,8 +256,7 @@ class FieldHelper implements FieldHelperInterface
                     $indexOptions   = $metadata['index'];
                     if (is_array($indexOptions)) {
                         //Explicitly set indexing options
-                        $indexerConfig  = $this->defaultIndexingOptions;
-                        $indexerConfig  = array_merge($indexerConfig, $indexOptions);
+                        $indexerConfig          = array_merge($this->defaultIndexingOptions, $indexOptions);
                         //Indexer field name is set to the full property name
                         $indexerConfig['name']  = $this->getFullPropertyName($entityClass, $propertyName);
                         $this->indexerConfigs[$entityClass][$propertyName] = $indexerConfig;
