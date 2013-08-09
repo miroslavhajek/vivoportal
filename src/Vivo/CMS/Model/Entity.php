@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\Model;
 
-use DateTime;
-
 /**
  * Base class for all CMS entities.
  */
@@ -30,7 +28,7 @@ class Entity implements PathInterface
 
     /**
      * Time of entity creation.
-     * @var DateTime
+     * @var \DateTime
      */
     protected $created;
 
@@ -42,7 +40,7 @@ class Entity implements PathInterface
 
     /**
      * Time of entity last modification.
-     * @var DateTime
+     * @var \DateTime
      */
     protected $modified;
 
@@ -51,6 +49,11 @@ class Entity implements PathInterface
      * @var string
      */
     protected $modifiedBy;
+
+    /**
+     * @var CustomProperties
+     */
+    protected $customProperties;
 
     /**
      * Constructor.
@@ -62,11 +65,30 @@ class Entity implements PathInterface
     }
 
     /**
+     * Magic method call for custom properties
+     * @param string $name
+     * @param mixed $params
+     * @return mixed
+     */
+    public function __call($name, $params)
+    {
+        if(strpos($name, 'get') === 0) {
+            $name = lcfirst(substr($name, 3));
+
+            return $this->customProperties->get($name);
+        }
+        if(strpos($name, 'set') === 0) {
+            $name = lcfirst(substr($name, 3));
+            $this->customProperties->set($name, $params[0]);
+        }
+    }
+
+    /**
      * Compare entities by path.
      * @param \Vivo\CMS\Model\Entity $entity
      * @return bool Returns true if the entity is under another entity (in the tree paths).
      */
-    public function under(\Vivo\CMS\Model\Entity $entity)
+    public function under(Entity $entity)
     {
         return (strpos($this->path . '/', $entity->getPath() . '/') === 0);
     }
@@ -76,8 +98,7 @@ class Entity implements PathInterface
      */
     public function setUuid($uuid)
     {
-        $uuid       = strtoupper($uuid);
-        $this->uuid = $uuid;
+        $this->uuid = strtoupper($uuid);
     }
 
     /**
@@ -188,32 +209,32 @@ class Entity implements PathInterface
     }
 
     /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return get_class($this) . '{uuid: ' . $this->uuid . ', path: ' . $this->path . '}';
-    }
-
-    /**
      * Depth in the repository tree
      * @return int
      */
     public function getDepth()
     {
-        if (!$this->path)
-            return false;
+        if (!$this->path) return false;
         return substr_count($this->path, '/', 1);
     }
 
     /**
-     * Returns string for full-text. UUID and created by.
-     * @param array $field_names Field names will be indexed.
-     * @return string
-     * @todo refactor - Converter!
+     * @return \Vivo\CMS\Model\CustomProperties
      */
-    public function getTextContent($field_names = array())
+    public function getCustomProperties()
     {
+        if(!$this->customProperties instanceof CustomProperties) {
+            $this->customProperties = new CustomProperties();
+        }
 
+        return $this->customProperties;
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return get_class($this) . '{uuid: ' . $this->uuid . ', path: ' . $this->path . '}';
     }
 }

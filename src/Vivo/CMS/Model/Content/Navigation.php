@@ -312,9 +312,9 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
      */
     public function getArrayCopySymRef()
     {
-        $data                   = array();
-        $data['origin']         = $this->getOrigin();
-        $data['enumeratedDocs'] = $this->getEnumeratedDocs();
-        return $data;
+        return array(
+            'origin'         => $this->getOrigin(),
+            'enumeratedDocs' => $this->getEnumeratedDocs(),
+        );
     }
 }

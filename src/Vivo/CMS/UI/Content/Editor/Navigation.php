@@ -6,8 +6,7 @@ use Vivo\CMS\Model;
 use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\CMS\Model\Content\Navigation as NavigationModel;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 
 /**
  * Class Navigation

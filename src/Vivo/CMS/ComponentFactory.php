@@ -108,8 +108,11 @@ class ComponentFactory implements EventManagerAwareInterface
         if ($component instanceof RawComponentInterface) {
             $root->setMain($component);
         } else {
+            $attr = $document->getBodyAttributes() ?: $this->site->getBodyAttributes();
+            /* @var $page \Vivo\UI\Page */
             $page = $this->createComponent('Vivo\UI\Page');
             $page->setMain($component);
+            $page->setBodyAttributes($attr);
             $root->setMain($page);
         }
         return $root;

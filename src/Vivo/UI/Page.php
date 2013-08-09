@@ -28,7 +28,12 @@ class Page extends ComponentContainer
      * @var array
      * @todo
      */
-    protected $html_attributes = array();
+    protected $htmlAttributes = array();
+
+    /**
+     * @var array HTML attributes
+     */
+    protected $bodyAttributes = array();
 
     /**
      * @var array HTML metas.
@@ -190,6 +195,24 @@ class Page extends ComponentContainer
     }
 
     /**
+     * Sets HTML element attributes
+     * @param array $htmlAttributes
+     */
+    public function setHtmlAttributes(array $htmlAttributes)
+    {
+        $this->htmlAttributes = $htmlAttributes;
+    }
+
+    /**
+     * Sets HTML body attributes
+     * @param array $bodyAttributes
+     */
+    public function setBodyAttributes(array $bodyAttributes)
+    {
+        $this->bodyAttributes = $bodyAttributes;
+    }
+
+    /**
      * Prepare data for view
      */
     protected function prepareView()
@@ -239,6 +262,8 @@ class Page extends ComponentContainer
         $this->view->metas = $this->metas;
         $this->view->doctype = $this->doctype;
         $this->view->title = $this->title;
+        $this->view->htmlAttributes = $this->htmlAttributes;
+        $this->view->bodyAttributes = $this->bodyAttributes;
 
 //TODO: should we validate metas?
 //        /* @var $headMeta \Zend\View\Helper\HeadMeta */

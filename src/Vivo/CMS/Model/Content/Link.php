@@ -16,15 +16,6 @@ class Link extends Model\Content implements Model\SymRefDataExchangeInterface
     public $relPath;
 
     /**
-     * Constructor.
-     * @param string $path Entity path
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
-    /**
      * Returns linked document relative path.
      * @return string
      */
@@ -37,7 +28,8 @@ class Link extends Model\Content implements Model\SymRefDataExchangeInterface
      * Sets relative path of linked document.
      * @param type $relPath
      */
-    public function setRelPath($relPath) {
+    public function setRelPath($relPath)
+    {
         $this->relPath = $relPath;
     }
 
@@ -60,9 +52,6 @@ class Link extends Model\Content implements Model\SymRefDataExchangeInterface
      */
     public function getArrayCopySymRef()
     {
-        $data   = array(
-            'rel_path'  => $this->getRelPath(),
-        );
-        return $data;
+        return array('rel_path' => $this->getRelPath());
     }
 }

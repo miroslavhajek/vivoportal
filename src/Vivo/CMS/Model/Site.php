@@ -23,13 +23,9 @@ class Site extends Folder
     protected $hosts = array();
 
     /**
-     * @param string Path to entity.
-     * @param Vivo\CMS\Model\Entity\Security
+     * @var array HTML attributes.
      */
-    public function __construct($path = null, $security = null)
-    {
-        parent::__construct($path, $security);
-    }
+    protected $bodyAttributes = array();
 
     /**
      * @param string $domain Security domain name.
@@ -63,5 +59,22 @@ class Site extends Folder
     {
         return $this->hosts;
     }
-}
 
+    /**
+     * Sets HTML body attributes
+     * @param array $bodyAttributes
+     */
+    public function setBodyAttributes(array $bodyAttributes)
+    {
+        $this->bodyAttributes = $bodyAttributes;
+    }
+
+    /**
+     * Returns HTML body attributes
+     * @return array
+     */
+    public function getBodyAttributes()
+    {
+        return $this->bodyAttributes;
+    }
+}

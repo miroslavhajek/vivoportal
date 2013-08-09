@@ -14,10 +14,7 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\UrlHelper;
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
-use Vivo\InputFilter\Factory as InputFilterFactory;
-use Vivo\InputFilter\VivoInputFilter;
-
-use Zend\Stdlib\Hydrator\ClassMethods as ClassMethodsHydrator;
+use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 use Zend\I18n\Translator\Translator;
 
 class Editor extends AbstractForm implements TranslatorAwareInterface
