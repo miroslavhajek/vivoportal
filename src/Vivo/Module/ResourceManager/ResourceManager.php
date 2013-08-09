@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\Module\ResourceManager;
 
-use Vivo\IO\FileInputStream;
 use Vivo\Module\Exception;
 use Vivo\Module\ResourceProviderInterface;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
@@ -117,7 +116,7 @@ class ResourceManager
      * @param string|null $type Null = default type
      * @throws \Vivo\Module\Exception\ResourceNotFoundException
      * @throws \Vivo\Module\Exception\AsyncCallException
-     * @return FileInputStream
+     * @return \Vivo\IO\FileInputStream
      */
     public function readResource($moduleName, $pathToResource, $type = null)
     {
