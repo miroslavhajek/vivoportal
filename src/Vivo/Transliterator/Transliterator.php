@@ -2,6 +2,7 @@
 namespace Vivo\Transliterator;
 
 use Zend\Stdlib\ArrayUtils;
+use Zend\EventManager\EventManager;
 use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
@@ -25,6 +26,18 @@ class Transliterator implements TransliteratorInterface
     protected $transliterated   = array();
 
     /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * Cache
+     * @var Cache
+     */
+    protected $cache;
+
+    /**
      * Transliterator options
      * @var array
      */
@@ -43,11 +56,13 @@ class Transliterator implements TransliteratorInterface
 
     /**
      * Constructor
+     * @param \Zend\Cache\Storage\StorageInterface $cache
      * @param array $options
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(array $options = array())
+    public function __construct(Cache $cache = null, array $options = array())
     {
+        $this->cache    = $cache;
         $this->options  = ArrayUtils::merge($this->options, $options);
         if (mb_strpos($this->options['allowedChars'], $this->options['replacementChar']) === false) {
             throw new Exception\InvalidArgumentException(
@@ -64,10 +79,20 @@ class Transliterator implements TransliteratorInterface
     public function transliterate($str)
     {
         //Get from already transliterated
-        if (array_key_exists($str, $this->transliterated)) {
-            return $this->transliterated[$str];
+        $hash           = hash('md4', $str);
+        //Get transliterated string from results cached in memory (in this instance)
+        if (array_key_exists($hash, $this->transliterated)) {
+            $transliterated = $this->transliterated[$hash];
+            return $transliterated;
         }
-
+        //Get transliterated string from standard cache
+        if ($this->cache) {
+            $cacheSuccess   = null;
+            $transliterated = $this->cache->getItem($hash, $cacheSuccess);
+            if ($cacheSuccess) {
+                return $transliterated;
+            }
+        }
         //Perform transliteration
         $translit   = $str;
         //Change case PRE
@@ -135,8 +160,32 @@ class Transliterator implements TransliteratorInterface
                 break;
         }
 
-        //Store the result
-        $this->transliterated[$str] = $translit;
+        //Store the result to the local cache and standard cache
+        $this->transliterated[$hash] = $translit;
+        if ($this->cache) {
+            $this->cache->setItem($hash, $translit);
+        }
         return $translit;
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

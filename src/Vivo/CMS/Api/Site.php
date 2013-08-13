@@ -191,7 +191,7 @@ class Site
      */
     public function getSite($siteName)
     {
-        $path   = $this->pathBuilder->buildStoragePath(array($siteName), true);
+        $path   = $this->pathBuilder->buildStoragePath(array($siteName), true, false, false);
         $site   = $this->cmsApi->getEntity($path);
         if (!$site instanceof Model\Site) {
             throw new Exception\DomainException(

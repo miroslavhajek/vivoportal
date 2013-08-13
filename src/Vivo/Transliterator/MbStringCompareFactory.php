@@ -17,12 +17,18 @@ class MbStringCompareFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['doc_title_to_path']['options'])) {
+        if (isset($config['transliterator']['mb_string_compare']['cache'])) {
+            $cacheManager   = $serviceLocator->get('Vivo\cache_manager');
+            $cache          = $cacheManager->get($config['transliterator']['mb_string_compare']['cache']);
+        } else {
+            $cache      = null;
+        }
+        if (isset($config['transliterator']['mb_string_compare']['options'])) {
             $options    = $config['transliterator']['mb_string_compare']['options'];
         } else {
             $options    = array();
         }
-        $translit   = new Transliterator($options);
+        $translit   = new Transliterator($cache, $options);
         return $translit;
     }
 }

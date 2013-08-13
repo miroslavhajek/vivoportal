@@ -341,7 +341,7 @@ class CMS
             throw new ApiException\UnexpectedValueException(
                 sprintf("%s: Cannot get relative path from '%s'", __METHOD__, $path));
         }
-        $relPath    = $this->pathBuilder->buildStoragePath($components, true, true);
+        $relPath    = $this->pathBuilder->buildStoragePath($components, true, true, false);
         return $relPath;
     }
 
@@ -370,7 +370,7 @@ class CMS
             throw new ApiException\UnexpectedValueException(
                 sprintf("%s: Cannot get site path from '%s'", __METHOD__, $path));
         }
-        $sitePath   = $this->pathBuilder->buildStoragePath($components, true, false);
+        $sitePath   = $this->pathBuilder->buildStoragePath($components, true, false, false);
         return $sitePath;
     }
 
@@ -387,7 +387,7 @@ class CMS
             //Relative path
             array_unshift($components, $site->getName(), 'ROOT');
         }
-        $absolutePath   = $this->pathBuilder->buildStoragePath($components, true);
+        $absolutePath   = $this->pathBuilder->buildStoragePath($components, true, false, false);
 
 //        if (substr($path, 0, 1) == '/' && substr($path, -1) == '/') {
 //            //it's relative path

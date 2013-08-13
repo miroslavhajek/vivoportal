@@ -3,6 +3,8 @@ namespace Vivo\Indexer;
 
 use Vivo\Indexer\Document;
 
+use Zend\EventManager\EventManager;
+
 /**
  * Indexer
  */
@@ -13,6 +15,12 @@ class Indexer implements IndexerInterface
      * @var Adapter\AdapterInterface
      */
     protected $adapter;
+
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
 
     /**
      * Construct
@@ -32,10 +40,18 @@ class Indexer implements IndexerInterface
      */
     public function find(Query\QueryInterface $query, $queryParams = null)
 	{
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger('log:start', $this, array(
+            'subject'  => 'indexer:find',
+        ));
         if (is_array($queryParams)) {
             $queryParams    = new QueryParams($queryParams);
         }
-        return $this->adapter->find($query, $queryParams);
+        $result = $this->adapter->find($query, $queryParams);
+        $eventManager->trigger('log:stop', $this, array(
+            'subject'  => 'indexer:find',
+        ));
+        return $result;
 	}
 
     /**
@@ -133,12 +149,33 @@ class Indexer implements IndexerInterface
     }
 
     /**
-     * Returs query as string
+     * Returns query as string
      * @param Query\QueryInterface $query
      * @return string
      */
     public function getQueryString(Query\QueryInterface $query)
     {
         return $this->adapter->getQueryString($query);
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

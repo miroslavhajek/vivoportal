@@ -105,7 +105,7 @@ abstract class AbstractOrderableContentApi
             $i = max($i, $lastI);
         }
 
-        $path = $this->pathBuilder->buildStoragePath(array($parentModel->getPath(), ++$i));
+        $path = $this->pathBuilder->buildStoragePath(array($parentModel->getPath(), ++$i), true, false, false);
         $media->setPath($path);
 
         return $media;
