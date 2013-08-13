@@ -164,7 +164,7 @@ class Indexer implements IndexerInterface
     {
         //The reindexing may not rely on the indexer in any way!
         $pathComponents = array($site->getPath(), $path);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->repository->commit();
         //Deactivate watcher, otherwise all entities in the site will be stored in the watcher (=>high mem requirements)
         $this->watcher->isActive(false);

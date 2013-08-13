@@ -100,9 +100,11 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function init()
     {
+        $this->events->trigger('log:start', $this, array('subject' => 'tree_controller:init'));
         $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_EARLY);
         $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT);
         $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_LATE);
+        $this->events->trigger('log:stop', $this, array('subject' => 'tree_controller:init'));
     }
 
     /**
@@ -152,6 +154,8 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function loadState()
     {
+        $this->events->trigger('log:start', $this, array('subject' => 'tree_controller:load_state'));
+
         foreach ($this->getTreeIterator() as $component){
             if ($component instanceof PersistableInterface){
                 $key = $this->createSessionKey($component);
@@ -162,6 +166,8 @@ class ComponentTreeController implements EventManagerAwareInterface
                 $component->loadState($state);
             }
         }
+
+        $this->events->trigger('log:stop', $this, array('subject' => 'tree_controller:load_state'));
     }
 
     /**
@@ -169,6 +175,8 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function saveState()
     {
+        $this->events->trigger('log:start', $this, array('subject' => 'tree_controller:save_state'));
+
         foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
                 $state = $component->saveState();
@@ -179,6 +187,7 @@ class ComponentTreeController implements EventManagerAwareInterface
                 $this->session[$key] = $state;
             }
         }
+        $this->events->trigger('log:stop', $this, array('subject' => 'tree_controller:save_state'));
     }
 
     /**
@@ -187,6 +196,7 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function view()
     {
+        $this->events->trigger('log:start', $this, array('subject' => 'tree_controller:view'));
         /** @var $component ComponentInterface */
         foreach ($this->getTreeIterator() as $component){
             $componentEvents    = $component->getEventManager();
@@ -199,6 +209,7 @@ class ComponentTreeController implements EventManagerAwareInterface
             ));
             $componentEvents->trigger(ComponentEventInterface::EVENT_VIEW, $componentEvent);
         }
+        $this->events->trigger('log:stop', $this, array('subject' => 'tree_controller:view'));
         return $this->root->getView();
     }
 
@@ -207,6 +218,7 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function done()
     {
+        $this->events->trigger('log:start', $this, array('subject' => 'tree_controller:done'));
         /** @var $component ComponentInterface */
         foreach ($this->getTreeIterator() as $component){
             $componentEvents    = $component->getEventManager();
@@ -219,6 +231,7 @@ class ComponentTreeController implements EventManagerAwareInterface
             ));
             $componentEvents->trigger(ComponentEventInterface::EVENT_DONE, $componentEvent);
         }
+        $this->events->trigger('log:stop', $this, array('subject' => 'tree_controller:done'));
     }
 
     /**

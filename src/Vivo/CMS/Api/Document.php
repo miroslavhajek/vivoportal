@@ -145,7 +145,7 @@ class Document implements DocumentInterface
         $components[] = array($document->getPath(), 'Contents.1');
 
         foreach ($components as $c) {
-            $contentPath = $this->pathBuilder->buildStoragePath($c);
+            $contentPath = $this->pathBuilder->buildStoragePath($c, true, false, false);
             try {
                 $container = $this->getEntity($contentPath);
 
@@ -290,7 +290,7 @@ class Document implements DocumentInterface
         $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
         array_pop($components);
-        $docPath = $this->pathBuilder->buildStoragePath($components, true);
+        $docPath = $this->pathBuilder->buildStoragePath($components, true, false, false);
         $document = $this->repository->getEntity($docPath);
         if ($document instanceof Model\Document) {
             return $document;
@@ -303,7 +303,7 @@ class Document implements DocumentInterface
         $path           = $document->getPath();
         $version        = count($this->getDocumentContents($document, $index));
         $components     = array($path, 'Contents.' . $index, $version);
-        $contentPath    = $this->pathBuilder->buildStoragePath($components, true);
+        $contentPath    = $this->pathBuilder->buildStoragePath($components, true, false, false);
         $content->setPath($contentPath);
         $content->setState('NEW');
         $this->cmsApi->saveEntity($content);
@@ -339,7 +339,7 @@ class Document implements DocumentInterface
                     2, __METHOD__, gettype($index)));
         }
         $pathElements   = array($document->getPath(), 'Contents.', $index);
-        $path           = $this->pathBuilder->buildStoragePath($pathElements, true);
+        $path           = $this->pathBuilder->buildStoragePath($pathElements, true, false, false);
         return $this->repository->getChildren(new Model\Entity($path));
     }
 
@@ -566,7 +566,7 @@ class Document implements DocumentInterface
      * )
      *
      * @param array $documents Array of documents/folders
-     * @param string $criteriaString Criteria determinates how to sort given documents Example('title:asc')
+     * @param string $criteriaString Criteria determines how to sort given documents Example('title:asc')
      * @return array Sorted array of documents structured the same way as input array
      */
     public function sortDocumentsByCriteria(array $documents, $criteriaString)

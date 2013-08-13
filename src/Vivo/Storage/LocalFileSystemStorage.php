@@ -286,7 +286,7 @@ class LocalFileSystemStorage extends AbstractStorage {
         //The file will be also created beforehand for consistency reasons
         $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
-        $storageDir = $this->pathBuilder->buildStoragePath($components, true);
+        $storageDir = $this->pathBuilder->buildStoragePath($components, true, false, false);
         $fsFullPath = $this->getFsPath($path);
         $this->mkdir($storageDir);
         $this->touch($path);

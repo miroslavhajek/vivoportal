@@ -94,7 +94,7 @@ class RemoteModule
     {
         $storage        = $this->getStorage($moduleUrl);
         $path           = $this->getModulePathInStorage($moduleUrl);
-        $descriptorPath = $this->pathBuilder->buildStoragePath(array($path, $this->descriptorName), true);
+        $descriptorPath = $this->pathBuilder->buildStoragePath(array($path, $this->descriptorName), true, false, false);
         if ($storage->isObject($descriptorPath)) {
             $data           = $storage->get($descriptorPath);
             $jsonContent    = json_decode($data, true);
