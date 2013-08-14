@@ -280,6 +280,7 @@ return array(
             'Vivo\apihelper_document_compare' => 'Vivo\CMS\Api\Helper\DocumentCompareFactory',
         ),
         'aliases' => array(
+            'Vivo\site_event'                   => 'site_event',
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
             'Vivo\Repository\Repository'        => 'repository',
             'Zend\Http\Response'                => 'response',

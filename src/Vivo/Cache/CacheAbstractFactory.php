@@ -32,7 +32,7 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function __construct(array $options = array())
     {
-        $this->options  = array_merge($this->options, $options);
+        $this->options          = array_merge($this->options, $options);
     }
 
     /**

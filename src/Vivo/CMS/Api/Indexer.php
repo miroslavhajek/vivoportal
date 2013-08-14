@@ -193,6 +193,16 @@ class Indexer implements IndexerInterface
     }
 
     /**
+     * Purges the indexer database
+     * Removes all items from index
+     */
+    public function purge()
+    {
+        $this->indexer->deleteAllDocuments();
+        $this->indexer->commit();
+    }
+
+    /**
      * Recursive method traversing and reindexing the entity tree
      * @param string $entityPath
      * @param bool $deep
