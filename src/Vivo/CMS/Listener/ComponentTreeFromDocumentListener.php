@@ -3,6 +3,7 @@ namespace Vivo\CMS\Listener;
 
 use Vivo\CMS\ComponentFactory;
 use Vivo\CMS\Event\CMSEvent;
+
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\EventManagerInterface;
 
@@ -37,7 +38,7 @@ class ComponentTreeFromDocumentListener implements ListenerAggregateInterface
 
     public function invoke(CMSEvent $e)
     {
-        return $this->componentFactory->getRootComponent($e->getDocument());
+        $component  = $this->componentFactory->getRootComponent($e->getDocument());
+        return $component;
     }
-
 }

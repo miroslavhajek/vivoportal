@@ -155,7 +155,6 @@ class FrontController implements DispatchableInterface,
         //dispatch document
         try {
             //fetch document
-            $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-fetch_document'));
             $eventResult = $this->events->trigger(CMSEvent::EVENT_FETCH_DOCUMENT, $this->getCmsEvent(),
                     function ($result) {
                         //stop event propagation when document is fetched
@@ -163,7 +162,6 @@ class FrontController implements DispatchableInterface,
                     });
             $document = $eventResult->last();
             $this->cmsEvent->setDocument($document);
-            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-fetch_document'));
 
             //perform redirects
             $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),

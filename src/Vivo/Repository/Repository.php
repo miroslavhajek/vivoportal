@@ -180,30 +180,22 @@ class Repository implements RepositoryInterface
      */
     public function getEntity($path)
     {
-        //Log getEntity
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("getEntity '%s'", $path),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
         //Get entity from watcher
-        $entity = $this->watcher->get($path);
-        if ($entity) {
+        if ($entity = $this->watcher->get($path)) {
             return $entity;
         }
         //Get current mtime of the entity from storage
-        $mtime  = $this->getStorageMtime($path);
-        if (!$mtime) {
+        if (!$mtime  = $this->getStorageMtime($path)) {
             throw new Exception\EntityNotFoundException(
                 sprintf("%s: No entity found at path '%s' (mtime)", __METHOD__, $path));
         }
         //Get entity from cache
-        $entity = $this->getEntityFromCache($path, $mtime);
-        if ($entity) {
+        if ($entity = $this->getEntityFromCache($path, $mtime)) {
             $this->watcher->add($entity);
             return $entity;
         }
         //Get the entity from storage
-        $entity = $this->getEntityFromStorage($path);
-        if ($entity) {
+        if ($entity = $this->getEntityFromStorage($path)) {
             return $entity;
         }
         throw new Exception\EntityNotFoundException(
@@ -329,10 +321,6 @@ class Repository implements RepositoryInterface
      */
     public function getEntityFromStorage($path)
     {
-        //Log storage access
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("getEntityFromStorage '%s'", $path),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
         $pathComponents = array($path, self::ENTITY_FILENAME);
         $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         if (!$this->storage->isObject($fullPath)) {
@@ -409,8 +397,7 @@ class Repository implements RepositoryInterface
         $path   = null;
         if ($spec instanceof PathInterface) {
             $path   = $this->getAndCheckPath($spec);
-        }
-        if (is_string($spec)) {
+        } elseif (is_string($spec)) {
             $path   = $spec;
         }
         if (is_null($path)) {
@@ -430,8 +417,7 @@ class Repository implements RepositoryInterface
         //}
         foreach ($childPaths as $childPath) {
             try {
-                $entity = $this->getEntity($childPath);
-                if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+                if ($entity = $this->getEntity($childPath)/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
                     $children[] = $entity;
                 }
             } catch (Exception\EntityNotFoundException $e) {
@@ -608,10 +594,9 @@ class Repository implements RepositoryInterface
             throw new Exception\InvalidArgumentException(sprintf("%s: Resource name cannot be empty", __METHOD__));
         }
         $entityPath     = $this->getAndCheckPath($entity);
-        $pathComponents = array($entityPath, $name);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
+        $path           = $this->pathBuilder->buildStoragePath(array($entityPath, $name), true, false, false);
         $mtime          = $this->storage->mtime($path);
-        if ($mtime == false) {
+        if ($mtime === false) {
             //Log not found resource
             $this->events->trigger('log', $this,  array(
                 'message'   => sprintf("Resource '%s' not found with entity '%s'", $name, $entity->getPath()),
@@ -1044,7 +1029,6 @@ class Repository implements RepositoryInterface
      */
     protected function getStorageMtime($path)
     {
-        //$path   = $this->pathBuilder->sanitize($path);
         $mtime  = $this->storage->mtime($path);
         if ($mtime === false) {
             $mtime  = null;

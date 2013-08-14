@@ -182,8 +182,6 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
      */
     public function viewListenerChildViews(ComponentEventInterface $event)
     {
-        $eventManager   = $this->getEventManager();
-        $eventManager->trigger('log:start', $this, array('subject' => 'component_container:view_listener_child_views'));
         if ($event->getComponent() != $this) {
             //This view listener expects only this component as target
             throw new Exception\RuntimeException(sprintf("%s: Unexpected component", __METHOD__));
@@ -201,7 +199,6 @@ class ComponentContainer extends Component implements ComponentContainerInterfac
             'components' => array_keys($this->components),
         );
         $viewModel->setVariable('container', $container);
-        $eventManager->trigger('log:stop', $this, array('subject' => 'component_container:view_listener_child_views'));
     }
 
     /**

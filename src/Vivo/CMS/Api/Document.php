@@ -11,6 +11,8 @@ use Vivo\CMS\Model\Content;
 use Vivo\Transliterator\TransliteratorInterface;
 use Vivo\CMS\Api\Helper\DocumentCompare;
 
+use Zend\EventManager\EventManager;
+
 use DateTime;
 
 /**
@@ -60,6 +62,10 @@ class Document implements DocumentInterface
      */
     protected $options = array();
 
+    /**
+     * @var EventManager
+     */
+    protected $eventManager;
 
     /**
      * Constructor
@@ -805,5 +811,26 @@ class Document implements DocumentInterface
             $doc        = $this->getParentDocument($doc);
         }
         return $docs;
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

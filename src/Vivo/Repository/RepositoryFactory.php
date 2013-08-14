@@ -19,7 +19,8 @@ class RepositoryFactory implements FactoryInterface
     {
         $config = $serviceLocator->get('config');
         $storage                = $serviceLocator->get('Vivo\repository_storage');
-        $serializer             = new \Vivo\Serializer\Adapter\Entity();
+        $textService            = $serviceLocator->get('Vivo\text');
+        $serializer             = new \Vivo\Serializer\Adapter\Entity($textService);
         $watcher                = $serviceLocator->get('Vivo\watcher');
         $ioUtil                 = $serviceLocator->get('io_util');
         $events                 = $serviceLocator->get('repository_events');
