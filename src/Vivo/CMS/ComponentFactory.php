@@ -103,8 +103,8 @@ class ComponentFactory implements EventManagerAwareInterface
      */
     public function getRootComponent(Document $document)
     {
-        $root = $this->createComponent('Vivo\CMS\UI\Root');
-        $component = $this->getFrontComponent($document);
+        $root       = $this->createComponent('Vivo\CMS\UI\Root');
+        $component  = $this->getFrontComponent($document);
         if ($component instanceof RawComponentInterface) {
             $root->setMain($component);
         } else {
@@ -131,29 +131,24 @@ class ComponentFactory implements EventManagerAwareInterface
         $contents = $this->documentApi->getPublishedContents($document);
         if (count($contents) > 1) {
             $frontComponent = $this->createComponent('Vivo\UI\ComponentContainer');
-
             //Set template for the content container, if available
             if ($document->getContentContainerTemplate()) {
                 $frontComponent->getView()->setTemplate($document->getContentContainerTemplate());
             }
-
             foreach ($contents as $contentContainerName => $content) {
                 $cc = $this->getContentFrontComponent($content, $document);
                 $frontComponent->addComponent($cc, $contentContainerName);
             }
-
         } elseif (count($contents) === 1) {
             $frontComponent = $this->getContentFrontComponent(reset($contents), $document);
         } else {
             $frontComponent = $this->createComponent($this->options['specialComponents']['unpublished_document']);
-            $message = "Document hasn`t any published content('".$document->getPath()."').";
+            $message = "Document has no published content ('".$document->getPath()."').";
             $this->getEventManager()->trigger('log', $this, array ('message' => $message, 'level' => \Zend\Log\Logger::WARN));
         }
-
         if ($frontComponent instanceof RawComponentInterface) {
             return $frontComponent;
         }
-
         if (!isset($parameters['noLayout']) || $parameters['noLayout'] != true) {
             if ($layoutPath = $document->getLayout()) {
                 $layout         = $this->cmsApi->getSiteEntity($layoutPath, $this->site);
@@ -164,9 +159,6 @@ class ComponentFactory implements EventManagerAwareInterface
                                                      $document->getInjectComponentViewModelToLayout());
             }
         }
-        $this->getEventManager()->trigger('log', $this,
-            array ('message'    => sprintf("Front component for document '%s' created", $document->getPath()),
-                   'priority'      => Logger::PERF_FINER));
         return $frontComponent;
     }
 
@@ -188,12 +180,10 @@ class ComponentFactory implements EventManagerAwareInterface
         $layoutComponent = $this->getFrontComponent($layout);
 
         if (!$layoutComponent instanceof Layout) {
-            //this is usualy caused when the document hasn't layout content or has more then one content
+            //this is usually caused when the document hasn't layout content or has more then one content
             throw new LogicException(
-                    sprintf(
-                            "%s: Front component for layout must be instance of 'Vivo\\CMS\\UI\\Content\\Layout', "
-                            . "'%s' given",
-                            __METHOD__, get_class($layoutComponent)));
+                    sprintf("%s: Front component for layout must be instance of 'Vivo\\CMS\\UI\\Content\\Layout', "
+                            . "'%s' given", __METHOD__, get_class($layoutComponent)));
         }
 
         $layoutComponent->setMain($component);
@@ -210,14 +200,11 @@ class ComponentFactory implements EventManagerAwareInterface
         $mergedPanels = array();
         foreach ($layoutPanels as $name => $panel) {
             $parts = explode('#', $name);
-            if (count($parts) == 2
-                    && $this->cmsApi->getEntityRelPath($layout) == $parts[0]) {
+            if (count($parts) == 2 && $this->cmsApi->getEntityRelPath($layout) == $parts[0]) {
                 $name = $parts[1];
             }
-
             if (isset($layoutPanels[$name])) {
-                $mergedPanels[$name] = isset($panels[$name]) ? $panels[$name]
-                        : $layoutPanels[$name];
+                $mergedPanels[$name] = (isset($panels[$name]) ? $panels[$name] : $layoutPanels[$name]);
             }
         }
 
@@ -225,9 +212,8 @@ class ComponentFactory implements EventManagerAwareInterface
             if ($path == '') {
                 //if panel is not defined we use 'layout_empty_panel' component
                 $panelComponent = $this->createComponent($this->options['specialComponents']['layout_empty_panel']);
-
             } else {
-                $panelDocument = $this->cmsApi->getSiteEntity($path, $this->site);
+                $panelDocument  = $this->cmsApi->getSiteEntity($path, $this->site);
                 $panelComponent = $this->getFrontComponent($panelDocument);
             }
             $layoutComponent->addComponent($panelComponent, $name);
@@ -236,14 +222,12 @@ class ComponentFactory implements EventManagerAwareInterface
         $layoutDocumentPanels = $layout->getLayoutPanels();
         $panels = array_merge($layoutDocumentPanels, $panels);
 
-        if ($parentLayout = $this->cmsApi->getParent($layout)) {
-            if ($parentLayout instanceof Document) {
-                if ($component = $this
-                        ->applyLayout($parentLayout, $layoutComponent, $panels)) {
-                    $layoutComponent = $component;
-                }
-            }
+        if (($parentLayout = $this->cmsApi->getParent($layout))
+                && ($parentLayout instanceof Document)
+                && ($component = $this->applyLayout($parentLayout, $layoutComponent, $panels))) {
+            $layoutComponent = $component;
         }
+
         return $layoutComponent;
     }
 
@@ -257,8 +241,8 @@ class ComponentFactory implements EventManagerAwareInterface
     {
         $panels = array();
         while ($document instanceof Document) {
-            $panels = array_merge($document->getLayoutPanels(), $panels);
-            $document = $this->cmsApi->getParent($document);
+            $panels     = array_merge($document->getLayoutPanels(), $panels);
+            $document   = $this->cmsApi->getParent($document);
         }
         return $panels;
     }

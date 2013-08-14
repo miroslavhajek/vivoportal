@@ -199,6 +199,7 @@ return array(
             'Vivo\Http\Filter\ImageTransform' => 'Vivo\Http\Filter\ImageTransform',
             'Vivo\watcher'              => 'Vivo\Repository\Watcher',
             'Vivo\component_event_listener' => 'Vivo\UI\ComponentEventListener',
+            'Vivo\text'                 => 'Vivo\Text\Text',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -244,7 +245,6 @@ return array(
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
             'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',
-            'di_proxy'                  => 'Vivo\Service\DiProxyFactory',
             'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
             'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
             'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',

@@ -40,17 +40,10 @@ class Indexer implements IndexerInterface
      */
     public function find(Query\QueryInterface $query, $queryParams = null)
 	{
-        $eventManager   = $this->getEventManager();
-        $eventManager->trigger('log:start', $this, array(
-            'subject'  => 'indexer:find',
-        ));
         if (is_array($queryParams)) {
             $queryParams    = new QueryParams($queryParams);
         }
         $result = $this->adapter->find($query, $queryParams);
-        $eventManager->trigger('log:stop', $this, array(
-            'subject'  => 'indexer:find',
-        ));
         return $result;
 	}
 

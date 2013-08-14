@@ -239,6 +239,8 @@ return array(
             'Vivo\CMS\UI\Blank'                    => 'Vivo\CMS\UI\Blank',
             'Vivo\CMS\UI\Root'                     => 'Vivo\CMS\UI\Root',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
+            'Vivo\CMS\UI\LayoutEmptyPanel'         => 'Vivo\CMS\UI\LayoutEmptyPanel',
+            'Vivo\CMS\UI\UnpublishedDocument'      => 'Vivo\CMS\UI\UnpublishedDocument',
             'Vivo\UI\ComponentContainer'           => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
             'Vivo\Backend\UI\HeaderBar'            => 'Vivo\Backend\UI\HeaderBar',

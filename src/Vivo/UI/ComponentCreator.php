@@ -2,7 +2,6 @@
 namespace Vivo\UI;
 
 use Zend\ServiceManager\ServiceManager;;
-use Zend\Di\Di;
 use Zend\EventManager\EventManager;
 
 /**
@@ -18,12 +17,6 @@ class ComponentCreator
     protected $sm;
 
     /**
-     * Di container working as a fallback component factory
-     * @var Di
-     */
-    protected $di;
-
-    /**
      * EventManager
      * @var EventManager
      */
@@ -32,12 +25,10 @@ class ComponentCreator
     /**
      * Constructor
      * @param ServiceManager $sm
-     * @param Di $di
      */
-    public function __construct(ServiceManager $sm, Di $di = null)
+    public function __construct(ServiceManager $sm)
     {
         $this->sm   = $sm;
-        $this->di   = $di;
     }
 
     /**
@@ -54,10 +45,6 @@ class ComponentCreator
             //Create using SM
             $component = $this->sm->create($name);
             $type = 'ServiceManager';
-        } elseif ($this->di) {
-            //Create using DI
-            $component = $this->di->newInstance($name, array(), false);
-            $type = 'DI';
         } else {
             //Cannot create the component
             throw new Exception\InvalidArgumentException(
@@ -71,7 +58,6 @@ class ComponentCreator
         $this->getEventManager()->trigger('log', $this, array(
             'message'   => $message,
             'priority'  => \VpLogger\Log\Logger::PERF_FINER));
-
         return $component;
     }
 

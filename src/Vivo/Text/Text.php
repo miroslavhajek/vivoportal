@@ -1,24 +1,32 @@
 <?php
 namespace Vivo\Text;
 
+use Zend\EventManager\EventManager;
+
 /**
- * Text class provides methods to works with texts.
- * @author tzajicek
+ * Text class provides methods which work with texts
  */
 class Text {
 
 	const EMPTY_CHARS = " \n\r\t";
 
-	/**
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
 	 * @param string $str
 	 * @param int $pos
 	 * @return string
 	 */
-	static function readChar(&$str, &$pos) {
+	public function readChar(&$str, &$pos) {
 		$len = strlen($str);
 		while (($pos < $len) && (strpos(self::EMPTY_CHARS, $str{$pos}) !== false))
 			$pos++;
-		return ($pos < $len) ? $str{$pos++} : false;
+        $retVal = ($pos < $len) ? $str{$pos++} : false;
+		return $retVal;
 	}
 
 	/**
@@ -27,8 +35,8 @@ class Text {
 	 * @param bool $allowed_chars
 	 * @return string
 	 */
-	static function readWord(&$str, &$pos, $allowed_chars = false) {
-		$len = strlen($str);
+	public function readWord(&$str, &$pos, $allowed_chars = false) {
+        $len = strlen($str);
 		while (($pos < $len) && (strpos(self::EMPTY_CHARS, $str{$pos}) !== false))
 			$pos++;
 		$start = $pos;
@@ -39,18 +47,20 @@ class Text {
 			while (($pos < $len) && (strpos(self::EMPTY_CHARS, $str{$pos}) === false))
 				$pos++;
 		}
-		return substr($str, $start, $pos - $start);
+        $retVal = substr($str, $start, $pos - $start);
+		return $retVal;
 	}
 
 	/**
 	 * @param string $char
 	 * @param string $str
 	 * @param int $pos
-	 * @throws Vivo\Exception
+	 * @throws \Exception
 	 */
-	static function expectChar($char, &$str, &$pos) {
-		if (($char2 = self::readChar($str, $pos)) != $char)
+	public function expectChar($char, &$str, &$pos) {
+		if (($char2 = $this->readChar($str, $pos)) != $char) {
 			throw new \Exception("Expecting $char at position $pos (got $char2)");
+        }
 	}
 
 	/**
@@ -162,5 +172,25 @@ class Text {
 // 		return $id;
 // 	}
 
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
+    }
 }
 
