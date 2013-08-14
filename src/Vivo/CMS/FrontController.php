@@ -509,7 +509,7 @@ class FrontController implements DispatchableInterface,
         if ($params->count() == 1) {
             $paramsArray    = $params->toArray();
             $first          = reset($paramsArray);
-            if (isset($first['act']) && is_string($first['act'])) {
+            if (is_array($first) && isset($first['act']) && is_string($first['act'])) {
                 $action = $first['act'];
                 return $action;
             }
