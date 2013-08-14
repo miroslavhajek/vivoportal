@@ -184,13 +184,8 @@ class Repository implements RepositoryInterface
         if ($entity = $this->watcher->get($path)) {
             return $entity;
         }
-        //Get current mtime of the entity from storage
-        if (!$mtime  = $this->getStorageMtime($path)) {
-            throw new Exception\EntityNotFoundException(
-                sprintf("%s: No entity found at path '%s' (mtime)", __METHOD__, $path));
-        }
         //Get entity from cache
-        if ($entity = $this->getEntityFromCache($path, $mtime)) {
+        if ($entity = $this->getEntityFromCache($path)) {
             $this->watcher->add($entity);
             return $entity;
         }
@@ -222,49 +217,38 @@ class Repository implements RepositoryInterface
      * Looks up an entity in cache and returns it
      * If the entity does not exist in cache or its mtime is older than the specified mtime, returns null
      * @param string $path
-     * @param int|null $minMtime Retrieve only when null or when the mtime of the entity in the cache is newer than this
+     * @throws Exception\EntityNotFoundException
      * @throws Exception\RuntimeException
      * @return \Vivo\CMS\Model\Entity|null
      */
-    protected function getEntityFromCache($path, $minMtime = null)
+    protected function getEntityFromCache($path)
     {
+        $entity = null;
         if ($this->cache) {
-            $key            = md5($path);
-            //Return null when mtime in the cache is older than the specified mtime
-            if (!is_null($minMtime)) {
-                //$minMtime specified
-                $meta   = $this->cache->getMetadata($key);
-                if ($meta !== false) {
-                    //Item found in cache
-                    if (!array_key_exists('mtime', $meta)) {
-                        //TODO - remove this dependency on the 'mtime' metadata - not all cache adapters support it
-                        throw new Exception\RuntimeException(
-                            sprintf("%s: The cache storage adapter does not return the 'mtime' metadata", __METHOD__));
-                    }
-                    $cacheMtime = $meta['mtime'];
-                    if ($minMtime > $cacheMtime) {
-                        //mtime in cache is older than the specified mtime
-                        $this->removeEntityFromCache($path, true);
-                        $this->events->trigger('log', $this,
-                            array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
-                                'priority'   => \VpLogger\Log\Logger::DEBUG));
-                        return null;
-                    }
-                } else {
-                    //Item not found in cache
-                    return null;
-                }
+            //Get current mtime of the entity from storage
+            if (!$minMtime  = $this->getStorageMtime($path)) {
+                throw new Exception\EntityNotFoundException(
+                    sprintf("%s: No entity found at path '%s'", __METHOD__, $path));
             }
+            $key            = $this->hashPathForCache($path);
             $cacheSuccess   = null;
-            $entity         = $this->cache->getItem($key, $cacheSuccess);
+            $item           = $this->cache->getItem($key, $cacheSuccess);
             if ($cacheSuccess) {
-                //TODO - Log cache hit
+                $cacheMtime = $item['mtime'];
+                if ($minMtime > $cacheMtime) {
+                    //mtime in cache is older than the specified mtime, cache item is stale
+                    $this->removeEntityFromCache($path, true);
+                    $this->events->trigger('log', $this,
+                        array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
+                            'priority'   => \VpLogger\Log\Logger::DEBUG));
+                } else {
+                    //mtime is ok
+                    //TODO - Log cache hit
+                    $entity = $item['entity'];
+                }
             } else {
                 //TODO - Log cache miss
-    //            echo '<br>Cache miss: ' . $path;
             }
-        } else {
-            $entity = null;
         }
         return $entity;
     }
@@ -281,8 +265,13 @@ class Repository implements RepositoryInterface
                 __METHOD__));
         }
 //        $key    = $entity->getUuid();
-        $key    = md5($entity->getPath());
-        $this->cache->setItem($key, $entity);
+        $key    = $this->hashPathForCache($entity->getPath());
+        $mtime  = $this->getStorageMtime($entity->getPath());
+        $item   = array(
+            'mtime'     => $mtime,
+            'entity'    => $entity,
+        );
+        $this->cache->setItem($key, $item);
     }
 
     /**
@@ -297,19 +286,13 @@ class Repository implements RepositoryInterface
             $descendants    = $this->getChildren($path, false, true);
             foreach ($descendants as $descendant) {
                 $descPath   = $descendant->getPath();
-                $key    = md5($descPath);
+                $key        = $this->hashPathForCache($descPath);
                 $this->cache->removeItem($key);
-                $this->events->trigger('log', $this,
-                    array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $descPath, $key),
-                        'priority'   => \VpLogger\Log\Logger::DEBUG));
             }
         }
         //Remove the entity
-        $key            = md5($path);
+        $key    = $this->hashPathForCache($path);
         $this->cache->removeItem($key);
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $path, $key),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
     }
 
     /**
@@ -327,7 +310,10 @@ class Repository implements RepositoryInterface
             //Entity not found in storage, remove entity from watcher and cache to eliminate possible inconsistencies
             $this->watcher->remove($path);
             if ($this->cache) {
-                $this->removeEntityFromCache($path, true);
+                //Do not try to remove descendants from cache - some invalid paths (e.g. /) might cause reading of
+                //all entities / searching the complete repository which might result in an exception when there is
+                //an entity which cannot be unserialized
+                $this->removeEntityFromCache($path, false);
             }
             return null;
         }
@@ -1053,5 +1039,16 @@ class Repository implements RepositoryInterface
             }
         }
         return $childEntityPaths;
+    }
+
+    /**
+     * Hashes entity path to be used as cache key
+     * @param string $path
+     * @return string
+     */
+    protected function hashPathForCache($path)
+    {
+        $hash   = hash('md4', $path);
+        return $hash;
     }
 }
