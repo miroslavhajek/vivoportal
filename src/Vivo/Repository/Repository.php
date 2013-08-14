@@ -310,6 +310,9 @@ class Repository implements RepositoryInterface
             //Entity not found in storage, remove entity from watcher and cache to eliminate possible inconsistencies
             $this->watcher->remove($path);
             if ($this->cache) {
+                //Do not try to remove descendants from cache - some invalid paths (e.g. /) might cause reading of
+                //all entities / searching the complete repository which might result in an exception when there is
+                //an entity which cannot be unserialized
                 $this->removeEntityFromCache($path, false);
             }
             return null;
