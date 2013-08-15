@@ -2,15 +2,13 @@
 namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\Api\CMS as CmsApi;
-use Vivo\CMS\Api\Document as DocumentApi;
-use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Content\Navigation as NavigationModel;
 use Vivo\CMS\UI\Exception;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Navigation\Navigation as NavigationContainer;
-use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
  * Navigation UI component
@@ -18,18 +16,26 @@ use Zend\Cache\Storage\StorageInterface as Cache;
 class Navigation extends AbstractNavigation
 {
     /**
-     * Constructor
-     * @param CmsApi $cmsApi
-     * @param DocumentApi $documentApi
-     * @param Site $site
-     * @param \Zend\Cache\Storage\StorageInterface $cache
+     * Navigation model (i.e. the content)
+     * @var NavigationModel
      */
-    public function __construct(CmsApi $cmsApi, DocumentApi $documentApi, Site $site, Cache $cache = null)
+    protected $navModel;
+
+    /**
+     * Attach event listeners
+     */
+    public function attachListeners()
     {
-        parent::__construct($cmsApi, $documentApi, $site, $cache);
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSetNavModel'));
     }
 
-    public function init()
+    /**
+     * Init listener, sets navigation model
+     * @throws \Vivo\CMS\UI\Exception\DomainException
+     */
+    public function initListenerSetNavModel()
     {
         if (!$this->content instanceof NavigationModel) {
             throw new Exception\DomainException(
@@ -43,10 +49,10 @@ class Navigation extends AbstractNavigation
      * @return string
      * @throws \Vivo\CMS\UI\Exception\RuntimeException
      */
-    protected function getCacheKey()
+    protected function getCacheKeyHash()
     {
         switch ($this->navModel->getType()) {
-            case \Vivo\CMS\Model\Content\Navigation::TYPE_ORIGIN:
+            case NavigationModel::TYPE_ORIGIN:
                 if (is_null($this->navModel->getOrigin())) {
                     //Origin not specified, use the current requested doc
                     $originPath = $this->cmsEvent->getRequestedPath();
@@ -55,25 +61,27 @@ class Navigation extends AbstractNavigation
                     $originPath = $this->navModel->getOrigin();
                 }
                 $keyParts   = array(
+                    'site_name'         => $this->site->getName(),
                     'requested_path'    => $this->cmsEvent->getRequestedPath(),
-                    'origin_path'   => $originPath,
-                    'start_level'   => $this->navModel->getStartLevel(),
-                    'levels'        => $this->navModel->getLevels(),
-                    'include_root'  => $this->navModel->includeRoot(),
-                    'branch_only'   => $this->navModel->getBranchOnly(),
+                    'origin_path'       => $originPath,
+                    'start_level'       => $this->navModel->getStartLevel(),
+                    'levels'            => $this->navModel->getLevels(),
+                    'include_root'      => $this->navModel->includeRoot(),
+                    'branch_only'       => $this->navModel->getBranchOnly(),
                 );
-                $key    = sha1(implode(',', $keyParts));
+                $hash   = $this->hashCacheKey(implode(',', $keyParts));
                 break;
-            case \Vivo\CMS\Model\Content\Navigation::TYPE_ENUM:
-                $concat = $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs());
-                $key    = sha1($concat);
+            case NavigationModel::TYPE_ENUM:
+                $concat = $this->site->getName();
+                $concat .= $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs());
+                $hash   = $this->hashCacheKey($concat);
                 break;
             default:
                 throw new Exception\RuntimeException(sprintf("%s: Unsupported navigation type '%s'",
                     __METHOD__, $this->navModel->getType()));
                 break;
         }
-        return $key;
+        return $hash;
     }
 
     /**
@@ -238,8 +246,8 @@ class Navigation extends AbstractNavigation
     }
 
     /**
-     * Method to be overriden.
      * Provides additional page options to CmsNavPage constructor
+     * @param \Vivo\CMS\Model\Document $doc
      * @return array
      */
     protected function getAdditionalPageOptions(Document $doc)
@@ -273,8 +281,6 @@ class Navigation extends AbstractNavigation
         if($sorting !== null && $sorting != 'none') {
             $documents = $this->documentApi->sortDocumentsByCriteria($documents, $sorting);
         }
-
         return $documents;
     }
-
 }

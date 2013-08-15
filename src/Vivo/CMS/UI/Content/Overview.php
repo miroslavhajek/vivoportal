@@ -6,13 +6,14 @@ use Vivo\CMS\Api\Document as DocumentApi;
 use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception\Exception;
-use Vivo\SiteManager\Event\SiteEvent;
 use Vivo\CMS\Api\Indexer as IndexerApi;
 use Vivo\CMS\RefInt\SymRefConvertorInterface;
 use Vivo\CMS\Model\Entity;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\CMS\UI\Exception\RuntimeException;
+use Vivo\CMS\Model\Site;
 
+use Vivo\UI\ComponentEventInterface;
 use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
@@ -43,14 +44,10 @@ class Overview extends Component
     protected $documentApi;
 
     /**
-     * @var SiteEvent
+     * Site model
+     * @var Site
      */
-    private $siteEvent;
-
-    /**
-     * @var array of \Vivo\CMS\Model\Document
-     */
-    protected $children = array();
+    protected $site;
 
     /**
      * Cache for overview documents
@@ -63,22 +60,39 @@ class Overview extends Component
      * @param \Vivo\CMS\Api\CMS $cmsApi
      * @param \Vivo\CMS\Api\Indexer $indexerApi
      * @param \Vivo\CMS\Api\Document $documentApi
-     * @param \Vivo\SiteManager\Event\SiteEvent $siteEvent
+     * @param \Vivo\CMS\Model\Site $site
      * @param \Zend\Cache\Storage\StorageInterface $cache
      */
-    public function __construct(CMS $cmsApi, IndexerApi $indexerApi, DocumentApi $documentApi, SiteEvent $siteEvent, Cache $cache = null)
+    public function __construct(CMS $cmsApi,
+                                IndexerApi $indexerApi,
+                                DocumentApi $documentApi,
+                                Site $site,
+                                Cache $cache = null)
     {
         $this->cmsApi       = $cmsApi;
         $this->indexerApi   = $indexerApi;
         $this->documentApi  = $documentApi;
-        $this->siteEvent    = $siteEvent;
+        $this->site         = $site;
         $this->cache        = $cache;
     }
 
-    public function init()
+    /**
+     * Attaches event listeners
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'viewListenerSetChildren'));
+    }
+
+    /**
+     * View listener - sets children
+     */
+    public function viewListenerSetChildren()
     {
         if ($this->cache) {
-            $key        = $this->getCacheKey();
+            $key        = $this->getCacheKeyHash();
             $success    = null;
             $children   = $this->cache->getItem($key, $success);
             if (!$success) {
@@ -89,20 +103,21 @@ class Overview extends Component
         } else {
             $children   = $this->getDocuments();
         }
-        $this->view->children = $children;
+        //Prepare view
+        $this->getView()->children = $children;
     }
 
     /**
-     * Returns cache key used to cache the overview documents
+     * Returns cache key hash used to cache the overview documents
      * @return string
      * @throws \Vivo\CMS\UI\Exception\RuntimeException
      */
-    protected function getCacheKey()
+    protected function getCacheKeyHash()
     {
         /** @var $overviewModel \Vivo\CMS\Model\Content\Overview */
         $overviewModel  = $this->content;
         switch ($overviewModel->getOverviewType()) {
-            case \Vivo\CMS\Model\Content\Overview::TYPE_DYNAMIC:
+            case OverviewModel::TYPE_DYNAMIC:
                 if (is_null($overviewModel->getOverviewPath())) {
                     //Overview path not specified, use the current requested doc
                     $overviewPath = $this->cmsEvent->getRequestedPath();
@@ -111,27 +126,39 @@ class Overview extends Component
                     $overviewPath = $overviewModel->getOverviewPath();
                 }
                 $keyParts   = array(
+                    'site_name'         => $this->site->getName(),
                     'requested_path'    => $this->cmsEvent->getRequestedPath(),
                     'overview_path'     => $overviewPath,
                     'overview_criteria' => $overviewModel->getOverviewCriteria(),
                     'overview_sorting'  => $overviewModel->getOverviewSorting(),
                     'overview_limit'    => $overviewModel->getOverviewLimit(),
                 );
-                $key    = sha1(implode(',', $keyParts));
+                $hash   = $this->hashCacheKey(implode(',', $keyParts));
                 break;
-            case \Vivo\CMS\Model\Content\Overview::TYPE_STATIC:
-                $concat = '';
+            case OverviewModel::TYPE_STATIC:
+                $concat = $this->site->getName() . ',';
                 foreach ($overviewModel->getOverviewItems() as $docPath) {
                     $concat .= $docPath;
                 }
-                $key    = sha1($concat);
+                $hash   = $this->hashCacheKey($concat);
                 break;
             default:
                 throw new RuntimeException(sprintf("%s: Unsupported overview type '%s'",
-                    __METHOD__, $overviewModel->getType()));
+                    __METHOD__, $overviewModel->getOverviewType()));
                 break;
         }
-        return $key;
+        return $hash;
+    }
+
+    /**
+     * Hashes cache key
+     * @param string $key
+     * @return string
+     */
+    protected function hashCacheKey($key)
+    {
+        $hash   = hash('md4', $key);
+        return $hash;
     }
 
     /**
@@ -146,7 +173,7 @@ class Overview extends Component
         $type = $this->content->getOverviewType();
         if ($type == OverviewModel::TYPE_DYNAMIC) {
             if ($path = $this->content->getOverviewPath()) {
-                $path = $this->cmsApi->getEntityAbsolutePath($path, $this->siteEvent->getSite());
+                $path = $this->cmsApi->getEntityAbsolutePath($path, $this->site);
             } else {
                 $path = $this->document->getPath();
             }
@@ -158,8 +185,7 @@ class Overview extends Component
                 $params['page_size'] = $limit;
             }
             if ($sort = $this->content->getOverviewSorting()) {      
-                $site          = $this->siteEvent->getSite();
-                $currentDoc    = $this->cmsApi->getSiteEntity($this->content->getOverviewPath(), $site);
+                $currentDoc    = $this->cmsApi->getSiteEntity($this->content->getOverviewPath(), $this->site);
                 $parentSorting = $currentDoc->getSorting();
                 if(strpos($sort, "parent") !== false && $parentSorting != null) {
                     $sort = $parentSorting;
@@ -183,10 +209,9 @@ class Overview extends Component
 
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items  = $this->content->getOverviewItems();
-            $site   = $this->siteEvent->getSite();
             foreach ($items as $item) {
                 try {
-                    $document = $this->cmsApi->getSiteEntity($item, $site);
+                    $document = $this->cmsApi->getSiteEntity($item, $this->site);
                     if ((bool) $document->getAllowListing() == true && $this->documentApi->isPublished($document)) {
                         $documents[] = $document;
                     }
@@ -234,7 +259,7 @@ class Overview extends Component
     {
         $re     = '/(\.|)(' . SymRefConvertorInterface::PATTERN_URL . ')(\*)?/';
         $cmsApi = $this->cmsApi;
-        $site   = $this->siteEvent->getSite();
+        $site   = $this->site;
         $callback   = function(array $matches) use ($cmsApi, $site) {
             $url    = $matches[2];
             if (isset($matches[3])) {
