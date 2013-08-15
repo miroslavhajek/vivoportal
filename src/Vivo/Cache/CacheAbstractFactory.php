@@ -93,7 +93,7 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     protected function createFolderForFsCache(array $options)
     {
         if (isset($options['adapter']['name'])
-                && $options['adapter']['name']  == 'filesystem'
+                && strtolower($options['adapter']['name'])  == 'filesystem'
                 && isset($options['adapter']['options']['cache_dir'])) {
             $cacheDir   = $options['adapter']['options']['cache_dir'];
             if (!is_dir($cacheDir)) {

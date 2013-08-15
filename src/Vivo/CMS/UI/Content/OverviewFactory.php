@@ -17,9 +17,10 @@ class OverviewFactory implements FactoryInterface
         $cms         = $serviceLocator->get('Vivo\CMS\Api\CMS');        
         $indexerApi  = $serviceLocator->get('Vivo\CMS\Api\Indexer');
         $documentApi = $serviceLocator->get('Vivo\CMS\Api\Document');
+        /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
         $siteEvent   = $serviceLocator->get('site_event');
-        $cacheMgr    = $serviceLocator->get('cache_manager');
-        $cmsConfig   = $serviceLocator->get('cms_config');        
+        $site        = $siteEvent->getSite();
+        $cmsConfig   = $serviceLocator->get('cms_config');
         if (isset($cmsConfig['ui']['Vivo\UI\Content\Overview'])) {
             $uiCompConfig   = $cmsConfig['ui']['Vivo\UI\Content\Overview'];
         } else {
@@ -31,7 +32,7 @@ class OverviewFactory implements FactoryInterface
         } else {
             $cache  = null;
         }
-        $service    = new Overview($cms, $indexerApi, $documentApi, $siteEvent, $cache);
+        $service    = new Overview($cms, $indexerApi, $documentApi, $site, $cache);
         return $service;
     }
 }
