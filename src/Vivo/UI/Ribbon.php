@@ -5,19 +5,11 @@ use Vivo\UI\Ribbon\Group;
 use Vivo\UI\Ribbon\Tab;
 use Vivo\UI\Ribbon\Item;
 
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\EventManagerInterface;
-
 /**
  * Ribbon
  */
-class Ribbon extends TabContainer implements EventManagerAwareInterface
+class Ribbon extends TabContainer
 {
-    /**
-     * @var EventManagerInterface
-     */
-    protected $events;
-
     /**
      * @var integer
      */
@@ -40,26 +32,6 @@ class Ribbon extends TabContainer implements EventManagerAwareInterface
     public function itemClick($name)
     {
         $this->getEventManager()->trigger(__FUNCTION__, $this, array('itemName' => $name));
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\EventsCapableInterface::getEventManager()
-     */
-    public function getEventManager()
-    {
-        return $this->events;
-    }
-
-    /**
-     * Inject an EventManager instance
-     *
-     * @param  EventManagerInterface $eventManager
-     * @return void
-     */
-    public function setEventManager(EventManagerInterface $eventManager)
-    {
-        $this->events = $eventManager;
     }
 
     /**

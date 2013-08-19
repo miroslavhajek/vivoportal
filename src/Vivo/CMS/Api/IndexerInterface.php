@@ -31,4 +31,9 @@ interface IndexerInterface
      */
     public function reindex(Site $site, $path = '/', $deep = false, $suppressErrors = false);
 
+    /**
+     * Purges the indexer database
+     * Removes all items from index
+     */
+    public function purge();
 }

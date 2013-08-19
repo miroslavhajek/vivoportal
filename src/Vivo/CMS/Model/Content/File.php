@@ -21,7 +21,7 @@ class File extends Model\Content
     protected $mimeType;
 
     /**
-     * @var string File excension.
+     * @var string File extension
      */
     protected $ext;
 

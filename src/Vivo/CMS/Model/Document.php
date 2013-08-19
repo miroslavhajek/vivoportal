@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\Model;
 
-use DateTime;
-
 /**
  * The document represents a folder in tree. The document contains functions for working with content and sub-documents
  */
@@ -67,6 +65,11 @@ class Document extends Folder
     protected $layoutPanels = array();
 
     /**
+     * @var array HTML attributes.
+     */
+    protected $bodyAttributes = array();
+
+    /**
      * If this property is set, the document will appear in the lists of sub-documents (subpages)
      * on the front-end (overviews, sitemaps, menu, navigation, etc.)
      * @var bool
@@ -123,7 +126,7 @@ class Document extends Folder
      * Typically it is used for articles, newsletters and press releases.
      * Unless explicitly specified otherwise, the system fills in the date of creation of the document in the system.
      *
-     * @var DateTime
+     * @var \DateTime
      */
     protected $published;
 
@@ -156,15 +159,6 @@ class Document extends Folder
      * @var bool
      */
     protected $injectComponentViewModelToLayout     = false;
-
-    /**
-     * @param string $path Repository path.
-     * @param null $security
-     */
-    public function __construct($path = null, $security = null)
-    {
-        parent::__construct($path, $security);
-    }
 
     /**
      * Sets heading property which is the same as title by default
@@ -302,18 +296,6 @@ class Document extends Folder
         return $this->workflow;
     }
 
-    /**
-     * Returns a key chain for indexer. Through this chain, the document sought.
-     *
-     * @param array $field_names Field names will be indexed.
-     * @return string
-     */
-    public function getTextContent($field_names = array())
-    {
-        return parent::getTextContent(
-                array_merge($field_names, array('title', 'keywords')));
-    }
-
     public function getType()
     {
         return get_class($this);
@@ -344,6 +326,24 @@ class Document extends Folder
     public function getLayoutPanels()
     {
         return $this->layoutPanels;
+    }
+
+    /**
+     * Sets HTML body attributes
+     * @param array $bodyAttributes
+     */
+    public function setBodyAttributes(array $bodyAttributes)
+    {
+        $this->bodyAttributes = $bodyAttributes;
+    }
+
+    /**
+     * Returns HTML body attributes
+     * @return array
+     */
+    public function getBodyAttributes()
+    {
+        return $this->bodyAttributes;
     }
 
     /**
@@ -400,67 +400,83 @@ class Document extends Folder
         $this->published = $published;
     }
 
-    public function getUriPrecedence() {
+    public function getUriPrecedence()
+    {
         return $this->uriPrecedence;
     }
 
-    public function setUriPrecedence($uriPrecedence) {
+    public function setUriPrecedence($uriPrecedence)
+    {
         $this->uriPrecedence = $uriPrecedence;
     }
 
-    public function getNavigable() {
+    public function getNavigable()
+    {
         return $this->navigable;
     }
 
-    public function setNavigable($navigable) {
+    public function setNavigable($navigable)
+    {
         $this->navigable = $navigable;
     }
 
-    public function getAutoVersioning() {
+    public function getAutoVersioning()
+    {
         return $this->autoVersioning;
     }
 
-    public function setAutoVersioning($autoVersioning) {
+    public function setAutoVersioning($autoVersioning)
+    {
         $this->autoVersioning = $autoVersioning;
     }
 
-    public function getSecured() {
+    public function getSecured()
+    {
         return $this->secured;
     }
 
-    public function setSecured($secured) {
+    public function setSecured($secured)
+    {
         $this->secured = $secured;
     }
 
-    public function getLinkAttributes() {
+    public function getLinkAttributes()
+    {
         return $this->linkAttributes;
     }
 
-    public function setLinkAttributes($linkAttributes) {
+    public function setLinkAttributes($linkAttributes)
+    {
         $this->linkAttributes = $linkAttributes;
     }
 
-    public function getVocabularies() {
+    public function getVocabularies()
+    {
         return $this->vocabularies;
     }
 
-    public function setVocabularies($vocabularies) {
+    public function setVocabularies($vocabularies)
+    {
         $this->vocabularies = $vocabularies;
     }
 
-    public function getExpiration() {
+    public function getExpiration()
+    {
         return $this->expiration;
     }
 
-    public function setExpiration($expiration) {
+    public function setExpiration($expiration)
+    {
         $this->expiration = $expiration;
     }
 
-    public function getInternalNotice() {
+    public function getInternalNotice()
+    {
         return $this->internalNotice;
     }
 
-    public function setInternalNotice($internalNotice) {
+    public function setInternalNotice($internalNotice)
+    {
         $this->internalNotice = $internalNotice;
     }
 

@@ -5,6 +5,7 @@ use Vivo\CMS\UI\Component;
 use Vivo\UI\Exception\LogicException;
 use Vivo\UI\Exception\ExceptionInterface as UIException;
 use Vivo\UI\Exception\RuntimeException;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\EventManager\EventManagerInterface;
@@ -95,24 +96,31 @@ class ComponentTreeController implements EventManagerAwareInterface
     }
 
     /**
-     * Initialize component tree.
+     * Initialize component tree
      */
     public function init()
     {
-        $components = $this->getCurrentComponents();
-        foreach ($components as $component) {
-            //A component might have been removed from the tree in an init() (as is the case with ResourceEditor
-            //=> check the component is still in the tree, if not, do not try to initialize it
-            //TODO - Optimization? This is n^2, as all components are read for every component
-            $currentComponents  = $this->getCurrentComponents();
-            if (in_array($component, $currentComponents)) {
-                $message = 'Init component: ' . $component->getPath();
-                $this->events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINER)
-                );
-                $component->init();
-            }
-        }
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_EARLY);
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT);
+        $this->triggerEventOnRootComponent(ComponentEventInterface::EVENT_INIT_LATE);
+    }
+
+    /**
+     * Triggers an event on the root component
+     * @param string $event
+     */
+    protected function triggerEventOnRootComponent($event)
+    {
+        $rootEvents     = $this->root->getEventManager();
+        $rootEvent      = $this->root->getEvent();
+        $rootEvent->setParams(array(
+            'log'   => array(
+                'message'   => sprintf("Event '%s' triggered on the root component '%s'",
+                                $event, $this->root->getPath()),
+                'priority'  => \VpLogger\Log\Logger::PERF_FINER,
+            ),
+        ));
+        $rootEvents->trigger($event, $rootEvent);
     }
 
     /**
@@ -146,11 +154,8 @@ class ComponentTreeController implements EventManagerAwareInterface
     {
         foreach ($this->getTreeIterator() as $component){
             if ($component instanceof PersistableInterface){
-                $key = $this->createSessionKey($component);
-                $state = $this->session[$key];
-                $message = 'Load component: ' . $component->getPath(). ', state: ' . implode('--', (array) $state);
-                $this->events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINER));
+                $key    = $this->createSessionKey($component);
+                $state  = $this->session[$key];
                 $component->loadState($state);
             }
         }
@@ -163,23 +168,32 @@ class ComponentTreeController implements EventManagerAwareInterface
     {
         foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
-                $state = $component->saveState();
-                $key = $this->createSessionKey($component);
-                $message = 'Save component: ' . $component->getPath() . ', state: ' . implode('--', (array) $state);
-                $this->events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINER));
+                $state  = $component->saveState();
+                $key    = $this->createSessionKey($component);
                 $this->session[$key] = $state;
             }
         }
     }
 
     /**
-     * Returns view model tree from component tree.
-     * @return Ambigous <\Zend\View\Model\ModelInterface, string>
+     * Returns view model tree from component tree or a string to display directly
+     * @return \Zend\View\Model\ModelInterface|string
      */
     public function view()
     {
-        return $this->root->view();
+        /** @var $component ComponentInterface */
+        foreach ($this->getTreeIterator() as $component){
+            $componentEvents    = $component->getEventManager();
+            $componentEvent     = $component->getEvent();
+            $componentEvent->setParams(array(
+                'log'   => array(
+                    'message'   => sprintf('View component: %s', $component->getPath()),
+                    'priority'  => \VpLogger\Log\Logger::PERF_FINER,
+                ),
+            ));
+            $componentEvents->trigger(ComponentEventInterface::EVENT_VIEW, $componentEvent);
+        }
+        return $this->root->getView();
     }
 
     /**
@@ -187,8 +201,17 @@ class ComponentTreeController implements EventManagerAwareInterface
      */
     public function done()
     {
+        /** @var $component ComponentInterface */
         foreach ($this->getTreeIterator() as $component){
-            $component->done();
+            $componentEvents    = $component->getEventManager();
+            $componentEvent     = $component->getEvent();
+            $componentEvent->setParams(array(
+                'log'   => array(
+                    'message'   => sprintf('Done component: %s', $component->getPath()),
+                    'priority'  => \VpLogger\Log\Logger::PERF_FINER,
+                ),
+            ));
+            $componentEvents->trigger(ComponentEventInterface::EVENT_DONE, $componentEvent);
         }
     }
 

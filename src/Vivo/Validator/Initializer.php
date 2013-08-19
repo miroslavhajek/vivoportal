@@ -35,5 +35,12 @@ class Initializer implements InitializerInterface
             $repository = $sm->get('repository');
             $instance->setRepository($repository);
         }
+        if ($instance instanceof \Vivo\Service\Initializer\ValidatorPluginManagerAwareInterface) {
+            $instance->setValidatorPluginManager($serviceLocator);
+        }
+        if ($instance instanceof \Vivo\Service\Initializer\FilterPluginManagerAwareInterface) {
+            $filterPluginManager    = $sm->get('filter_manager');
+            $instance->setFilterPluginManager($filterPluginManager);
+        }
     }
 }

@@ -10,8 +10,10 @@ class TabContainer extends ComponentContainer implements PersistableInterface
      * @var string Component / tab name.
      */
     private $selected;
+
     /**
-     * @var boolean Whether render all tabs.
+     * Render all tabs?
+     * @var boolean
      */
     private $viewAll = false;
 

@@ -11,12 +11,11 @@ use Vivo\Indexer\IndexerInterface;
 use Vivo\Indexer\QueryBuilder;
 use Vivo\UI\Alert;
 use Vivo\UI\Component;
+use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\UrlHelper;
 use Vivo\Util\RedirectEvent;
-use Zend\EventManager\Event;
 use Zend\I18n\Translator\Translator;
 use Zend\View\Model\JsonModel;
-use Zend\EventManager\EventManager;
 
 class Finder extends Component implements TranslatorAwareInterface
 {
@@ -84,10 +83,11 @@ class Finder extends Component implements TranslatorAwareInterface
      * @param \Vivo\CMS\Util\DocumentUrlHelper $documentUrlHelper
      * @param \Vivo\CMS\Util\IconUrlHelper $documentUrlHelper
      * @param \Vivo\CMS\Model\Site $site
+     * @param \Vivo\UI\Alert $alert
      */
     public function __construct(Api\CMS $cmsApi, Api\Document $documentApi, IndexerInterface $indexer,
             UrlHelper $urlHelper, Util\DocumentUrlHelper $documentUrlHelper, Util\IconUrlHelper $iconUrlHelper,
-            Site $site)
+            Site $site, Alert $alert)
     {
         $this->cmsApi = $cmsApi;
         $this->documentApi = $documentApi;
@@ -96,9 +96,17 @@ class Finder extends Component implements TranslatorAwareInterface
         $this->documentUrlHelper = $documentUrlHelper;
         $this->iconUrlHelper = $iconUrlHelper;
         $this->site = $site;
+        $this->alert = $alert;
     }
 
-    public function init()
+    public function attachListeners()
+    {
+        parent::attachListeners();
+
+        $this->getEventManager()->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSetEntity'));
+    }
+
+    public function initListenerSetEntity()
     {
         $this->entity = $this->explorer->getEntity();
     }
@@ -106,26 +114,6 @@ class Finder extends Component implements TranslatorAwareInterface
     public function setExplorer(ExplorerInterface $explorer)
     {
         $this->explorer = $explorer;
-    }
-
-    /**
-     * Return current entity.
-     * @todo
-     * @deprecated Test and remove.
-     * @return \Vivo\CMS\Model\Entity
-     */
-    public function getEntity()
-    {
-        return $this->entity;
-    }
-
-    /**
-     * Sets Alert component.
-     * @param Alert $alert
-     */
-    public function setAlert(Alert $alert)
-    {
-        $this->alert = $alert;
     }
 
     public function setTranslator(Translator $translator)
@@ -285,8 +273,8 @@ class Finder extends Component implements TranslatorAwareInterface
         try {
             $document = $this->cmsApi->getSiteEntity($url, $this->site);
             $url = $this->urlHelper->fromRoute('backend/explorer', array('path' => $document->getUuid()));
-            $events = new EventManager();
-            $events->trigger(new RedirectEvent($url));
+
+            $this->getEventManager()->trigger(new RedirectEvent($url));
         }
         catch(\Vivo\CMS\Exception\InvalidArgumentException $e) {
             $this->alert->addMessage('Wrong URL format', Alert::TYPE_WARNING);

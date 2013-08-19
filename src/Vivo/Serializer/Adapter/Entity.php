@@ -16,16 +16,32 @@ use Zend\EventManager\EventManager;
  */
 class Entity extends AbstractAdapter
 {
+    const INDENT    = "\t";
+    const EOA       = '__EOA__';
+    const NONE      = '__NONE__';
 
-    const INDENT = "\t";
-    const EOA = '__EOA__';
-    const NONE = '__NONE__';
+    /**
+     * Text service
+     * @var Text
+     */
+    protected $textService;
 
     /**
      * Event Manager
      * @var EventManagerInterface
      */
     private $events;
+
+    /**
+     * Constructor
+     * @param Text $textService
+     * @param mixed $options
+     */
+    public function __construct(Text $textService, $options = null)
+    {
+        parent::__construct($options);
+        $this->textService  = $textService;
+    }
 
     /**
      * Serialize
@@ -117,8 +133,11 @@ class Entity extends AbstractAdapter
 
     public function unserialize($serialized)
     {
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger('log:start', $this, array('subject' => 'serializer:unserialize'));
         $pos    = 0;
         $object = $this->unserializeRun($serialized, $pos, true);
+        $eventManager->trigger('log:stop', $this, array('subject' => 'serializer:unserialize'));
         return $object;
     }
 
@@ -133,20 +152,20 @@ class Entity extends AbstractAdapter
      */
     protected function unserializeRun(&$str, &$pos = 0, $ignoreUnknownProperties = true)
     {
-        switch ($type = Text::readWord($str, $pos)) {
+        switch ($type = $this->textService->readWord($str, $pos)) {
         case 'NULL':
             return null;
         case 'boolean':
-            return (Text::readWord($str, $pos) == 'true');
+            return ($this->textService->readWord($str, $pos) == 'true');
         case 'integer':
-            return intval(Text::readWord($str, $pos));
+            return intval($this->textService->readWord($str, $pos));
         case 'long':
-            return longval(Text::readWord($str, $pos));
+            return intval($this->textService->readWord($str, $pos));
         case 'float':
         case 'double':
-            return doubleval(Text::readWord($str, $pos));
+            return floatval($this->textService->readWord($str, $pos));
         case 'string':
-            Text::expectChar('"', $str, $pos);
+            $this->textService->expectChar('"', $str, $pos);
             $len = strlen($str);
             $start = $pos;
             while (!($str{$pos} == '"'
@@ -157,17 +176,17 @@ class Entity extends AbstractAdapter
                     substr($str, $start, ($pos++) - $start));
             return (substr($str2, -2) == "\\\\") ? substr($str2, 0, -1) : $str2;
         case 'array':
-            Text::expectChar('(', $str, $pos);
+            $this->textService->expectChar('(', $str, $pos);
             $array = array();
             while (($key = $this->unserializeRun($str, $pos, $ignoreUnknownProperties)) !== self::EOA) {
-                Text::expectChar(':', $str, $pos);
+                $this->textService->expectChar(':', $str, $pos);
                 $value = $this->unserializeRun($str, $pos, $ignoreUnknownProperties);
                 $array[$key] = $value;
             }
             return $array;
         case 'object':
-            $className = Text::readWord($str, $pos);
-            Text::expectChar('{', $str, $pos);
+            $className = $this->textService->readWord($str, $pos);
+            $this->textService->expectChar('{', $str, $pos);
             if (!class_exists($className)) {
                 throw new Exception\ClassNotFoundException(
                     sprintf("%s: Class '%s' not found", __METHOD__, $className));
@@ -175,7 +194,7 @@ class Entity extends AbstractAdapter
             $object = new $className;
             $refl   = new \ReflectionObject($object);
             $vars   = array();
-            while (($name = Text::readWord($str, $pos)) != '}') {
+            while (($name = $this->textService->readWord($str, $pos)) != '}') {
                 try {
                     $prop = $refl->getProperty($name);
                 } catch (\ReflectionException $e) {

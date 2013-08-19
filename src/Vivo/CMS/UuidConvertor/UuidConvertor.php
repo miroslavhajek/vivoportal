@@ -8,6 +8,7 @@ use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\CMS\Model;
 
 use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\EventManager;
 
 /**
  * UuidConvertor
@@ -35,6 +36,12 @@ class UuidConvertor implements UuidConvertorInterface
      * @var string[]
      */
     protected $pathToUuid   = array();
+
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
 
     /**
      * Constructor
@@ -168,5 +175,26 @@ class UuidConvertor implements UuidConvertorInterface
             }
             $this->set($entity->getUuid(), $entity->getPath());
         }
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

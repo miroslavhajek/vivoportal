@@ -6,6 +6,9 @@ use Vivo\CMS\Model\Content;
 use Vivo\CMS\Model\Document;
 use Vivo\CMS\Event\CMSEvent;
 use Vivo\Service\Initializer\CmsEventAwareInterface;
+use Vivo\UI\ComponentEventInterface;
+
+use Zend\Form\FormInterface;
 
 /**
  * AbstractForm
@@ -61,12 +64,23 @@ abstract class AbstractForm extends AbstractVivoForm implements InjectModelInter
     }
 
     /**
-     * Prepare view model
-     * @return string|\Zend\View\Model\ModelInterface
+     * View listener
      */
-    public function view() {
+    public function viewListenerSetContentAndDocument() {
         $this->view->content           = $this->content;
         $this->view->document          = $this->document;
-        return parent::view();
     }
+
+    /**
+     * Attaches listeners
+     * @return void
+     */
+    public function attachListeners()
+    {
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        //View
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerSetContentAndDocument'));
+    }
+
 }

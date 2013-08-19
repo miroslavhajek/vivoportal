@@ -31,15 +31,12 @@ class MetadataManager
     /**
      * @var array
      */
-    protected $options = array();
+    protected $options = array('config_path'=> null, 'custom_properties' => array());
 
     /**
      * @var array
      */
-    protected $cache = array(
-        'rawmeta' => array(),
-        'meta' => array()
-    );
+    protected $cache = array('rawmeta' => array(), 'meta' => array());
 
     /**
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceManager
@@ -53,7 +50,7 @@ class MetadataManager
             ModuleNameResolver $moduleNameResolver,
             array $options = array())
     {
-        $this->options = $options;
+        $this->options = array_merge($this->options, $options);
         $this->serviceManager = $serviceManager;
         $this->resourceManager = $resourceManager;
         $this->moduleNameResolver = $moduleNameResolver;
@@ -89,8 +86,7 @@ class MetadataManager
 
                 if($path) {
                     $resource = file_get_contents($path);
-                    $entityConfig = $reader->fromString($resource);
-                    $entityConfig = new Config($entityConfig);
+                    $entityConfig = new Config($reader->fromString($resource));
 
                     $config = $config->merge($entityConfig);
                 }
@@ -101,12 +97,25 @@ class MetadataManager
 
                 try {
                     $resource = $this->resourceManager->getResource($moduleName, $path, 'metadata');
-                    $entityConfig = $reader->fromString($resource);
-                    $entityConfig = new Config($entityConfig);
+                    $entityConfig = new Config($reader->fromString($resource));
 
                     $config = $config->merge($entityConfig);
                 }
                 catch (ResourceNotFoundException $e) { }
+            }
+
+            if(isset($this->options['custom_properties'][$class])) {
+                $defs = $this->options['custom_properties'][$class];
+
+                foreach ($defs as $vmodule => $path) {
+                    $path = sprintf('%s.ini', str_replace('\\', DIRECTORY_SEPARATOR, $path));
+
+                    $resource = $this->resourceManager->getResource($vmodule, $path, 'metadata');
+                    $entityConfig = new Config($reader->fromString($resource));
+
+                    // Modifications is not allowed
+                    $config = $entityConfig->merge($config);
+                }
             }
         }
 
@@ -149,18 +158,10 @@ class MetadataManager
             if(is_array($value)) {
                 $this->applyProvider($entityClass, $value);
             }
-            elseif (strpos($value, '\\') && class_exists($value)) {
-                if(PHP_VERSION_ID >= 50307 && is_subclass_of($value, 'Vivo\Metadata\MetadataValueProviderInterface')) {
-                    /* @var $provider MetadataValueProviderInterface */
-                    $provider = $this->serviceManager->get($value);
-                    $value    = $provider->getValue($entityClass);
-                }
-                else {
-                    // Old php version fix 5.3.7
-                    $provider = $this->serviceManager->get($value);
-                    if($provider instanceof MetadataValueProviderInterface) {
-                        $value = $provider->getValue($entityClass);
-                    }
+            elseif (strpos($value, '\\') && $this->serviceManager->has($value)) {
+                $provider   = $this->serviceManager->get($value);
+                if($provider instanceof MetadataValueProviderInterface) {
+                    $value  = $provider->getValue($entityClass);
                 }
             }
         }

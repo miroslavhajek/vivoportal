@@ -239,8 +239,12 @@ return array(
             'Vivo\CMS\UI\Blank'                    => 'Vivo\CMS\UI\Blank',
             'Vivo\CMS\UI\Root'                     => 'Vivo\CMS\UI\Root',
             'Vivo\CMS\UI\Manager\Explorer\Ribbon'  => 'Vivo\CMS\UI\Manager\Explorer\Ribbon',
+            'Vivo\CMS\UI\LayoutEmptyPanel'         => 'Vivo\CMS\UI\LayoutEmptyPanel',
+            'Vivo\CMS\UI\UnpublishedDocument'      => 'Vivo\CMS\UI\UnpublishedDocument',
             'Vivo\UI\ComponentContainer'           => 'Vivo\UI\ComponentContainer',
             'Vivo\UI\TabContainer'                 => 'Vivo\UI\TabContainer',
+            'Vivo\Backend\UI\HeaderBar'            => 'Vivo\Backend\UI\HeaderBar',
+            'Vivo\Backend\UI\FooterBar'            => 'Vivo\Backend\UI\FooterBar',
         ),
         'factories' => array (
             // Content factories
@@ -279,6 +283,9 @@ return array(
             'Vivo\UI\Alert'                  => 'Vivo\UI\AlertFactory',
             'Vivo\UI\Paginator'              => 'Vivo\UI\PaginatorFactory',
             'Vivo\CMS\UI\Rss'                => 'Vivo\CMS\UI\RssFactory',
+            'Vivo\UI\Ribbon\Tab'             => 'Vivo\UI\Ribbon\TabFactory',
+            'Vivo\UI\Ribbon\Group'           => 'Vivo\UI\Ribbon\GroupFactory',
+            'Vivo\UI\Ribbon\Item'            => 'Vivo\UI\Ribbon\ItemFactory',
             'security_manager'               => 'Vivo\Service\SimpleSecurityManagerFactory',
 //          'security_manager'               => 'Vivo\Service\DbSecurityManagerFactory',
 
@@ -298,10 +305,14 @@ return array(
             'Vivo\Backend\UI\Explorer\Move'     => 'Vivo\Backend\UI\Explorer\MoveFactory',
             'Vivo\Backend\UI\Explorer\Viewer'   => 'Vivo\Backend\UI\Explorer\ViewerFactory',
             'Vivo\Backend\UI\Explorer\Browser'  => 'Vivo\Backend\UI\Explorer\BrowserFactory',
+            'Vivo\Backend\UI\Explorer\Tree'     => 'Vivo\Backend\UI\Explorer\TreeFactory',
+            'Vivo\Backend\UI\Explorer\Ribbon'   => 'Vivo\Backend\UI\Explorer\RibbonFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
             'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
-
+            'Vivo\Backend\UI\ModulesPanel'      => 'Vivo\Backend\UI\ModulesPanelFactory',
             'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
+            'Vivo\Backend\Provider\Language'    => 'Vivo\Backend\Provider\LanguageFactory',
+            'Vivo\Backend\Provider\Sorting'     => 'Vivo\Backend\Provider\SortingFactory',
         ),
         'aliases' => array(
         ),
@@ -310,19 +321,19 @@ return array(
         'initializers' => array(
         ),
     ),
-    'di' => array (
-        'instance' => array (
-            'alias' => array (
-            ),
-            'Vivo\UI\Component' => array (
-                'injection' => array (
-                ),
-                'parameters' => array (
-                    'view' => 'Zend\View\Model\ViewModel',
-                ),
-            ),
-        ),
-    ),
+//    'di' => array (
+//        'instance' => array (
+//            'alias' => array (
+//            ),
+//            'Vivo\UI\Component' => array (
+//                'injection' => array (
+//                ),
+//                'parameters' => array (
+//                    'view' => 'Zend\View\Model\ViewModel',
+//                ),
+//            ),
+//        ),
+//    ),
 
     'ui' => array (
         //configuration of ui components
@@ -441,7 +452,7 @@ return array(
     ),
     'Vivo\CMS\ComponentFactory' => array (
         'specialComponents' => array (
-            //theese component are used instead of missing component
+            //these components are used instead of missing components
             'layout_empty_panel'    => 'Vivo\CMS\UI\LayoutEmptyPanel',
             'unpublished_document'  => 'Vivo\CMS\UI\UnpublishedDocument',
         ),

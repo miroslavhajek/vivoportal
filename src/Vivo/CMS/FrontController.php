@@ -13,6 +13,7 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
 use VpLogger\Log\Logger;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\EventManager\EventManagerAwareInterface;
@@ -27,6 +28,7 @@ use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
 use Zend\Stdlib\ArrayUtils;
 use Zend\View\Model\ModelInterface;
+use Zend\Stdlib\ParametersInterface;
 
 /**
  * The front controller which is responsible for dispatching all requests for documents in CMS repository.
@@ -130,12 +132,9 @@ class FrontController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
-        //Performance log
-        $this->events->trigger('log', $this,
-            array ('message'    => 'FrontController - Dispatch start',
-                   'priority'   => Logger::PERF_BASE));
+        $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch'));
 
-        $this->request = $request;
+        $this->request  = $request;
         $this->response = $response;
         $this->attachListeners();
         $redirector = $this->redirector;
@@ -149,6 +148,7 @@ class FrontController implements DispatchableInterface,
         //dispatch resource files
         $resourceResponse = $this->dispatchResource($this->cmsEvent);
         if ($resourceResponse instanceof Response) {
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
             return $resourceResponse;
         }
 
@@ -161,15 +161,7 @@ class FrontController implements DispatchableInterface,
                         return ($result instanceof Model\Document);
                     });
             $document = $eventResult->last();
-
             $this->cmsEvent->setDocument($document);
-
-            //Performance log
-            if($document instanceof Model\Document) {
-                $this->events->trigger('log', $this,
-                    array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
-                           'priority'   => Logger::PERF_BASE));
-            }
 
             //perform redirects
             $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),
@@ -178,6 +170,7 @@ class FrontController implements DispatchableInterface,
                         return $redirector->isRedirect();
                     });
             if ($redirector->isRedirect()) {
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
                 return $response;
             }
 
@@ -197,26 +190,19 @@ class FrontController implements DispatchableInterface,
             }
 
             //create ui component tree
+            $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-create_ui_tree'));
             $eventResult = $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent,
                     function ($result) {
                         //stop event propagation when UI is fetched
                         return ($result instanceof Component);
                     });
             $this->cmsEvent->setRoot($eventResult->last());
-
-            //Performance log
-            $this->events->trigger('log', $this,
-                array ('message'    => 'FrontController - UI component tree created',
-                       'priority'   => Logger::PERF_BASE));
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-create_ui_tree'));
 
             //perform tree operations
+            $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-dispatch_ui_tree'));
             $result = $this->dispatchTree($this->cmsEvent);
-
-            //Performance log
-            $this->events->trigger('log', $this,
-                array ('message'    => 'FrontController - UI Component tree dispatched',
-                       'priority'   => Logger::PERF_BASE));
-
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-dispatch_ui_tree'));
 
             if ($redirector->isRedirect()) {
                 return $response;
@@ -224,13 +210,9 @@ class FrontController implements DispatchableInterface,
 
             if ($result instanceof ModelInterface) {
                 //render view model
+                $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-render_view'));
                 $this->events->trigger(CMSEvent::EVENT_RENDER, $this->cmsEvent);
-
-                //Performance log
-                $this->events->trigger('log', $this,
-                    array ('message'    => 'FrontController - View model rendered',
-                           'priority'   => Logger::PERF_BASE));
-
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-render_view'));
             } elseif ($result instanceof InputStreamInterface) {
                 //skip rendering phase
                 $response->setInputStream($result);
@@ -238,7 +220,6 @@ class FrontController implements DispatchableInterface,
                 //skip rendering phase
                 $response->setContent($result);
             }
-
         } catch (\Exception $e) {
             $this->cmsEvent->setException($e);
 
@@ -271,6 +252,7 @@ class FrontController implements DispatchableInterface,
             //perform tree operations
             $result = $this->dispatchTree($this->cmsEvent);
             if ($redirector->isRedirect()) {
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
                 return $response;
             }
 
@@ -291,12 +273,7 @@ class FrontController implements DispatchableInterface,
                 $response->setStatusCode(\Zend\Http\Response::STATUS_CODE_500);
             }
         }
-
-        //Performance log
-        $this->events->trigger('log', $this,
-            array ('message'    => 'FrontController - Dispatch end',
-                   'priority'   => Logger::PERF_BASE));
-
+        $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
         return $response;
     }
 
@@ -364,12 +341,11 @@ class FrontController implements DispatchableInterface,
         if ($this->getRequest()->isXmlHttpRequest()) {
             $this->tree->init(); //replace by lazy init
             //if request is  ajax call, we use result of method
-
             if ($handleAction) {
                 $result = $this->handleAction();
             }
         } else {
-            $this->tree->init();
+            $this->tree->init(); //replace by lazy init
             if ($handleAction) {
                 $result = $this->handleAction();
                 if($result != null) {
@@ -473,27 +449,71 @@ class FrontController implements DispatchableInterface,
 
     /**
      * Handles action on component.
-     * @return mixed Result of component action method.
+     * @return mixed|null Result of component action method or null when no action is required
      */
     protected function handleAction()
     {
-        //TODO is a better way how to obtain params?
-        //TODO create router for asembling and matching path of action
+        //TODO is there a better way how to obtain params?
+        //TODO create router for assembling and matching path of action
         $request = $this->getRequest();
-        if (!$action = $request->getQuery('act')) {
-            if (!$action = $request->getPost('act')) {
-                return;
-            } else {
-                $params = $request->getPost('args', array());
-            }
-        } else {
-            $params = $request->getQuery('args', array());
+        //Try getting action from query
+        $paramsContainer    = $request->getQuery();
+        $action = $this->getActionFromParams($paramsContainer);
+        if ($action) {
+            //Action found in query string
+            $actionParams   = $paramsContainer->get('args', array());
+            return $this->doHandleAction($action, $actionParams);
         }
+        //Try getting action from POST
+        $paramsContainer    = $request->getPost();
+        $action = $this->getActionFromParams($paramsContainer);
+        if ($action) {
+            //Action found in POST data
+            $actionParams   = $paramsContainer->get('args', array());
+            return $this->doHandleAction($action, $actionParams);
+        }
+        //No action required
+        return null;
+    }
 
-        $parts = explode(Component::COMPONENT_SEPARATOR, $action);
+    /**
+     * The actual handling of a component action
+     * @param string $actionPath
+     * @param array $actionParams
+     * @return mixed
+     */
+    protected function doHandleAction($actionPath, array $actionParams)
+    {
+        $parts  = explode(Component::COMPONENT_SEPARATOR, $actionPath);
         $action = array_pop($parts);
-        $path = implode(Component::COMPONENT_SEPARATOR, $parts);
-        return $this->tree->invokeAction($path, $action, $params);
+        $path   = implode(Component::COMPONENT_SEPARATOR, $parts);
+        return $this->tree->invokeAction($path, $action, $actionParams);
+
+    }
+
+    /**
+     * Returns 'act' parameter found in params or null when not present
+     * @param ParametersInterface $params
+     * @return string|null
+     */
+    protected function getActionFromParams(ParametersInterface $params)
+    {
+        //Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
+        $action = $params->get('act');
+        if (is_string($action)) {
+            return $action;
+        }
+        //Variant 2: there is only one item in params data and 'act' parameter is under it (Wrap elements == true)
+        if ($params->count() == 1) {
+            $paramsArray    = $params->toArray();
+            $first          = reset($paramsArray);
+            if (is_array($first) && isset($first['act']) && is_string($first['act'])) {
+                $action = $first['act'];
+                return $action;
+            }
+        }
+        //'act' parameter not found
+        return null;
     }
 
     /**

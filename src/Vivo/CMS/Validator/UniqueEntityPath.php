@@ -99,7 +99,8 @@ class UniqueEntityPath extends AbstractValidator implements PathBuilderAwareInte
         $this->setValue($value);
 
         $valueTranslit  = $this->transliteratorDocTitleToPath->transliterate($value);
-        $path = $this->pathBuilder->buildStoragePath(array($this->parentDocumentPath, $valueTranslit));
+        $path = $this->pathBuilder->buildStoragePath(array($this->parentDocumentPath, $valueTranslit),
+                    true, false, false);
 
         if ($this->repository->hasEntity($path)) {
             $isValid = false;

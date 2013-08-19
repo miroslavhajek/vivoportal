@@ -11,6 +11,7 @@ use Vivo\UI\ComponentTreeController;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;

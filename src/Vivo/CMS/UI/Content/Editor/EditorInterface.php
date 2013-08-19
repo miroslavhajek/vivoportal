@@ -7,11 +7,6 @@ use Vivo\CMS\Model\ContentContainer;
 interface EditorInterface
 {
     /**
-     * @param \Vivo\CMS\Model\Content $content
-     */
-    public function setContent(Content $content);
-
-    /**
      * Save action.
      * @param \Vivo\CMS\Model\ContentContainer $container
      */

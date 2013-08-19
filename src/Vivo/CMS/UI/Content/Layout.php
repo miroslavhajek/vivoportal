@@ -28,7 +28,7 @@ class Layout extends Component
     protected $cmsApi;
 
     /**
-     * Construcotr.
+     * Constructor
      * @param CMS $cmsApi
      */
     public function __construct(CMS $cmsApi)

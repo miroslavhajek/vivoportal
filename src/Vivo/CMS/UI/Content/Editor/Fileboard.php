@@ -147,7 +147,7 @@ class Fileboard extends AbstractForm implements EditorInterface
     {
         $media = $this->fileboardApi->getEntity($uuid);
         $this->fileboardApi->removeEntity($media);
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     /**
@@ -156,7 +156,7 @@ class Fileboard extends AbstractForm implements EditorInterface
     public function deleteAll()
     {
         $this->fileboardApi->removeAllFiles($this->content);
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     /**
@@ -168,7 +168,7 @@ class Fileboard extends AbstractForm implements EditorInterface
     {
         $entity = $this->fileboardApi->getEntity($uuid);
         $this->fileboardApi->moveUp($this->files, $entity);
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     /**
@@ -180,7 +180,7 @@ class Fileboard extends AbstractForm implements EditorInterface
     {
         $entity = $this->fileboardApi->getEntity($uuid);
         $this->fileboardApi->moveDown($this->files, $entity);
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     /**

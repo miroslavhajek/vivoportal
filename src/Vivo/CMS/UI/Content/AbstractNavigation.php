@@ -10,6 +10,7 @@ use Vivo\CMS\UI\Exception;
 use Vivo\CMS\Navigation\Page\Cms as CmsNavPage;
 use Vivo\CMS\UI\Component;
 use Vivo\Repository\Exception\EntityNotFoundException;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -38,12 +39,6 @@ abstract class AbstractNavigation extends Component
     protected $site;
 
     /**
-     * Navigation model (i.e. the content)
-     * @var Content
-     */
-    protected $navModel;
-
-    /**
      * Navigation
      * @var AbstractNavigationContainer
      */
@@ -56,7 +51,7 @@ abstract class AbstractNavigation extends Component
     protected $cache;
 
     /**
-     * Determinates if navigation have active document or not.
+     * Determines if navigation have active document or not.
      * @var bool
      */
     protected $hasActiveDocument = false;
@@ -76,30 +71,21 @@ abstract class AbstractNavigation extends Component
         $this->cache        = $cache;
     }
 
-    public function view()
+    public function attachListeners()
     {
-        $events = new \Zend\EventManager\EventManager();
-        $events->trigger('log', $this, array(
-            'message'   => sprintf('%s::view() %s PRE', get_class($this), $this->getPath()),
-            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
-
-        $viewModel  = $this->getViewModel();
-
-        $events->trigger('log', $this, array(
-            'message'   => sprintf('%s::view() %s POST', get_class($this), $this->getPath()),
-            'priority'  => \VpLogger\Log\Logger::PERF_FINER));
-        return $viewModel;
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerSetNavigation'));
     }
 
     /**
-     * Returns view model
-     * @return \Zend\View\Model\ModelInterface
+     * View listener
      */
-    protected function getViewModel()
+    public function viewListenerSetNavigation()
     {
         //Get navigation container either from cache or construct it
         if ($this->cache) {
-            $key        = $this->getCacheKey();
+            $key        = $this->getCacheKeyHash();
             $success    = null;
             $navigation = $this->cache->getItem($key, $success);
             if (!$success) {
@@ -111,8 +97,6 @@ abstract class AbstractNavigation extends Component
         }
         //Prepare view
         $this->getView()->navigation    = $navigation;
-        $viewModel  = parent::view();
-        return $viewModel;
     }
 
     /**
@@ -120,38 +104,7 @@ abstract class AbstractNavigation extends Component
      * @return string
      * @throws \Vivo\CMS\UI\Exception\RuntimeException
      */
-    protected function getCacheKey()
-    {
-        switch ($this->navModel->getType()) {
-            case \Vivo\CMS\Model\Content\Navigation::TYPE_ORIGIN:
-                if (is_null($this->navModel->getOrigin())) {
-                    //Origin not specified, use the current requested doc
-                    $originPath = $this->cmsEvent->getRequestedPath();
-                } else {
-                    //Origin specified
-                    $originPath = $this->navModel->getOrigin();
-                }
-                $keyParts   = array(
-                    'requested_path'    => $this->cmsEvent->getRequestedPath(),
-                    'origin_path'   => $originPath,
-                    'start_level'   => $this->navModel->getStartLevel(),
-                    'levels'        => $this->navModel->getLevels(),
-                    'include_root'  => $this->navModel->includeRoot(),
-                    'branch_only'   => $this->navModel->getBranchOnly(),
-                );
-                $key    = sha1(implode(',', $keyParts));
-                break;
-            case \Vivo\CMS\Model\Content\Navigation::TYPE_ENUM:
-                $concat = $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs());
-                $key    = sha1($concat);
-                break;
-            default:
-                throw new Exception\RuntimeException(sprintf("%s: Unsupported navigation type '%s'",
-                    __METHOD__, $this->navModel->getType()));
-                break;
-        }
-        return $key;
-    }
+    abstract protected function getCacheKeyHash();
 
     /**
      * Concatenates paths of enumerated docs into a single string
@@ -335,6 +288,17 @@ abstract class AbstractNavigation extends Component
             }
         }
         return $pages;
+    }
+
+    /**
+     * Hashes cache key
+     * @param string $key
+     * @return string
+     */
+    protected function hashCacheKey($key)
+    {
+        $hash   = hash('md4', $key);
+        return $hash;
     }
 }
 

@@ -33,16 +33,6 @@ class Content extends Entity implements ProvideTemplateInterface
      */
     protected $recursive;
 
-    /**
-     * Setting default values.
-     *
-     * @param string $path Entity path.
-     */
-    public function __construct($path = null)
-    {
-        parent::__construct($path);
-    }
-
     public function getState()
     {
         return $this->state;
@@ -60,8 +50,7 @@ class Content extends Entity implements ProvideTemplateInterface
      */
     public function getVersion()
     {
-        return ($p = strrpos($this->getPath(), '/')) ? substr(
-                        $this->getPath(), $p + 1) : 0;
+        return ($p = strrpos($this->getPath(), '/')) ? substr($this->getPath(), $p + 1) : 0;
     }
 
     /**
@@ -71,8 +60,7 @@ class Content extends Entity implements ProvideTemplateInterface
      */
     public function setVersion($version)
     {
-        $this->path = substr($this->getPath(), 0,
-                strrpos($this->getPath(), '/') + 1) . $version;
+        $this->path = substr($this->getPath(), 0, strrpos($this->getPath(), '/') + 1) . $version;
     }
 
     /**

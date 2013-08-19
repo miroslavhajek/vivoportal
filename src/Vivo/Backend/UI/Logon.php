@@ -40,7 +40,7 @@ class Logon extends AbstractForm
                     );
 
             if ($result) {
-                $this->events->trigger(new RedirectEvent());
+                $this->getEventManager()->trigger(new RedirectEvent());
             } else {
                 $this->view->logonError = 'Unable to login (wrong username or password or account is not active or no longer valid)';
             }
@@ -53,7 +53,7 @@ class Logon extends AbstractForm
     public function logoff()
     {
         $this->securityManager->removeUserPrincipal();
-        $this->events->trigger(new RedirectEvent());
+        $this->getEventManager()->trigger(new RedirectEvent());
     }
 
     /**

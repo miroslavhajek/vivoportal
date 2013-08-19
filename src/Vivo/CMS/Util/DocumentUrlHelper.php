@@ -35,18 +35,20 @@ class DocumentUrlHelper
 
     /**
      * Returns document url
-     * @param \Vivo\CMS\Model\Document $document
+     * @param \Vivo\CMS\Model\Folder $folder
      * @param array $options
      * @return string
      */
-    public function getDocumentUrl(Model\Document $document, array $options = array())
+    public function getDocumentUrl(Model\Folder $document, array $options = array())
     {
         $entityUrl = $this->cmsApi->getEntityRelPath($document);
         $params  = array(
             'path' => $entityUrl,
         );
         // configure url helper
-        $options['settings']['secured'] = (bool) $document->getSecured();
+        if ($document instanceof Model\Document) {
+            $options['settings']['secured'] = (bool) $document->getSecured();
+        }
 
         return $this->urlHelper->fromRoute('vivo/cms', $params, $options);
     }

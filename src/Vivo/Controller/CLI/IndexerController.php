@@ -84,9 +84,9 @@ class IndexerController extends AbstractCliController
      */
     public function clearAction()
     {
-        $this->indexer->deleteAllDocuments();
-        $output = "Attempted deletion of all documents from index";
-        return $output;
+        $this->consoleOutput    = new LineOutput(true);
+        $this->indexerApi->purge();
+        $this->consoleOutput->line('Indexer purged');
     }
 
     /**

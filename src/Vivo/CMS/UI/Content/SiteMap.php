@@ -7,6 +7,7 @@ use Vivo\CMS\Model\Document;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Content\SiteMap as SiteMapModel;
 use Vivo\CMS\UI\Exception;
+use Vivo\UI\ComponentEventInterface;
 
 use Zend\Navigation\AbstractContainer as AbstractNavigationContainer;
 use Zend\Navigation\Navigation as NavigationContainer;
@@ -18,18 +19,26 @@ use Zend\Cache\Storage\StorageInterface as Cache;
 class SiteMap extends AbstractNavigation
 {
     /**
-     * Constructor
-     * @param CmsApi $cmsApi
-     * @param DocumentApi $documentApi
-     * @param Site $site
-     * @param \Zend\Cache\Storage\StorageInterface $cache
+     * Navigation model (i.e. the content)
+     * @var SiteMapModel
      */
-    public function __construct(CmsApi $cmsApi, DocumentApi $documentApi, Site $site, Cache $cache = null)
+    protected $navModel;
+
+    /**
+     * Attach event listeners
+     */
+    public function attachListeners()
     {
-        parent::__construct($cmsApi, $documentApi, $site, $cache);
+        parent::attachListeners();
+        $eventManager   = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSetNavModel'));
     }
 
-    public function init()
+    /**
+     * Init listener - sets navigation model
+     * @throws \Vivo\CMS\UI\Exception\DomainException
+     */
+    public function initListenerSetNavModel()
     {
         if (!$this->content instanceof SiteMapModel) {
             throw new Exception\DomainException(
@@ -43,16 +52,17 @@ class SiteMap extends AbstractNavigation
      * @return string
      * @throws \Vivo\CMS\UI\Exception\RuntimeException
      */
-    protected function getCacheKey()
+    protected function getCacheKeyHash()
     {
         $keyParts = array(
+            'site_name'         => $this->site->getName(),
             'requested_path'    => $this->cmsEvent->getRequestedPath(),
-            'origin' => $this->navModel->getOrigin(),
-            'showDescription' => $this->navModel->getShowDescription(),
-            'includeRoot' => $this->navModel->getIncludeRoot(),
+            'origin'            => $this->navModel->getOrigin(),
+            'showDescription'   => $this->navModel->getShowDescription(),
+            'includeRoot'       => $this->navModel->getIncludeRoot(),
         );
-        $key = sha1(implode(',', $keyParts));
-        return $key;
+        $hash   = $this->hashCacheKey(implode(',', $keyParts));
+        return $hash;
     }
 
     /**
@@ -93,6 +103,7 @@ class SiteMap extends AbstractNavigation
 
     /**
      * Provides additional page options to CmsNavPage constructor
+     * @param \Vivo\CMS\Model\Document $doc
      * @return array
      */
     protected function getAdditionalPageOptions(Document $doc)
@@ -110,5 +121,4 @@ class SiteMap extends AbstractNavigation
     protected function allowListing(Document $doc) {
         return (bool) $doc->getAllowListingInSiteMap() === false;
     }
-
 }

@@ -10,11 +10,25 @@ use Vivo\UI;
  */
 class Item extends UI\Component implements UI\TabContainerItemInterface, UI\RibbonItemInterface
 {
-
+    /**
+     * @var string
+     */
     private $icon;
-    private $visible = true;
-    private $active = false;
-    private $enabled = true;
+
+    /**
+     * @var bool
+     */
+    private $visible    = true;
+
+    /**
+     * @var bool
+     */
+    private $active     = false;
+
+    /**
+     * @var bool
+     */
+    private $enabled    = true;
 
     /**
      * @var string
@@ -33,11 +47,11 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
      * @param string $icon
      * @param Ribbon $ribbon
      */
-    public function __construct($name, $label, $icon, Ribbon $ribbon = null)
+    public function __construct($name = null, $label = null, $icon = null, Ribbon $ribbon = null)
     {
         $this->setName($name);
-        $this->label = $label;
-        $this->icon = $icon;
+        $this->setLabel($label);
+        $this->setIcon($icon);
         $this->setRibbon($ribbon);
     }
 
@@ -45,7 +59,7 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
      * Sets ribbon.
      * @param Ribbon $ribbon
      */
-    public function setRibbon(Ribbon $ribbon)
+    public function setRibbon(Ribbon $ribbon = null)
     {
         $this->ribbon = $ribbon;
     }
@@ -63,7 +77,7 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
      *
      * @param string $label
      */
-    public function setLabel($label)
+    public function setLabel($label = null)
     {
         $this->label = $label;
     }
@@ -120,6 +134,15 @@ class Item extends UI\Component implements UI\TabContainerItemInterface, UI\Ribb
     public function isDisabled()
     {
         return !$this->isEnabled();
+    }
+
+    /**
+     * Sets the icon
+     * @param string $icon
+     */
+    public function setIcon($icon = null)
+    {
+        $this->icon = $icon;
     }
 
     public function getIcon()
