@@ -17,9 +17,9 @@ class DocTitleToPathFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['doc_title_to_path']['cache'])) {
+        if (isset($config['cache']['translit_doc_title_to_path'])) {
             $cacheManager   = $serviceLocator->get('Vivo\cache_manager');
-            $cache          = $cacheManager->get($config['transliterator']['doc_title_to_path']['cache']);
+            $cache          = $cacheManager->get($config['cache']['translit_doc_title_to_path']);
         } else {
             $cache      = null;
         }

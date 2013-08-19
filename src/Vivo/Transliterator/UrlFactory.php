@@ -17,9 +17,9 @@ class UrlFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['url']['cache'])) {
+        if (isset($config['cache']['translit_url'])) {
             $cacheManager   = $serviceLocator->get('Vivo\cache_manager');
-            $cache          = $cacheManager->get($config['transliterator']['url']['cache']);
+            $cache          = $cacheManager->get($config['cache']['translit_url']);
         } else {
             $cache      = null;
         }

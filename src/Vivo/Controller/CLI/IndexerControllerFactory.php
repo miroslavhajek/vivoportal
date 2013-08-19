@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service\Controller\CLI;
+namespace Vivo\Controller\CLI;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -7,7 +7,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 /**
  * Factory for CLI\Repository controller.
  */
-class CLIIndexerControllerFactory implements FactoryInterface
+class IndexerControllerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -21,7 +21,7 @@ class CLIIndexerControllerFactory implements FactoryInterface
         $indexerApi     = $sm->get('Vivo\CMS\Api\Indexer');
         $siteEvent      = $sm->get('site_event');
         $indexerEvents  = $sm->get('indexer_events');
-        $controller     = new \Vivo\Controller\CLI\IndexerController($indexer, $indexerApi, $siteEvent, $indexerEvents);
+        $controller     = new IndexerController($indexer, $indexerApi, $siteEvent, $indexerEvents);
         return $controller;
     }
 }

@@ -20,15 +20,10 @@ class OverviewFactory implements FactoryInterface
         /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
         $siteEvent   = $serviceLocator->get('site_event');
         $site        = $siteEvent->getSite();
-        $cmsConfig   = $serviceLocator->get('cms_config');
-        if (isset($cmsConfig['ui']['Vivo\UI\Content\Overview'])) {
-            $uiCompConfig   = $cmsConfig['ui']['Vivo\UI\Content\Overview'];
-        } else {
-            $uiCompConfig   = array();
-        }
-        if (isset($uiCompConfig['cache'])) {
-            $cacheMgr       = $serviceLocator->get('cache_manager');
-            $cache  = $cacheMgr->get($uiCompConfig['cache']);
+        $config     = $serviceLocator->get('config');
+        if (isset($config['cache']['overview'])) {
+            $cacheMgr   = $serviceLocator->get('cache_manager');
+            $cache      = $cacheMgr->get($config['cache']['overview']);
         } else {
             $cache  = null;
         }
