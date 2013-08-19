@@ -164,7 +164,7 @@ class Indexer implements IndexerInterface
     {
         //The reindexing may not rely on the indexer in any way!
         $pathComponents = array($site->getPath(), $path);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->repository->commit();
         //Deactivate watcher, otherwise all entities in the site will be stored in the watcher (=>high mem requirements)
         $this->watcher->isActive(false);
@@ -190,6 +190,16 @@ class Indexer implements IndexerInterface
         $this->watcher->isActive(true);
         $this->watcher->clear();
         return $count;
+    }
+
+    /**
+     * Purges the indexer database
+     * Removes all items from index
+     */
+    public function purge()
+    {
+        $this->indexer->deleteAllDocuments();
+        $this->indexer->commit();
     }
 
     /**

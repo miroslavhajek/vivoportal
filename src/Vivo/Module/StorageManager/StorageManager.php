@@ -109,9 +109,12 @@ class StorageManager
             foreach ($this->modulePaths as $moduleBasePath) {
                 $scan   = $this->storage->scan($moduleBasePath);
                 foreach ($scan as $item) {
-                    $modulePath     = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item), true);
-                    $moduleFilePath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, 'Module.php'), true);
-                    $moduleJsonPath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, $this->descriptorName), true);
+                    $modulePath     = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item),
+                                        true, false, false);
+                    $moduleFilePath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, 'Module.php'),
+                                        true, false, false);
+                    $moduleJsonPath = $this->pathBuilder->buildStoragePath(array($moduleBasePath, $item, $this->descriptorName),
+                                        true, false, false);
                     if ($this->storage->isObject($moduleFilePath)) {
                         $moduleJson = $this->getJsonContent($this->storage, $moduleJsonPath);
                         if ((!isset($moduleJson['name'])) || ($item != $moduleJson['name'])) {
@@ -274,7 +277,7 @@ class StorageManager
         }
         //TODO - Read module dependencies on libraries, throw an exception, if unsatisfied
         //Copy the module source to the module storage
-        $fullPath   = $this->pathBuilder->buildStoragePath(array($path, $moduleName), true);
+        $fullPath   = $this->pathBuilder->buildStoragePath(array($path, $moduleName), true, false, false);
         $this->storageUtil->copy($remoteStorage, $pathInRemoteStorage, $remotePathBuilder,
                                  $this->storage, $fullPath, $this->pathBuilder);
         //Reset the cached info about modules
@@ -407,7 +410,7 @@ class StorageManager
     public function getFullPathToFile($moduleName, $pathInModule)
     {
         $components = array($this->getPathToModule($moduleName), $pathInModule);
-        $fullPath   = $this->pathBuilder->buildStoragePath($components, true);
+        $fullPath   = $this->pathBuilder->buildStoragePath($components, true, false, false);
 //        if (!$this->storage->isObject($fullPath)) {
 //            throw new Exception\InvalidArgumentException(
 //                sprintf("%s: Path '%s' not found in module '%s'", __METHOD__, $pathInModule, $moduleName));

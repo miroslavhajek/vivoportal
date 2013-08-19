@@ -154,11 +154,8 @@ class ComponentTreeController implements EventManagerAwareInterface
     {
         foreach ($this->getTreeIterator() as $component){
             if ($component instanceof PersistableInterface){
-                $key = $this->createSessionKey($component);
-                $state = $this->session[$key];
-                $message = 'Load component: ' . $component->getPath(). ', state: ' . implode('--', (array) $state);
-                $this->events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINER));
+                $key    = $this->createSessionKey($component);
+                $state  = $this->session[$key];
                 $component->loadState($state);
             }
         }
@@ -171,11 +168,8 @@ class ComponentTreeController implements EventManagerAwareInterface
     {
         foreach ($this->getTreeIterator() as $component) {
             if ($component instanceof PersistableInterface){
-                $state = $component->saveState();
-                $key = $this->createSessionKey($component);
-                $message = 'Save component: ' . $component->getPath() . ', state: ' . implode('--', (array) $state);
-                $this->events->trigger('log', $this, array('message' => $message,
-                    'priority'=> \VpLogger\Log\Logger::PERF_FINER));
+                $state  = $component->saveState();
+                $key    = $this->createSessionKey($component);
                 $this->session[$key] = $state;
             }
         }

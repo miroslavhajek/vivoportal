@@ -180,32 +180,17 @@ class Repository implements RepositoryInterface
      */
     public function getEntity($path)
     {
-        //Log getEntity
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("getEntity '%s'", $path),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
-
-        $path   = $this->pathBuilder->sanitize($path);
         //Get entity from watcher
-        $entity = $this->watcher->get($path);
-        if ($entity) {
+        if ($entity = $this->watcher->get($path)) {
             return $entity;
         }
-        //Get current mtime of the entity from storage
-        $mtime  = $this->getStorageMtime($path);
-        if (!$mtime) {
-            throw new Exception\EntityNotFoundException(
-                sprintf("%s: No entity found at path '%s' (mtime)", __METHOD__, $path));
-        }
         //Get entity from cache
-        $entity = $this->getEntityFromCache($path, $mtime);
-        if ($entity) {
+        if ($entity = $this->getEntityFromCache($path)) {
             $this->watcher->add($entity);
             return $entity;
         }
         //Get the entity from storage
-        $entity = $this->getEntityFromStorage($path);
-        if ($entity) {
+        if ($entity = $this->getEntityFromStorage($path)) {
             return $entity;
         }
         throw new Exception\EntityNotFoundException(
@@ -232,49 +217,38 @@ class Repository implements RepositoryInterface
      * Looks up an entity in cache and returns it
      * If the entity does not exist in cache or its mtime is older than the specified mtime, returns null
      * @param string $path
-     * @param int|null $minMtime Retrieve only when null or when the mtime of the entity in the cache is newer than this
+     * @throws Exception\EntityNotFoundException
      * @throws Exception\RuntimeException
      * @return \Vivo\CMS\Model\Entity|null
      */
-    protected function getEntityFromCache($path, $minMtime = null)
+    protected function getEntityFromCache($path)
     {
+        $entity = null;
         if ($this->cache) {
-            $key            = md5($path);
-            //Return null when mtime in the cache is older than the specified mtime
-            if (!is_null($minMtime)) {
-                //$minMtime specified
-                $meta   = $this->cache->getMetadata($key);
-                if ($meta !== false) {
-                    //Item found in cache
-                    if (!array_key_exists('mtime', $meta)) {
-                        //TODO - remove this dependency on the 'mtime' metadata - not all cache adapters support it
-                        throw new Exception\RuntimeException(
-                            sprintf("%s: The cache storage adapter does not return the 'mtime' metadata", __METHOD__));
-                    }
-                    $cacheMtime = $meta['mtime'];
-                    if ($minMtime > $cacheMtime) {
-                        //mtime in cache is older than the specified mtime
-                        $this->removeEntityFromCache($path, true);
-                        $this->events->trigger('log', $this,
-                            array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
-                                'priority'   => \VpLogger\Log\Logger::DEBUG));
-                        return null;
-                    }
-                } else {
-                    //Item not found in cache
-                    return null;
-                }
+            //Get current mtime of the entity from storage
+            if (!$minMtime  = $this->getStorageMtime($path)) {
+                throw new Exception\EntityNotFoundException(
+                    sprintf("%s: No entity found at path '%s'", __METHOD__, $path));
             }
+            $key            = $this->hashPathForCache($path);
             $cacheSuccess   = null;
-            $entity         = $this->cache->getItem($key, $cacheSuccess);
+            $item           = $this->cache->getItem($key, $cacheSuccess);
             if ($cacheSuccess) {
-                //TODO - Log cache hit
+                $cacheMtime = $item['mtime'];
+                if ($minMtime > $cacheMtime) {
+                    //mtime in cache is older than the specified mtime, cache item is stale
+                    $this->removeEntityFromCache($path, true);
+                    $this->events->trigger('log', $this,
+                        array ('message'    => sprintf("Stale item removed from cache '%s'", $path),
+                            'priority'   => \VpLogger\Log\Logger::DEBUG));
+                } else {
+                    //mtime is ok
+                    //TODO - Log cache hit
+                    $entity = $item['entity'];
+                }
             } else {
                 //TODO - Log cache miss
-    //            echo '<br>Cache miss: ' . $path;
             }
-        } else {
-            $entity = null;
         }
         return $entity;
     }
@@ -291,8 +265,13 @@ class Repository implements RepositoryInterface
                 __METHOD__));
         }
 //        $key    = $entity->getUuid();
-        $key    = md5($entity->getPath());
-        $this->cache->setItem($key, $entity);
+        $key    = $this->hashPathForCache($entity->getPath());
+        $mtime  = $this->getStorageMtime($entity->getPath());
+        $item   = array(
+            'mtime'     => $mtime,
+            'entity'    => $entity,
+        );
+        $this->cache->setItem($key, $item);
     }
 
     /**
@@ -307,19 +286,13 @@ class Repository implements RepositoryInterface
             $descendants    = $this->getChildren($path, false, true);
             foreach ($descendants as $descendant) {
                 $descPath   = $descendant->getPath();
-                $key    = md5($descPath);
+                $key        = $this->hashPathForCache($descPath);
                 $this->cache->removeItem($key);
-                $this->events->trigger('log', $this,
-                    array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $descPath, $key),
-                        'priority'   => \VpLogger\Log\Logger::DEBUG));
             }
         }
         //Remove the entity
-        $key            = md5($path);
+        $key    = $this->hashPathForCache($path);
         $this->cache->removeItem($key);
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("Entity removed from cache '%s' ('%s')", $path, $key),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
     }
 
     /**
@@ -331,19 +304,16 @@ class Repository implements RepositoryInterface
      */
     public function getEntityFromStorage($path)
     {
-        //Log storage access
-        $this->events->trigger('log', $this,
-            array ('message'    => sprintf("getEntityFromStorage '%s'", $path),
-                'priority'   => \VpLogger\Log\Logger::DEBUG));
-
-        $path           = $this->pathBuilder->sanitize($path);
         $pathComponents = array($path, self::ENTITY_FILENAME);
-        $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $fullPath       = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         if (!$this->storage->isObject($fullPath)) {
             //Entity not found in storage, remove entity from watcher and cache to eliminate possible inconsistencies
             $this->watcher->remove($path);
             if ($this->cache) {
-                $this->removeEntityFromCache($path, true);
+                //Do not try to remove descendants from cache - some invalid paths (e.g. /) might cause reading of
+                //all entities / searching the complete repository which might result in an exception when there is
+                //an entity which cannot be unserialized
+                $this->removeEntityFromCache($path, false);
             }
             return null;
         }
@@ -389,7 +359,7 @@ class Repository implements RepositoryInterface
             return null;
         }
         array_pop($pathElements);
-        $parentFolderPath   = $this->pathBuilder->buildStoragePath($pathElements, true);
+        $parentFolderPath   = $this->pathBuilder->buildStoragePath($pathElements, true, false, false);
         $parentFolder       = $this->getEntity($parentFolderPath);
 		return $parentFolder;
 	}
@@ -413,8 +383,7 @@ class Repository implements RepositoryInterface
         $path   = null;
         if ($spec instanceof PathInterface) {
             $path   = $this->getAndCheckPath($spec);
-        }
-        if (is_string($spec)) {
+        } elseif (is_string($spec)) {
             $path   = $spec;
         }
         if (is_null($path)) {
@@ -434,8 +403,7 @@ class Repository implements RepositoryInterface
         //}
         foreach ($childPaths as $childPath) {
             try {
-                $entity = $this->getEntity($childPath);
-                if ($entity/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
+                if ($entity = $this->getEntity($childPath)/* && ($entity instanceof CMS\Model\Site || CMS::$securityManager->authorize($entity, 'Browse', false))*/) {
                     $children[] = $entity;
                 }
             } catch (Exception\EntityNotFoundException $e) {
@@ -488,7 +456,7 @@ class Repository implements RepositoryInterface
 		$path = $this->getAndCheckPath($folder);
 		foreach ($this->storage->scan($path) as $name) {
             $pathElements   = array($path, $name, self::ENTITY_FILENAME);
-            $childPath      = $this->pathBuilder->buildStoragePath($pathElements);
+            $childPath      = $this->pathBuilder->buildStoragePath($pathElements, true, false, false);
 			if ($this->storage->contains($childPath)) {
 				return true;
 			}
@@ -526,7 +494,7 @@ class Repository implements RepositoryInterface
 	{
         $entityPath                 = $this->getAndCheckPath($entity);
         $pathComponents             = array($entityPath, $name);
-		$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true);
+		$path                       = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->saveStreams[$path]   = $stream;
 	}
 
@@ -540,7 +508,7 @@ class Repository implements RepositoryInterface
 	{
         $entityPath             = $this->getAndCheckPath($entity);
         $pathComponents         = array($entityPath, $name);
-        $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->saveData[$path]  = $data;
 	}
 
@@ -554,7 +522,7 @@ class Repository implements RepositoryInterface
 	{
         $entityPath     = $this->getAndCheckPath($entity);
         $pathComponents = array($entityPath, $name);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $stream         = $this->storage->read($path);
 		return $stream;
 	}
@@ -571,7 +539,7 @@ class Repository implements RepositoryInterface
         $names = $this->storage->scan($entityPath);
 
         foreach ($names as $name) {
-            $path = $this->pathBuilder->buildStoragePath(array($entityPath, $name));
+            $path = $this->pathBuilder->buildStoragePath(array($entityPath, $name, false, false));
             if($name != self::ENTITY_FILENAME && $this->storage->isObject($path)) {
                 $resources[] = $name;
             }
@@ -594,7 +562,7 @@ class Repository implements RepositoryInterface
         }
         $entityPath     = $this->getAndCheckPath($entity);
         $pathComponents = array($entityPath, $name);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $data           = $this->storage->get($path);
 		return $data;
 	}
@@ -612,10 +580,9 @@ class Repository implements RepositoryInterface
             throw new Exception\InvalidArgumentException(sprintf("%s: Resource name cannot be empty", __METHOD__));
         }
         $entityPath     = $this->getAndCheckPath($entity);
-        $pathComponents = array($entityPath, $name);
-        $path           = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path           = $this->pathBuilder->buildStoragePath(array($entityPath, $name), true, false, false);
         $mtime          = $this->storage->mtime($path);
-        if ($mtime == false) {
+        if ($mtime === false) {
             //Log not found resource
             $this->events->trigger('log', $this,  array(
                 'message'   => sprintf("Resource '%s' not found with entity '%s'", $name, $entity->getPath()),
@@ -639,7 +606,7 @@ class Repository implements RepositoryInterface
         }
 
         $entityPath = $this->getAndCheckPath($entity);
-        $path       = $this->pathBuilder->buildStoragePath(array($entityPath, $name), true);
+        $path       = $this->pathBuilder->buildStoragePath(array($entityPath, $name), true, false, false);
         return $this->storage->size($path);
     }
 
@@ -672,7 +639,7 @@ class Repository implements RepositoryInterface
 	{
         $entityPath             = $this->getAndCheckPath($entity);
         $pathComponents         = array($entityPath, $name);
-        $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true);
+        $path                   = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->deletePaths[]    = $path;
 	}
 
@@ -807,13 +774,13 @@ class Repository implements RepositoryInterface
      */
     public function getDescendantsFromStorage($path, $suppressUnserializationErrors = false)
     {
-        $path           = $this->pathBuilder->sanitize($path);
+//        $path           = $this->pathBuilder->sanitize($path);
         /** @var $descendants Entity[] */
         $descendants    = array();
         $erroneous      = array();
         $names = $this->storage->scan($path);
         foreach ($names as $name) {
-            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true, false, false);
             if (!$this->storage->isObject($childPath)) {
                 $entity     = null;
                 try {
@@ -870,14 +837,14 @@ class Repository implements RepositoryInterface
             //a) Entities
             foreach ($this->deleteEntityPaths as $path) {
                 $tmpPath                    = $this->pathBuilder->buildStoragePath(
-                                                    array($this->tmpPathInStorage, uniqid('del-')), true);
+                                                    array($this->tmpPathInStorage, uniqid('del-')), true, false, false);
                 $this->tmpDelFiles[$path]   = $tmpPath;
                 $this->storage->move($path, $tmpPath);
             }
             //b) Resources
             foreach ($this->deletePaths as $path) {
                 $tmpPath                    = $this->pathBuilder->buildStoragePath(
-                                                    array($this->tmpPathInStorage, uniqid('del-')), true);
+                                                    array($this->tmpPathInStorage, uniqid('del-')), true, false, false);
                 $this->tmpDelFiles[$path]   = $tmpPath;
                 $this->storage->move($path, $tmpPath);
             }
@@ -885,7 +852,7 @@ class Repository implements RepositoryInterface
             //a) Entity
             foreach ($this->saveEntities as $entity) {
                 $pathElements           = array($entity->getPath(), self::ENTITY_FILENAME);
-                $path                   = $this->pathBuilder->buildStoragePath($pathElements, true);
+                $path                   = $this->pathBuilder->buildStoragePath($pathElements, true, false, false);
                 $tmpPath                = $path . '.' . uniqid('tmp-');
                 $this->tmpFiles[$path]  = $tmpPath;
                 //Create entity clone which will be serialized and stored - this is to prevent changes to the entity
@@ -1048,7 +1015,6 @@ class Repository implements RepositoryInterface
      */
     protected function getStorageMtime($path)
     {
-        $path   = $this->pathBuilder->sanitize($path);
         $mtime  = $this->storage->mtime($path);
         if ($mtime === false) {
             $mtime  = null;
@@ -1067,11 +1033,22 @@ class Repository implements RepositoryInterface
         $names = $this->storage->scan($path);
         sort($names); // sort it in a natural way
         foreach ($names as $name) {
-            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true);
+            $childPath = $this->pathBuilder->buildStoragePath(array($path, $name), true, false, false);
             if (!$this->storage->isObject($childPath)) {
                 $childEntityPaths[] = $childPath;
             }
         }
         return $childEntityPaths;
+    }
+
+    /**
+     * Hashes entity path to be used as cache key
+     * @param string $path
+     * @return string
+     */
+    protected function hashPathForCache($path)
+    {
+        $hash   = hash('md4', $path);
+        return $hash;
     }
 }

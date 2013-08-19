@@ -17,9 +17,13 @@ interface PathBuilderInterface
      * @param array $elements
      * @param bool $leadingSeparator If true, prepends storage path separator
      * @param bool $trailingSeparator If true, appends storage path separator
+     * @param bool $transliterate Should the resulting path be transliterated to contain only allowed chars?
      * @return string
      */
-    public function buildStoragePath(array $elements, $leadingSeparator = true, $trailingSeparator = false);
+    public function buildStoragePath(array $elements,
+                                     $leadingSeparator = true,
+                                     $trailingSeparator = false,
+                                     $transliterate = true);
 
     /**
      * Returns an array of 'atomic' storage path components

@@ -16,8 +16,7 @@ class ComponentCreatorFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $diProxy    = $serviceLocator->get('di_proxy');
-        $service    = new ComponentCreator($serviceLocator, $diProxy);
+        $service    = new ComponentCreator($serviceLocator);
         return $service;
     }
 }

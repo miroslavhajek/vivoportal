@@ -32,7 +32,7 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function __construct(array $options = array())
     {
-        $this->options  = array_merge($this->options, $options);
+        $this->options          = array_merge($this->options, $options);
     }
 
     /**
@@ -61,7 +61,9 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
         $cacheName  = $this->getCacheName($name, $requestedName);
-        $cache      = StorageFactory::factory($this->options[$cacheName]);
+        $options    = $this->options[$cacheName];
+        $this->createFolderForFsCache($options);
+        $cache      = StorageFactory::factory($options);
         return $cache;
     }
 
@@ -81,5 +83,35 @@ class CacheAbstractFactory implements AbstractFactoryInterface
             return $canonicalName;
         }
         return null;
+    }
+
+    /**
+     * If the options specify a file system cache, checks if the cache folder exists and tries to create it if not
+     * @param array $options
+     * @throws Exception\RuntimeException
+     */
+    protected function createFolderForFsCache(array $options)
+    {
+        if (isset($options['adapter']['name'])
+                && strtolower($options['adapter']['name'])  == 'filesystem'
+                && isset($options['adapter']['options']['cache_dir'])) {
+            $cacheDir   = $options['adapter']['options']['cache_dir'];
+            if (!is_dir($cacheDir)) {
+                if (!is_file($cacheDir)) {
+                    //Cache dir does not exist, create it
+                    $result = mkdir($cacheDir, 0777, true);
+                    if (!$result) {
+                        throw new Exception\RuntimeException(
+                            sprintf("%s: Creating cache directory '%s' failed",
+                                __METHOD__, $cacheDir));
+                    }
+                } else {
+                    //A file with the same name already exists
+                    throw new Exception\RuntimeException(
+                        sprintf("%s: Cache directory '%s' cannot be created; a file with the same name exists",
+                            __METHOD__, $cacheDir));
+                }
+            }
+        }
     }
 }

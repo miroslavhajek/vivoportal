@@ -132,12 +132,9 @@ class FrontController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
-        //Performance log
-        $this->events->trigger('log', $this,
-            array ('message'    => 'FrontController - Dispatch start',
-                   'priority'   => Logger::PERF_BASE));
+        $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch'));
 
-        $this->request = $request;
+        $this->request  = $request;
         $this->response = $response;
         $this->attachListeners();
 
@@ -150,6 +147,7 @@ class FrontController implements DispatchableInterface,
         //dispatch resource files
         $resourceResponse = $this->dispatchResource($this->cmsEvent);
         if ($resourceResponse instanceof Response) {
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
             return $resourceResponse;
         }
 
@@ -164,15 +162,7 @@ class FrontController implements DispatchableInterface,
                         return ($result instanceof Model\Document);
                     });
             $document = $eventResult->last();
-
             $this->cmsEvent->setDocument($document);
-
-            //Performance log
-            if($document instanceof Model\Document) {
-                $this->events->trigger('log', $this,
-                    array ('message'    => sprintf("FrontController - Document fetched (%s)", $document->getPath()),
-                           'priority'   => Logger::PERF_BASE));
-            }
 
             //perform redirects
             $this->events->trigger(CMSEvent::EVENT_REDIRECT, $this->getCmsEvent(),
@@ -181,6 +171,7 @@ class FrontController implements DispatchableInterface,
                         return $redirector->isRedirect();
                     });
             if ($redirector->isRedirect()) {
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
                 return $response;
             }
 
@@ -200,26 +191,19 @@ class FrontController implements DispatchableInterface,
             }
 
             //create ui component tree
+            $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-create_ui_tree'));
             $eventResult = $this->events->trigger(CMSEvent::EVENT_CREATE, $this->cmsEvent,
                     function ($result) {
                         //stop event propagation when UI is fetched
                         return ($result instanceof Component);
                     });
             $this->cmsEvent->setRoot($eventResult->last());
-
-            //Performance log
-            $this->events->trigger('log', $this,
-                array ('message'    => 'FrontController - UI component tree created',
-                       'priority'   => Logger::PERF_BASE));
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-create_ui_tree'));
 
             //perform tree operations
+            $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-dispatch_ui_tree'));
             $result = $this->dispatchTree($this->cmsEvent);
-
-            //Performance log
-            $this->events->trigger('log', $this,
-                array ('message'    => 'FrontController - UI Component tree dispatched',
-                       'priority'   => Logger::PERF_BASE));
-
+            $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-dispatch_ui_tree'));
 
             if ($redirector->isRedirect()) {
                 return $response;
@@ -227,13 +211,9 @@ class FrontController implements DispatchableInterface,
 
             if ($result instanceof ModelInterface) {
                 //render view model
+                $this->events->trigger('log:start', $this, array('subject' => 'front_controller:dispatch-render_view'));
                 $this->events->trigger(CMSEvent::EVENT_RENDER, $this->cmsEvent);
-
-                //Performance log
-                $this->events->trigger('log', $this,
-                    array ('message'    => 'FrontController - View model rendered',
-                           'priority'   => Logger::PERF_BASE));
-
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch-render_view'));
             } elseif ($result instanceof InputStreamInterface) {
                 //skip rendering phase
                 $response->setInputStream($result);
@@ -241,7 +221,6 @@ class FrontController implements DispatchableInterface,
                 //skip rendering phase
                 $response->setContent($result);
             }
-
         } catch (\Exception $e) {
             $this->cmsEvent->setException($e);
 
@@ -274,6 +253,7 @@ class FrontController implements DispatchableInterface,
             //perform tree operations
             $result = $this->dispatchTree($this->cmsEvent);
             if ($redirector->isRedirect()) {
+                $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
                 return $response;
             }
 
@@ -294,12 +274,7 @@ class FrontController implements DispatchableInterface,
                 $response->setStatusCode(\Zend\Http\Response::STATUS_CODE_500);
             }
         }
-
-        //Performance log
-        $this->events->trigger('log', $this,
-            array ('message'    => 'FrontController - Dispatch end',
-                   'priority'   => Logger::PERF_BASE));
-
+        $this->events->trigger('log:stop', $this, array('subject' => 'front_controller:dispatch'));
         return $response;
     }
 
@@ -533,7 +508,7 @@ class FrontController implements DispatchableInterface,
         if ($params->count() == 1) {
             $paramsArray    = $params->toArray();
             $first          = reset($paramsArray);
-            if (isset($first['act']) && is_string($first['act'])) {
+            if (is_array($first) && isset($first['act']) && is_string($first['act'])) {
                 $action = $first['act'];
                 return $action;
             }

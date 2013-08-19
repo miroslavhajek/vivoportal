@@ -96,7 +96,7 @@ class ResourceManager
             //Retrieve the resource manually
             $resourceBase   = $this->getFolderForType($type);
             $components     = array($resourceBase, $pathToResource);
-            $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
+            $pathInModule   = $this->pathBuilder->buildStoragePath($components, false, false, false);
             try {
                 $resource       = $this->moduleStorageManager->getFileData($moduleName, $pathInModule);
             } catch (Exception\FileNotFoundException $e) {
@@ -218,7 +218,7 @@ class ResourceManager
     {
         $resourceBase   = $this->getFolderForType($type);
         $components     = array($resourceBase, $pathToResource);
-        $pathInModule   = $this->pathBuilder->buildStoragePath($components, false);
+        $pathInModule   = $this->pathBuilder->buildStoragePath($components, false, false, false);
         return $pathInModule;
     }
 }

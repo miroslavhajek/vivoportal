@@ -4,6 +4,8 @@ namespace Vivo\Storage;
 use Vivo\Storage\Exception;
 use Vivo\IO;
 
+use Zend\EventManager\EventManager;
+
 /**
  * Implementation of the virtual file system over local filesystem.
  */
@@ -14,6 +16,18 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 * @var string $root
 	 */
 	private $root;
+
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * Storage path separator
+     * @var string
+     */
+    protected $storagePathSeparator;
 
 	/**
 	 * @param array $options Options.
@@ -27,6 +41,7 @@ class LocalFileSystemStorage extends AbstractStorage {
             throw new Exception\InvalidArgumentException(sprintf('%s: PathBuilder object is not defined', __METHOD__));
         }
         $this->setPathBuilder($options['path_builder']);
+        $this->storagePathSeparator = $this->pathBuilder->getStoragePathSeparator();
 		$root               = $this->normalizePath($options['root']);
 		if(!is_dir($root)) {
 			throw new Exception\InvalidArgumentException(sprintf('Root %s is not a directory', $root));
@@ -61,13 +76,15 @@ class LocalFileSystemStorage extends AbstractStorage {
         }
         //Only paths starting with the path separator (i.e. explicitly starting from the Storage root)
         //are currently supported
-        if (substr($storagePath, 0, 1) != $this->pathBuilder->getStoragePathSeparator()) {
+        if (substr($storagePath, 0, 1) != $this->storagePathSeparator) {
             throw new Exception\InvalidArgumentException(
                 sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $storagePath));
         }
-        $elements   = $this->pathBuilder->getStoragePathComponents($storagePath);
-        array_unshift($elements, $this->root);
-        $fsPath     = implode('/', $elements);
+        //FS path is built directly w/o PathBuilder to optimize performance
+//        $elements   = $this->pathBuilder->getStoragePathComponents($storagePath);
+//        array_unshift($elements, $this->root);
+//        $fsPath     = implode('/', $elements);
+        $fsPath     = $this->root . '/' . $storagePath;
         return $fsPath;
 	}
 
@@ -142,7 +159,7 @@ class LocalFileSystemStorage extends AbstractStorage {
 	 */
 	public function get($path) {
 		if ($this->isObject($path)) {
-			$absPath = $this->getFsPath($path);
+			$absPath    = $this->getFsPath($path);
 			return file_get_contents($absPath);
 		}
 		else {
@@ -286,7 +303,7 @@ class LocalFileSystemStorage extends AbstractStorage {
         //The file will be also created beforehand for consistency reasons
         $components = $this->pathBuilder->getStoragePathComponents($path);
         array_pop($components);
-        $storageDir = $this->pathBuilder->buildStoragePath($components, true);
+        $storageDir = $this->pathBuilder->buildStoragePath($components, true, false, false);
         $fsFullPath = $this->getFsPath($path);
         $this->mkdir($storageDir);
         $this->touch($path);
@@ -308,5 +325,26 @@ class LocalFileSystemStorage extends AbstractStorage {
             $size   = null;
         }
         return $size;
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }

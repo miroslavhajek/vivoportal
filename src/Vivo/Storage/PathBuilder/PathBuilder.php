@@ -3,6 +3,7 @@ namespace Vivo\Storage\PathBuilder;
 
 use Vivo\Storage\Exception;
 use Vivo\Transliterator\TransliteratorInterface;
+use Zend\EventManager\EventManager;
 
 /**
  * PathBuilder
@@ -21,6 +22,25 @@ class PathBuilder implements PathBuilderInterface
      * @var TransliteratorInterface
      */
     protected $pathTransliterator;
+
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    protected $eventManager;
+
+    /**
+     * Path components cache
+     * @var array
+     */
+    protected $componentsCache  = array();
+
+    /**
+     * Cache for sanitized paths
+     * @var array
+     */
+    protected $sanitizeCache    = array();
+
 //
 //    /**
 //     * Character used to replace illegal path characters
@@ -58,25 +78,30 @@ class PathBuilder implements PathBuilderInterface
      * @param array $elements
      * @param bool $leadingSeparator If true, prepends storage path separator
      * @param bool $trailingSeparator If true, appends storage path separator
+     * @param bool $transliterate Should the resulting path be transliterated to contain only allowed chars?
      * @return string
      */
-    public function buildStoragePath(array $elements, $leadingSeparator = true, $trailingSeparator = false)
+    public function buildStoragePath(array $elements,
+                                     $leadingSeparator = true,
+                                     $trailingSeparator = false,
+                                     $transliterate = true)
     {
         $components = array();
-        $separator  = $this->getStoragePathSeparator();
         //Get atomic components
         foreach ($elements as $element) {
             $elementComponents  = $this->getStoragePathComponents($element);
             $components         = array_merge($components, $elementComponents);
         }
-        $path   = implode($separator, $components);
+        $path   = implode($this->separator, $components);
         if ($leadingSeparator) {
-            $path   = $separator . $path;
+            $path   = $this->separator . $path;
         }
-        if ($trailingSeparator && ($path != $separator)) {
-            $path   = $path . $separator;
+        if ($trailingSeparator && ($path != $this->separator)) {
+            $path   = $path . $this->separator;
         }
-        $path   = $this->pathTransliterator->transliterate($path);
+        if ($transliterate) {
+            $path   = $this->pathTransliterator->transliterate($path);
+        }
         return $path;
     }
 
@@ -87,15 +112,21 @@ class PathBuilder implements PathBuilderInterface
      */
     public function getStoragePathComponents($path)
     {
-        $return = array();
-        foreach (explode($this->getStoragePathSeparator(), $path) as $value) {
-            $value = trim($value);
-            if ($value != '') {
-                $return[] = $value;
+        $hash       = hash('md4', $path);
+        if (array_key_exists($hash, $this->componentsCache)) {
+            $components = $this->componentsCache[$hash];
+        } else {
+            $raw          = explode($this->separator, $path);
+            $components   = array();
+            foreach ($raw as $value) {
+                $value  = trim($value);
+                if ($value != '') {
+                    $components[] = $value;
+                }
             }
+            $this->componentsCache[$hash]   = $components;
         }
-
-        return $return;
+        return $components;
     }
 
     /**
@@ -105,14 +136,25 @@ class PathBuilder implements PathBuilderInterface
      */
     public function sanitize($path)
     {
-        $absolute   = $this->isAbsolute($path);
-        $components = $this->getStoragePathComponents($path);
-        $separator  = $this->getStoragePathSeparator();
-        $sanitized  = implode($separator, $components);
-        if ($absolute) {
-            $sanitized  = $separator . $sanitized;
+        $eventManager   = $this->getEventManager();
+        $eventManager->trigger('log:start', $this, array(
+            'subject'  => 'path_builder:sanitize',
+        ));
+        $hash       = hash('md4', $path);
+        if (array_key_exists($hash, $this->sanitizeCache)) {
+            $sanitized = $this->sanitizeCache[$hash];
+        } else {
+            $components = $this->getStoragePathComponents($path);
+            $sanitized  = implode($this->separator, $components);
+            if ($this->isAbsolute($path)) {
+                $sanitized  = $this->separator . $sanitized;
+            }
+            $sanitized  = $this->pathTransliterator->transliterate($sanitized);
+            $this->sanitizeCache[$hash] = $sanitized;
         }
-        $sanitized  = $this->pathTransliterator->transliterate($sanitized);
+        $eventManager->trigger('log:stop', $this, array(
+            'subject'  => 'path_builder:sanitize',
+        ));
         return  $sanitized;
     }
 
@@ -128,9 +170,9 @@ class PathBuilder implements PathBuilderInterface
         array_pop($components);
         if (count($components) > 0) {
             $absolute   = $this->isAbsolute($path);
-            $dir        = $this->buildStoragePath($components, $absolute);
+            $dir        = $this->buildStoragePath($components, $absolute, false, false);
         } else {
-            $dir        = $this->getStoragePathSeparator();
+            $dir        = $this->separator;
         }
         return $dir;
     }
@@ -173,5 +215,26 @@ class PathBuilder implements PathBuilderInterface
                             ? $path[$i] : $this->replacementChar;
         }
         return $cleaned;
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (!$this->eventManager) {
+            $this->setEventManager(new EventManager());
+        }
+        return $this->eventManager;
+    }
+
+    /**
+     * Sets Event manager
+     * @param \Zend\EventManager\EventManager $eventManager
+     */
+    public function setEventManager(EventManager $eventManager)
+    {
+        $this->eventManager = $eventManager;
     }
 }
