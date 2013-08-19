@@ -21,9 +21,13 @@ class Cache
     /**#@+
      * Cache subject name
      */
-    const CACHE_SUBJECT_REPOSITORY  = 'repository';
-    const CACHE_SUBJECT_NAVIGATION  = 'navigation';
-    const CACHE_SUBJECT_OVERVIEW    = 'overview';
+    const CACHE_SUBJECT_REPOSITORY                  = 'repository';
+    const CACHE_SUBJECT_NAVIGATION                  = 'navigation';
+    const CACHE_SUBJECT_OVERVIEW                    = 'overview';
+    const CACHE_SUBJECT_TRANSLIT_PATH               = 'translit_path';
+    const CACHE_SUBJECT_TRANSLIT_URL                = 'translit_url';
+    const CACHE_SUBJECT_DOC_TITLE_TO_PATH           = 'translit_doc_title_to_path';
+    const CACHE_SUBJECT_MB_STRING_COMPARE           = 'translit_mb_string_compare';
     /**#@-*/
 
     /**
@@ -43,9 +47,13 @@ class Cache
      * @var array
      */
     protected $usedCaches   = array(
-        self::CACHE_SUBJECT_REPOSITORY  => null,
-        self::CACHE_SUBJECT_NAVIGATION  => null,
-        self::CACHE_SUBJECT_OVERVIEW    => null,
+        self::CACHE_SUBJECT_REPOSITORY          => null,
+        self::CACHE_SUBJECT_NAVIGATION          => null,
+        self::CACHE_SUBJECT_OVERVIEW            => null,
+        self::CACHE_SUBJECT_TRANSLIT_PATH       => null,
+        self::CACHE_SUBJECT_TRANSLIT_URL        => null,
+        self::CACHE_SUBJECT_DOC_TITLE_TO_PATH   => null,
+        self::CACHE_SUBJECT_MB_STRING_COMPARE   => null,
     );
 
     /**
