@@ -17,9 +17,9 @@ class MbStringCompareFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['mb_string_compare']['cache'])) {
+        if (isset($config['cache']['translit_mb_string_compare'])) {
             $cacheManager   = $serviceLocator->get('Vivo\cache_manager');
-            $cache          = $cacheManager->get($config['transliterator']['mb_string_compare']['cache']);
+            $cache          = $cacheManager->get($config['cache']['translit_mb_string_compare']);
         } else {
             $cache      = null;
         }

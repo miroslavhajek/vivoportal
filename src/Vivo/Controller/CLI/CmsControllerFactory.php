@@ -1,14 +1,13 @@
 <?php
-namespace Vivo\Service\Controller\CLI;
+namespace Vivo\Controller\CLI;
 
-use Zend\Mvc\Controller\ControllerManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Factory for CLI\Cms controller.
  */
-class CLICmsControllerFactory implements FactoryInterface
+class CmsControllerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -24,8 +23,7 @@ class CLICmsControllerFactory implements FactoryInterface
         $repository     = $sm->get('repository');
         $uuidGenerator  = $sm->get('uuid_generator');
         $indexerApi     = $sm->get('Vivo\CMS\Api\Indexer');
-        $controller     = new \Vivo\Controller\CLI\CmsController($cmsApi, $siteApi, $siteEvent, $repository,
-                                                                 $uuidGenerator, $indexerApi);
+        $controller     = new CmsController($cmsApi, $siteApi, $siteEvent, $repository, $uuidGenerator, $indexerApi);
         return $controller;
     }
 }

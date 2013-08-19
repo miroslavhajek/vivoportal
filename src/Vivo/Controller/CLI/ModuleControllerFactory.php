@@ -1,14 +1,13 @@
 <?php
-namespace Vivo\Service\Controller\CLI;
+namespace Vivo\Controller\CLI;
 
-use Zend\Mvc\Controller\ControllerManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * Factory for CLI\Module controller.
  */
-class CLIModuleControllerFactory implements FactoryInterface
+class ModuleControllerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -22,8 +21,7 @@ class CLIModuleControllerFactory implements FactoryInterface
         $remoteModule           = $sm->get('remote_module');
         $repository             = $sm->get('repository');
         $moduleApi              = $sm->get('Vivo\CMS\Api\Module');
-        $controller             = new \Vivo\Controller\CLI\ModuleController($moduleStorageManager, $remoteModule,
-                                                                            $repository, $moduleApi);
+        $controller             = new ModuleController($moduleStorageManager, $remoteModule, $repository, $moduleApi);
         return $controller;
     }
 }

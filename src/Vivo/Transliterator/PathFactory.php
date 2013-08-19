@@ -17,9 +17,9 @@ class PathFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $config     = $serviceLocator->get('config');
-        if (isset($config['transliterator']['path']['cache'])) {
+        if (isset($config['cache']['translit_path'])) {
             $cacheManager   = $serviceLocator->get('Vivo\cache_manager');
-            $cache          = $cacheManager->get($config['transliterator']['path']['cache']);
+            $cache          = $cacheManager->get($config['cache']['translit_path']);
         } else {
             $cache      = null;
         }
