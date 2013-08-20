@@ -7,7 +7,7 @@ use Vivo\CMS\Model;
  * Logon
  * Logon form model
  */
-class Logon extends Model\Content implements Model\SymRefDataExchangeInterface
+class Logon extends Model\Content
 {
     /**
      * Redirect to this URL after successful login
@@ -79,39 +79,5 @@ class Logon extends Model\Content implements Model\SymRefDataExchangeInterface
     public function getLogonUrl()
     {
         return $this->logonUrl;
-    }
-
-    /**
-     * Exchange internal values containing symbolic refs / URLs from provided array
-     * @param  array $data
-     * @return void
-     */
-    public function exchangeArraySymRef(array $data)
-    {
-        //Error URL
-        if (array_key_exists('error_url', $data)) {
-            $this->setErrorUrl($data['error_url']);
-        }
-        //Logoff URL
-        if (array_key_exists('logoff_url', $data)) {
-            $this->setLogoffUrl($data['logoff_url']);
-        }
-        //Logon URL
-        if (array_key_exists('logon_url', $data)) {
-            $this->setLogonUrl($data['logon_url']);
-        }
-    }
-
-    /**
-     * Return an array representation of the object's properties containing symbolic refs / URLs
-     * @return array
-     */
-    public function getArrayCopySymRef()
-    {
-        return array(
-            'error_url'  => $this->getErrorUrl(),
-            'logoff_url' => $this->getLogoffUrl(),
-            'logon_url'  => $this->getLogonUrl(),
-        );
     }
 }

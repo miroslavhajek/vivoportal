@@ -6,7 +6,7 @@ use Vivo\CMS\Model;
 /**
  * VIVO model represents overview documents by path and other criteria on front-end.
  */
-class Overview extends Model\Content implements Model\SymRefDataExchangeInterface
+class Overview extends Model\Content
 {
 
     const TYPE_DYNAMIC = 'DYNAMIC';
@@ -148,34 +148,5 @@ class Overview extends Model\Content implements Model\SymRefDataExchangeInterfac
     public function setOverviewItems(array $overviewItems)
     {
         $this->overviewItems = $overviewItems;
-    }
-
-    /**
-     * Exchange internal values containing symbolic refs / URLs from provided array
-     * @param  array $data
-     * @return void
-     */
-    public function exchangeArraySymRef(array $data)
-    {
-        //Overview criteria
-        if (array_key_exists('overview_criteria', $data)) {
-            $this->setOverviewCriteria($data['overview_criteria']);
-        }
-        //Overview path
-        if (array_key_exists('overview_path', $data)) {
-            $this->setOverviewPath($data['overview_path']);
-        }
-    }
-
-    /**
-     * Return an array representation of the object's properties containing symbolic refs / URLs
-     * @return array
-     */
-    public function getArrayCopySymRef()
-    {
-        return array(
-            'overview_criteria' => $this->getOverviewCriteria(),
-            'overview_path'     => $this->getOverviewPath(),
-        );
     }
 }

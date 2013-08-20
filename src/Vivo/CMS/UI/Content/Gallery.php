@@ -3,6 +3,7 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\Api\Content\Gallery as GalleryApi;
+use Vivo\UI\ComponentEventInterface;
 
 /**
  * UI component for content gallery.
@@ -32,10 +33,16 @@ class Gallery extends Component
         $this->galleryApi = $galleryApi;
     }
 
-    public function init()
+    public function attachListeners()
     {
-        parent::init();
+        parent::attachListeners();
 
+        $this->getEventManager()->attach(ComponentEventInterface::EVENT_INIT,
+                array($this, 'initListenerGalleryInit'));
+    }
+
+    public function initListenerGalleryInit()
+    {
         $this->files = $this->galleryApi->getList($this->content);
         $this->info = $this->galleryApi->getInformationsAsArray($this->content);
     }

@@ -16,11 +16,11 @@ class MetadataManagerFactory implements FactoryInterface
         $resolver   = $serviceLocator->get('module_name_resolver');
         $config     = $serviceLocator->get('config');
         if (isset($config['metadata_manager']) && is_array($config['metadata_manager'])) {
-            $mmOptions  = $config['metadata_manager'];
+            $mmOptions   = $config['metadata_manager'];
         } else {
-            $mmOptions  = array();
+            $mmOptions   = array();
         }
-        $manager = new MetadataManager($serviceLocator, $resource, $resolver, $mmOptions);
+        $manager    = new MetadataManager($serviceLocator, $resource, $resolver, $mmOptions);
         return $manager;
     }
 }

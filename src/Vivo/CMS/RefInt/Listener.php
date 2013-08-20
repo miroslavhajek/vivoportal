@@ -5,12 +5,9 @@ use Vivo\Repository\EventInterface as RepositoryEventInterface;
 use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Api\Exception;
 
-use Zend\EventManager\EventManagerInterface;
-
 /**
  * Class Listener
  * Listens to the repository events and converts URLs and symbolic references in entities being saved / retrieved
- * @package Vivo\CMS\RefInt
  */
 class Listener
 {
