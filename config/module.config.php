@@ -211,7 +211,7 @@ return array(
             'remote_module'             => 'Vivo\Service\RemoteModuleFactory',
             'module_storage_manager'    => 'Vivo\Service\ModuleStorageManagerFactory',
             'module_manager_factory'    => 'Vivo\Service\ModuleManagerFactoryFactory',
-            'site_manager'              => 'Vivo\Service\SiteManagerFactory',
+            'site_manager'              => 'Vivo\SiteManager\SiteManagerFactory',
             'run_site_manager_listener' => 'Vivo\Service\RunSiteManagerListenerFactory',
             'lucene'                    => 'Vivo\Service\LuceneFactory',
             'storage_util'              => 'Vivo\Service\StorageUtilFactory',
@@ -439,10 +439,9 @@ return array(
             'condition_initializer' => 'Vivo\InputFilter\Condition\Initializer',
         ),
     ),
-//    'di' => array(
-//    ),
     'metadata_manager' => array(
-        'config_path' => __DIR__ . '/../config/metadata',
+        'config_path'       => __DIR__ . '/../config/metadata',
+        'custom_properties' => array(),
     ),
 
     'transliterator'    => array(

@@ -8,17 +8,19 @@ class MetadataManagerFactory implements FactoryInterface
 {
     /**
      * @param  ServiceLocatorInterface $serviceLocator
-     * @return \Vivo\Metadata\Metadata\MetadataManager
+     * @return MetadataManager
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $resource = $serviceLocator->get('module_resource_manager');
-        $resolver = $serviceLocator->get('module_name_resolver');
-        $config = $serviceLocator->get('config');
-        $config = $config['metadata_manager'];
-
-        $manager = new MetadataManager($serviceLocator, $resource, $resolver, $config);
-
+        $resource   = $serviceLocator->get('module_resource_manager');
+        $resolver   = $serviceLocator->get('module_name_resolver');
+        $config     = $serviceLocator->get('config');
+        if (isset($config['metadata_manager']) && is_array($config['metadata_manager'])) {
+            $mmOptions   = $config['metadata_manager'];
+        } else {
+            $mmOptions   = array();
+        }
+        $manager    = new MetadataManager($serviceLocator, $resource, $resolver, $mmOptions);
         return $manager;
     }
 }
