@@ -25,6 +25,12 @@ class Cms extends AbstractPage
     protected $document;
 
     /**
+     * Is the page disabled?
+     * @var bool
+     */
+    protected $disabled     = false;
+
+    /**
      * Sets the document
      * @param \Vivo\CMS\Model\Document $document
      */
@@ -81,5 +87,23 @@ class Cms extends AbstractPage
     public function getHref()
     {
         return $this->sitePath;
+    }
+
+    /**
+     * Sets if the page is disabled
+     * @param boolean $disabled
+     */
+    public function setDisabled($disabled)
+    {
+        $this->disabled = (bool) $disabled;
+    }
+
+    /**
+     * Returns if the page is disabled
+     * @return boolean
+     */
+    public function getDisabled()
+    {
+        return $this->disabled;
     }
 }
