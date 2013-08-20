@@ -44,13 +44,13 @@ class Component implements ComponentInterface
      * Component Event manager
      * @var EventManagerInterface
      */
-    protected $eventManager;
+    private $eventManager;
 
     /**
      * Component Event
      * @var ComponentEventInterface
      */
-    protected $event;
+    private $event;
 
     /**
      * Array of attached listeners
