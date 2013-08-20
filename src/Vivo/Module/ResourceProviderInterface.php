@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\Module;
 
-use Vivo\IO\FileInputStream;
-
 /**
  * ResourceProviderInterface
  * Modules implementing this interface control access to their resources themselves
@@ -22,7 +20,7 @@ interface ResourceProviderInterface
      * Returns an input stream for the resource
      * @param string $type
      * @param string $pathToResource
-     * @return FileInputStream
+     * @return \Vivo\IO\FileInputStream
      * @throws \Vivo\Module\Exception\ResourceNotFoundException
      */
     public function getResourceStream($type, $pathToResource);
