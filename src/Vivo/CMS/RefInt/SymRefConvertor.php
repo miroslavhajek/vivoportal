@@ -2,7 +2,6 @@
 namespace Vivo\CMS\RefInt;
 
 use Vivo\CMS\Api\CMS as CmsApi;
-use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Model\Site;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
@@ -16,27 +15,27 @@ class SymRefConvertor implements SymRefConvertorInterface
 {
     /**
      * CMS Api
-     * @var CmsApi
+     * @var \Vivo\CMS\Api\CMS
      */
     protected $cmsApi;
 
     /**
      * Uuid convertor
-     * @var UuidConvertorInterface
+     * @var \Vivo\CMS\UuidConvertor\UuidConvertorInterface
      */
     protected $uuidConvertor;
 
     /**
      * Current site
-     * @var Site
+     * @var \Vivo\CMS\Model\Site
      */
     protected $site;
 
     /**
      * Constructor
-     * @param CmsApi $cmsApi
-     * @param UuidConvertorInterface $uuidConvertor
-     * @param Site $site
+     * @param \Vivo\CMS\Api\CMS $cmsApi
+     * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
+     * @param \Vivo\CMS\Model\Site $site
      */
     public function __construct(CmsApi $cmsApi, UuidConvertorInterface $uuidConvertor, Site $site)
     {
@@ -54,8 +53,7 @@ class SymRefConvertor implements SymRefConvertorInterface
     {
         if (is_string($value)) {
             //String
-            $re     = '/(\.|)(' . self::PATTERN_URL . ')/';
-            $value  = preg_replace_callback($re, array($this, 'replaceUrl'), $value);
+            $value = preg_replace_callback('/(\.|)('.self::PATTERN_URL.')/', array($this, 'replaceUrl'), $value);
         } elseif (is_array($value)) {
             //Array
             foreach ($value as $key => $val) {
@@ -81,8 +79,7 @@ class SymRefConvertor implements SymRefConvertorInterface
     {
         if (is_string($value)) {
             //String
-            $re     = '/\[ref:(' . self::PATTERN_UUID . ')\]/i';
-            $value  = preg_replace_callback($re, array($this, 'replaceUuid'), $value);
+            $value = preg_replace_callback('/\[ref:('.self::PATTERN_UUID.')\]/i', array($this, 'replaceUuid'), $value);
         } elseif (is_array($value)) {
             //Array
             foreach ($value as $key => $val) {
@@ -108,7 +105,7 @@ class SymRefConvertor implements SymRefConvertorInterface
     {
         $url    = $matches[2];
         try {
-            /** @var $doc Entity */
+            /** @var $doc \Vivo\CMS\Model\Entity */
             $doc    = $this->cmsApi->getSiteEntity($url, $this->site);
             $symRef = sprintf('[ref:%s]', $doc->getUuid());
         } catch (EntityNotFoundException $e) {
