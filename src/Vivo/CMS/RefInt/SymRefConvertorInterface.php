@@ -21,12 +21,12 @@ interface SymRefConvertorInterface
      * @param string|array|object $value
      * @return string|array|object The same object / value
      */
-    function convertUrlsToReferences($value);
+    public function convertUrlsToReferences($value);
 
     /**
      * Converts symbolic references to URLs
      * @param string|array|object $value
      * @return string|array|object $value The same object / value
      */
-    function convertReferencesToURLs($value);
+    public function convertReferencesToURLs($value);
 }
