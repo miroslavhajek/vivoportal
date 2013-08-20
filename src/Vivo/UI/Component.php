@@ -50,7 +50,7 @@ class Component implements ComponentInterface
      * Component Event
      * @var ComponentEventInterface
      */
-    protected $event;
+    private $event;
 
     /**
      * Array of attached listeners
