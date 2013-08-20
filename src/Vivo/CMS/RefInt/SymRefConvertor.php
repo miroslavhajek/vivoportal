@@ -4,7 +4,6 @@ namespace Vivo\CMS\RefInt;
 use Vivo\CMS\Api\CMS as CmsApi;
 use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Model\Site;
-use Vivo\CMS\Model\SymRefDataExchangeInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
 
@@ -48,10 +47,11 @@ class SymRefConvertor implements SymRefConvertorInterface
 
     /**
      * Converts URLs to symbolic references
-     * @param string|array|SymRefDataExchangeInterface $value
-     * @return string|array|SymRefDataExchangeInterface The same object / value.
+     * @param string|array|object $value
+     * @return string|array|object The same object / value.
      */
-    function convertUrlsToReferences($value) {
+    public function convertUrlsToReferences($value)
+    {
         if (is_string($value)) {
             //String
             $re     = '/(\.|)(' . self::PATTERN_URL . ')/';
@@ -61,23 +61,24 @@ class SymRefConvertor implements SymRefConvertorInterface
             foreach ($value as $key => $val) {
                 $value[$key] = $this->convertUrlsToReferences($val);
             }
-        } elseif (is_object($value) && ($value instanceof SymRefDataExchangeInterface)) {
+        } elseif (is_object($value)) {
             //Object
-            $data   = $value->getArrayCopySymRef();
-            foreach ($data as $dName => $dValue) {
-                $data[$dName]   = $this->convertUrlsToReferences($dValue);
+            $ref = new \ReflectionObject($value);
+            foreach ($ref->getProperties() as $prop) {
+                $prop->setAccessible(true);
+                $prop->setValue($value, $this->convertUrlsToReferences($prop->getValue($value)));
             }
-            $value->exchangeArraySymRef($data);
         }
         return $value;
     }
 
     /**
      * Converts symbolic references to URLs
-     * @param string|array|SymRefDataExchangeInterface $value
-     * @return string|array|SymRefDataExchangeInterface $value The same object / value
+     * @param string|array|object $value
+     * @return string|array|object $value The same object / value
      */
-    function convertReferencesToURLs($value) {
+    public function convertReferencesToURLs($value)
+    {
         if (is_string($value)) {
             //String
             $re     = '/\[ref:(' . self::PATTERN_UUID . ')\]/i';
@@ -87,13 +88,13 @@ class SymRefConvertor implements SymRefConvertorInterface
             foreach ($value as $key => $val) {
                 $value[$key] = $this->convertReferencesToURLs($val);
             }
-        } elseif (is_object($value) && ($value instanceof SymRefDataExchangeInterface)) {
+        } elseif (is_object($value)) {
             //Object
-            $data   = $value->getArrayCopySymRef();
-            foreach ($data as $dName => $dValue) {
-                $data[$dName]   = $this->convertReferencesToURLs($dValue);
+            $ref = new \ReflectionObject($value);
+            foreach ($ref->getProperties() as $prop) {
+                $prop->setAccessible(true);
+                $prop->setValue($value, $this->convertReferencesToURLs($prop->getValue($value)));
             }
-            $value->exchangeArraySymRef($data);
         }
         return $value;
     }

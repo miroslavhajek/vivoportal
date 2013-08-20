@@ -1,11 +1,8 @@
 <?php
 namespace Vivo\CMS\RefInt;
 
-use Vivo\CMS\Model\SymRefDataExchangeInterface;
-
 /**
  * Interface SymRefConvertorInterface
- * @package Vivo\CMS\RefInt
  */
 interface SymRefConvertorInterface
 {
@@ -21,15 +18,15 @@ interface SymRefConvertorInterface
 
     /**
      * Converts URLs to symbolic references
-     * @param string|array|SymRefDataExchangeInterface $value
-     * @return string|array|SymRefDataExchangeInterface The same object / value
+     * @param string|array|object $value
+     * @return string|array|object The same object / value
      */
     function convertUrlsToReferences($value);
 
     /**
      * Converts symbolic references to URLs
-     * @param string|array|SymRefDataExchangeInterface $value
-     * @return string|array|SymRefDataExchangeInterface $value The same object / value
+     * @param string|array|object $value
+     * @return string|array|object $value The same object / value
      */
     function convertReferencesToURLs($value);
 }

@@ -485,39 +485,4 @@ class Document extends Folder
     {
         return $this->injectComponentViewModelToLayout;
     }
-
-    /**
-     * Exchange internal values containing symbolic refs / URLs from provided array
-     * @param  array $data
-     * @return void
-     */
-    public function exchangeArraySymRef(array $data)
-    {
-        //Layout
-        if (array_key_exists('layout', $data)) {
-            $this->setLayout($data['layout']);
-        }
-        //Internal notice
-        if (array_key_exists('internal_notice', $data)) {
-            $this->setInternalNotice($data['internal_notice']);
-        }
-        //URL
-        if (array_key_exists('url', $data)) {
-            $this->setUri($data['url']);
-        }
-        parent::exchangeArraySymRef($data);
-    }
-
-    /**
-     * Return an array representation of the object's properties containing symbolic refs / URLs
-     * @return array
-     */
-    public function getArrayCopySymRef()
-    {
-        $data                       = parent::getArrayCopySymRef();
-        $data['layout']             = $this->getLayout();
-        $data['internal_notice']    = $this->getInternalNotice();
-        $data['url']                = $this->getUri();
-        return $data;
-    }
 }
