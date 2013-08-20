@@ -26,9 +26,9 @@ class RepositoryFactory implements FactoryInterface
         $events                 = $serviceLocator->get('repository_events');
         $uuidConvertor          = $serviceLocator->get('uuid_convertor');
         //Get repo cache
-        if (isset($config['repository']['cache']) && is_string($config['repository']['cache'])) {
+        if (isset($config['cache']['repository']) && is_string($config['cache']['repository'])) {
             $cacheManager       = $serviceLocator->get('cache_manager');
-            $cache              = $cacheManager->get($config['repository']['cache']);
+            $cache              = $cacheManager->get($config['cache']['repository']);
         } else {
             $cache              = null;
         }

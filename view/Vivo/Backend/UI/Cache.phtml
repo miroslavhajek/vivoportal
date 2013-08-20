@@ -1,0 +1,78 @@
+<?php
+    $formType = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
+?>
+
+<div id="explorer">
+	<div class="explorer_content explorer_content_with_tree">
+		<div class="tabMainContent">
+			<div class="tabMainContentHolder">
+                <h1><?php echo $this->escapeHtml($this->translate('Cache manager')) ?></h1>
+                <table style="border: 1px solid #000000">
+                    <tr>
+                        <th style="padding: 1px 5px;"><?php echo $this->tae('Cache subject') ?></th>
+                        <th style="padding: 1px 5px;"><?php echo $this->tae('Cache name') ?></th>
+                        <th style="padding: 1px 5px;"><?php echo $this->tae('Total space MB') ?></th>
+                        <th style="padding: 1px 5px;"><?php echo $this->tae('Used space MB') ?></th>
+                        <th style="padding: 1px 5px;"><?php echo $this->tae('Available space MB') ?></th>
+                    </tr>
+                    <?php
+                    foreach ($this->cacheSpaceInfo as $subject => $spaceInfo) {
+                        echo '<tr>';
+                        //Cache subject
+                        echo sprintf('<td style="padding: 1px 5px;">%s</td>', $this->escapeHtml($subject));
+                        if (is_null($spaceInfo)) {
+                            //Cache not used for the subject
+                            echo sprintf('<td style="padding: 1px 5px;" colspan="3">%s</td>', $this->tae('Cache not used'));
+                        } else {
+                            //Cache name
+                            echo sprintf('<td style="padding: 1px 5px;">%s</td>', $this->escapeHtml($spaceInfo['name']));
+                            //Total space
+                            if (is_null($spaceInfo['total'])) {
+                                $total  = 'N/A';
+                            } else {
+                                $total  = $spaceInfo['total'];
+                            }
+                            echo sprintf('<td style="padding: 1px 5px; text-align: right">%s</td>', $this->escapeHtml($total));
+                            //Used space
+                            if (is_null($spaceInfo['used'])) {
+                                $used  = 'N/A';
+                            } else {
+                                $used  = $spaceInfo['used'];
+                            }
+                            echo sprintf('<td style="padding: 1px 5px; text-align: right">%s</td>', $this->escapeHtml($used));
+                            //Available space
+                            if (is_null($spaceInfo['available'])) {
+                                $available  = 'N/A';
+                            } else {
+                                $available  = $spaceInfo['available'];
+                            }
+                            echo sprintf('<td style="padding: 1px 5px; text-align: right">%s</td>', $this->escapeHtml($available));
+                        }
+                        echo '</tr>';
+                    }
+                    ?>
+                </table>
+                <?php
+                    if (isset($this->flushAllSubjectCachesResult) && is_array($this->flushAllSubjectCachesResult)) {
+                        echo '<br/><h2>' . $this->tae('Flush results:') . '</h2>';
+                        foreach ($this->flushAllSubjectCachesResult as $subject => $flushResult) {
+                            echo '<br/>' . $this->escapeHtml($subject) . ': ';
+                            if ($flushResult === true) {
+                                echo $this->tae('Flushed OK');
+                            } elseif ($flushResult === false) {
+                                echo $this->tae('Flush failed!');
+                            } elseif (is_null($flushResult)) {
+                                echo $this->tae('Cache not used');
+                            } else {
+                                echo $this->tae('Unexpected result!');
+                            }
+                        }
+                    }
+                ?>
+                <?php
+                    echo $this->formTwb($form, $formType);
+                ?>
+			</div>
+		</div>
+	</div>
+</div>

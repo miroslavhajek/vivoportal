@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service\Controller\CLI;
+namespace Vivo\Controller\CLI;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -7,7 +7,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 /**
  * Factory for CLI\Setup controller
  */
-class CLISetupControllerFactory implements FactoryInterface
+class SetupControllerFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -16,12 +16,12 @@ class CLISetupControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm             = $serviceLocator->getServiceLocator();
+        $sm                     = $serviceLocator->getServiceLocator();
         /** @var $dbProviderCore \Vivo\Service\DbProviderInterface */
-        $dbProviderCore = $sm->get('db_provider_core');
-        $zdba           = $dbProviderCore->getZendDbAdapter();
+        $dbProviderCore         = $sm->get('db_provider_core');
+        $zdba                   = $dbProviderCore->getZendDbAdapter();
         $dbTableNameProvider    = $sm->get('db_table_name_provider');
-        $controller     = new \Vivo\Controller\CLI\SetupController($zdba, $dbTableNameProvider);
+        $controller             = new SetupController($zdba, $dbTableNameProvider);
         return $controller;
     }
 }

@@ -226,6 +226,7 @@ return array(
             'Vivo\CMS\Api\Indexer'      => 'Vivo\CMS\Api\IndexerFactory',
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
             'Vivo\CMS\Api\Util'         => 'Vivo\CMS\Api\UtilFactory',
+            'Vivo\CMS\Api\Cache'        => 'Vivo\CMS\Api\CacheFactory',
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
             'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
@@ -316,18 +317,17 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'cli_info'      => 'Vivo\Controller\CLI\InfoController',
+            'cli_info'                  => 'Vivo\Controller\CLI\InfoController',
         ),
         'factories' => array(
             'cms_front_controller'      => 'Vivo\CMS\FrontControllerFactory',
             'resource_front_controller' => 'Vivo\Controller\ResourceFrontControllerFactory',
-            'cli_module'                => 'Vivo\Service\Controller\CLI\CLIModuleControllerFactory',
-            'cli_repository'            => 'Vivo\Service\Controller\CLI\CLIRepositoryControllerFactory',
-            'cli_cms'                   => 'Vivo\Service\Controller\CLI\CLICmsControllerFactory',
-            'cli_indexer'               => 'Vivo\Service\Controller\CLI\CLIIndexerControllerFactory',
-            'cli_setup'                 => 'Vivo\Service\Controller\CLI\CLISetupControllerFactory',
+            'backend_controller'        => 'Vivo\Backend\BackendControllerFactory',
+            'cli_module'                => 'Vivo\Controller\CLI\ModuleControllerFactory',
+            'cli_cms'                   => 'Vivo\Controller\CLI\CmsControllerFactory',
+            'cli_indexer'               => 'Vivo\Controller\CLI\IndexerControllerFactory',
+            'cli_setup'                 => 'Vivo\Controller\CLI\SetupControllerFactory',
             'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
-            'backend_controller'         => 'Vivo\Backend\BackendControllerFactory',
         ),
     ),
     'cms_front_controller' => array(
@@ -373,6 +373,7 @@ return array(
             'container_component'           => 'Vivo\View\Helper\ContainerComponent',
             'overview_title'                => 'Vivo\View\Helper\OverviewTitle',
             'vivo_invalid_form_elements'    => 'Vivo\View\Helper\InvalidFormElements',
+            'tae'                           => 'Vivo\View\Helper\Tae',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
@@ -1299,10 +1300,41 @@ return array(
                         ),
                     ),
                 ),
-
+                'cache' => array(
+                    'options' => array(
+                        'route'    => 'cache [<action>]',
+                        'defaults' => array(
+                            'controller' => 'cli_cache',
+                            'action'     => 'default',
+                        ),
+                    ),
+                ),
+//                'cache_' => array(
+//                    'options' => array(
+//                        'route'    => 'util crawl <host> <service>',
+//                        'defaults' => array(
+//                            'controller' => 'cli_util',
+//                            'action'     => 'crawl',
+//                        ),
+//                    ),
+//                ),
             ),
         ),
     ),
+
+    //Configuration of caches used for individual cache subjects
+    //Use global/local configs to set-up caches
+    //To turn cache off, set it to null
+    'cache' => array(
+        'repository'                    => null,
+        'navigation'                    => null,
+        'overview'                      => null,
+        'translit_path'                 => null,
+        'translit_url'                  => null,
+        'translit_doc_title_to_path'    => null,
+        'translit_mb_string_compare'    => null,
+    ),
+
     'cms'      => array(
         //this config key is reserved for merged cms configuration
         //default values and structure are in cms.config.php

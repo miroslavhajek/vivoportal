@@ -33,6 +33,7 @@ return array(
             'Vivo\Backend\UI\ModulesPanel'                    => __DIR__.'/../view/Vivo/Backend/UI/ModulesPanel.phtml',
             'Vivo\Backend\UI\SiteSelector'                    => __DIR__.'/../view/Vivo/Backend/UI/SiteSelector.phtml',
             'Vivo\Backend\UI\Site'                            => __DIR__.'/../view/Vivo/Backend/UI/Site.phtml',
+            'Vivo\Backend\UI\Cache'                           => __DIR__.'/../view/Vivo/Backend/UI/Cache.phtml',
             'Vivo\UI\TabContainer'                            => __DIR__.'/../view/Vivo/Backend/UI/TabContainerMultiContent.phtml',
             'Vivo\UI\Ribbon'                                  => __DIR__.'/../view/Vivo/Backend/UI/TabContainerRibbon.phtml',
         ),
@@ -159,6 +160,12 @@ return array(
                 'title' => 'Site',
                 'componentClass' => 'Vivo\CMS\UI\Blank',
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
+            ),
+            'cache' => array (
+                'name' => 'cache',
+                'title' => 'Cache',
+                'componentClass' => 'Vivo\Backend\UI\Cache',
+                'icon'  => '.Vivo.resource/backend/img/icons/24x24/down.png',
             ),
             'blank' => array (
                 'name' => 'blank',
