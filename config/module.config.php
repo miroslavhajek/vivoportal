@@ -242,7 +242,7 @@ return array(
             'indexer_field_helper'      => 'Vivo\Service\IndexerFieldHelperFactory',
             'indexer_query_parser'      => 'Vivo\Service\IndexerQueryParserFactory',
             'module_name_resolver'      => 'Vivo\Service\ModuleNameResolverFactory',
-            'metadata_manager'          => 'Vivo\Service\MetadataManagerFactory',
+            'metadata_manager'          => 'Vivo\Metadata\MetadataManagerFactory',
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
             'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',

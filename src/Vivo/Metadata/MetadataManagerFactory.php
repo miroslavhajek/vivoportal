@@ -1,7 +1,6 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Metadata;
 
-use Vivo\Metadata\MetadataManager;
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
