@@ -7,7 +7,7 @@ use Vivo\CMS\Model;
  * Class SiteMap
  * @package Vivo\CMS\Model\Content
  */
-class SiteMap extends Model\Content implements Model\SymRefDataExchangeInterface
+class SiteMap extends Model\Content
 {
     /**
      * Path of an entity which is the origin for the sitemap tree calculation
@@ -85,26 +85,4 @@ class SiteMap extends Model\Content implements Model\SymRefDataExchangeInterface
     {
         $this->includeRoot = $includeRoot;
     }
-
-    /**
-     * Exchange internal values containing symbolic refs / URLs from provided array
-     * @param  array $data
-     * @return void
-     */
-    public function exchangeArraySymRef(array $data)
-    {
-        if (array_key_exists('origin', $data)) {
-            $this->setOrigin($data['origin']);
-        }
-    }
-
-    /**
-     * Return an array representation of the object's properties containing symbolic refs / URLs
-     * @return array
-     */
-    public function getArrayCopySymRef()
-    {
-        return array('origin' => $this->getOrigin());
-    }
-
 }

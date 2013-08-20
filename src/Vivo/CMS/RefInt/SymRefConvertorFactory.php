@@ -1,7 +1,6 @@
 <?php
 namespace Vivo\CMS\RefInt;
 
-use Vivo\SiteManager\Event\SiteEvent;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
 
@@ -18,7 +17,7 @@ class SymRefConvertorFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $cmsApi         = $serviceLocator->get('Vivo\CMS\Api\CMS');
-        /** @var $siteEvent SiteEvent */
+        /** @var $siteEvent \Vivo\SiteManager\Event\SiteEvent */
         $siteEvent      = $serviceLocator->get('site_event');
         $uuidConvertor  = $serviceLocator->get('uuid_convertor');
         $site           = $siteEvent->getSite();

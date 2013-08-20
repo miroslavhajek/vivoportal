@@ -8,7 +8,7 @@ use Vivo\CMS\Exception;
  * Class Navigation
  * @package Vivo\CMS\Model\Content
  */
-class Navigation extends Model\Content implements Model\SymRefDataExchangeInterface
+class Navigation extends Model\Content
 {
     /**
      * Navigation type ORIGIN
@@ -287,34 +287,5 @@ class Navigation extends Model\Content implements Model\SymRefDataExchangeInterf
     public function getLimit()
     {
         return $this->limit;
-    }
-
-    /**
-     * Exchange internal values containing symbolic refs / URLs from provided array
-     * @param  array $data
-     * @return void
-     */
-    public function exchangeArraySymRef(array $data)
-    {
-        //Root
-        if (array_key_exists('origin', $data)) {
-            $this->setOrigin($data['origin']);
-        }
-        //Enumerated docs
-        if (array_key_exists('enumeratedDocs', $data)) {
-            $this->setEnumeratedDocs($data['enumeratedDocs']);
-        }
-    }
-
-    /**
-     * Return an array representation of the object's properties containing symbolic refs / URLs
-     * @return array
-     */
-    public function getArrayCopySymRef()
-    {
-        return array(
-            'origin'         => $this->getOrigin(),
-            'enumeratedDocs' => $this->getEnumeratedDocs(),
-        );
     }
 }
