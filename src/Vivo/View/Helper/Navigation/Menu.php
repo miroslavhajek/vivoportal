@@ -201,6 +201,10 @@ class Menu extends ZfViewHelperMenu
         if ($isActive) {
             $liClasses[]    = 'active';
         }
+        //Disabled
+        if ($page->get('disabled')) {
+            $liClasses[]    = 'disabled';
+        }
         if (count($liClasses)) {
             $liClass    = sprintf(' class="%s"', implode(' ', $liClasses));
         } else {
@@ -241,15 +245,15 @@ class Menu extends ZfViewHelperMenu
         );
 
         // does page have a href?
-        $href = $page->getHref();
-        if ($href) {
+        $href       = $page->getHref();
+        $disabled   = $page->get('disabled');
+        if ($href && !$disabled) {
             $element = 'a';
             $attribs['href'] = $href;
             $attribs['target'] = $page->getTarget();
         } else {
             $element = 'span';
         }
-
         $html = '<' . $element . $this->htmlAttribs($attribs) . '><span>';
         if ($escapeLabel === true) {
             $escaper = $this->view->plugin('escapeHtml');
