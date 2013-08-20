@@ -5,12 +5,12 @@ use Vivo\SiteManager\Event\SiteEventInterface;
 use Vivo\SiteManager\Exception;
 use Vivo\Module\ModuleManagerFactory;
 use Vivo\Module\StorageManager\StorageManager as ModuleStorageManager;
+use Vivo\Metadata\MetadataManager;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\ListenerAggregateInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
-use Zend\Di\Config as DiConfig;
 use Zend\ServiceManager\Config as SmConfig;
 
 /**
@@ -42,18 +42,27 @@ class LoadModulesListener implements ListenerAggregateInterface
     protected $moduleStorageManager;
 
     /**
+     * MetadataManager
+     * @var MetadataManager
+     */
+    protected $metadataManager;
+
+    /**
      * Constructor
      * @param \Vivo\Module\ModuleManagerFactory $moduleManagerFactory
      * @param \Zend\ServiceManager\ServiceManager $sm
      * @param ModuleStorageManager $moduleStorageManager
+     * @param \Vivo\Metadata\MetadataManager $metadataManager
      */
     public function __construct(ModuleManagerFactory $moduleManagerFactory,
                                 ServiceManager $sm,
-                                ModuleStorageManager $moduleStorageManager)
+                                ModuleStorageManager $moduleStorageManager,
+                                MetadataManager $metadataManager)
     {
         $this->moduleManagerFactory = $moduleManagerFactory;
         $this->serviceManager       = $sm;
         $this->moduleStorageManager = $moduleStorageManager;
+        $this->metadataManager      = $metadataManager;
     }
 
     /**
@@ -117,6 +126,8 @@ class LoadModulesListener implements ListenerAggregateInterface
         $this->initializeVivoControllerLoader($cmsConfig);
         //Prepare Vivo view helpers manager
         $this->initializeVivoViewHelperManager($cmsConfig);
+        //Inject MetadataManager options from CMS config
+        $this->injectMetadataManagerOptions($cmsConfig);
         $e->stopPropagation(true);
     }
 
@@ -165,6 +176,20 @@ class LoadModulesListener implements ListenerAggregateInterface
             $controllerLoader->setAllowOverride(false);
             $controllerConfig->configureServiceManager($controllerLoader);
         }
+    }
+
+    /**
+     * Injects MetadataManager options found in the CMS config
+     * @param array $cmsConfig
+     */
+    protected function injectMetadataManagerOptions(array $cmsConfig)
+    {
+        if (isset($cmsConfig['metadata_manager']) && is_array($cmsConfig['metadata_manager'])) {
+            $mmOptions  = $cmsConfig['metadata_manager'];
+        } else {
+            $mmOptions  = array();
+        }
+        $this->metadataManager->mergeOptions($mmOptions);
     }
 
     /**

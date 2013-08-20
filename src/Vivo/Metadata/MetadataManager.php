@@ -5,8 +5,10 @@ use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\Module\ModuleNameResolver;
 use Vivo\Module\Exception\ResourceNotFoundException;
 use Zend\ServiceManager\ServiceLocatorInterface;
+
 use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Config\Config;
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * MetadataManager
@@ -31,12 +33,18 @@ class MetadataManager
     /**
      * @var array
      */
-    protected $options = array('config_path'=> null, 'custom_properties' => array());
+    protected $options = array(
+        'config_path'       => null,
+        'custom_properties' => array(),
+    );
 
     /**
      * @var array
      */
-    protected $cache = array('rawmeta' => array(), 'meta' => array());
+    protected $cache = array(
+        'rawmeta'   => array(),
+        'meta'      => array(),
+    );
 
     /**
      * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceManager
@@ -50,10 +58,19 @@ class MetadataManager
             ModuleNameResolver $moduleNameResolver,
             array $options = array())
     {
-        $this->options = array_merge($this->options, $options);
-        $this->serviceManager = $serviceManager;
-        $this->resourceManager = $resourceManager;
-        $this->moduleNameResolver = $moduleNameResolver;
+        $this->serviceManager       = $serviceManager;
+        $this->resourceManager      = $resourceManager;
+        $this->moduleNameResolver   = $moduleNameResolver;
+        $this->mergeOptions($options);
+    }
+
+    /**
+     * Merges array of options into the current options
+     * @param array $options
+     */
+    public function mergeOptions(array $options)
+    {
+        $this->options  = ArrayUtils::merge($this->options, $options);
     }
 
     /**
