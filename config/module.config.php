@@ -1085,8 +1085,6 @@ return array(
             'class'         => '',
             'options'       => array(),
         ),
-        //Cache - cache name or null for no cache; see cache_manager config
-        //'cache'         => <cache_name>,
     ),
 
     'console' => array(
@@ -1299,24 +1297,6 @@ return array(
                         ),
                     ),
                 ),
-                'cache' => array(
-                    'options' => array(
-                        'route'    => 'cache [<action>]',
-                        'defaults' => array(
-                            'controller' => 'cli_cache',
-                            'action'     => 'default',
-                        ),
-                    ),
-                ),
-//                'cache_' => array(
-//                    'options' => array(
-//                        'route'    => 'util crawl <host> <service>',
-//                        'defaults' => array(
-//                            'controller' => 'cli_util',
-//                            'action'     => 'crawl',
-//                        ),
-//                    ),
-//                ),
             ),
         ),
     ),
