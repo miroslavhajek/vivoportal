@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\UI\Content\Editor;
 
-use Vivo\Stdlib\OrderableInterface;
-
 use Vivo\CMS\Api;
 use Vivo\CMS\Api\Content\Gallery as GalleryApi;
 use Vivo\CMS\Model;
