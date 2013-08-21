@@ -8,7 +8,7 @@ class SelectableTemplatesProvider implements \Vivo\Metadata\MetadataValueProvide
 {
     /**
      * @todo use empty value instead this constant - remove constant
-     * Constant is used because it's not yet posible to define non-required select in metadata
+     * Constant is used because it's not yet possible to define non-required select in metadata
      * info.
      */
     const DEFAULT_TEMPLATE = 'DEFAULT_TEMPLATE';
@@ -35,7 +35,7 @@ class SelectableTemplatesProvider implements \Vivo\Metadata\MetadataValueProvide
      */
     public function getValue($entityClass)
     {
-        $options = array(self::DEFAULT_TEMPLATE => 'default'); //template is selected automaticaly
+        $options = array(self::DEFAULT_TEMPLATE => 'default'); //template is selected automatically
 
         if (isset($this->config['custom_templates'][$entityClass])) {
             $options = array_merge($options, array_combine($this->config['custom_templates'][$entityClass],
