@@ -12,7 +12,6 @@ use Vivo\CMS\UI\Content\Editor\AdapterAwareInterface as EditorAdapterAwareInterf
 use Vivo\LookupData\LookupDataManager;
 use Vivo\Stdlib\Hydrator\EntityClassMethods as ClassMethodsHydrator;
 use Vivo\UI\ComponentEventInterface;
-use Vivo\Metadata\Provider\SelectableTemplatesProvider;
 
 class Content extends AbstractFieldset
 {
