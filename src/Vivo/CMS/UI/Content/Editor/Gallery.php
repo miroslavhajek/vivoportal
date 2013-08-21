@@ -8,6 +8,7 @@ use Vivo\UI\AbstractForm;
 use Vivo\Form\Form;
 use Vivo\Form\Fieldset;
 use Vivo\Util\RedirectEvent;
+use Vivo\UI\ComponentEventInterface;
 
 class Gallery extends AbstractForm implements EditorInterface
 {
@@ -44,7 +45,16 @@ class Gallery extends AbstractForm implements EditorInterface
         $this->galleryApi = $galleryApi;
     }
 
-    public function init()
+    public function attachListeners()
+    {
+        parent::attachListeners();
+
+        $eventManager = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerGalleryInit'));
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerGalleryView'));
+    }
+
+    public function initListenerGalleryInit()
     {
         try {
             $this->files = $this->galleryApi->getList($this->content);
@@ -52,8 +62,11 @@ class Gallery extends AbstractForm implements EditorInterface
         catch (Api\Exception\InvalidPathException $e) {
             $this->files = array();
         }
+    }
 
-        parent::init();
+    public function viewListenerGalleryView()
+    {
+        $this->getView()->files = $this->files;
     }
 
     /**
@@ -274,14 +287,6 @@ class Gallery extends AbstractForm implements EditorInterface
         }
 
         return $container;
-    }
-
-    public function view()
-    {
-        $view = parent::view();
-        $view->files = $this->files;
-
-        return $view;
     }
 
 }
