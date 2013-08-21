@@ -22,18 +22,16 @@ class Logon extends Fieldset implements InputFilterProviderInterface
         //Username
         $this->add(array(
             'name'      => 'username',
+            'type'      => 'Vivo\Form\Element\Text',
             'options'   => array(
                 'label'     => 'Username',
-            ),
-            'attributes'    => array(
-                'type'          => 'text',
             ),
         ));
 
         //Password
         $this->add(array(
             'name'      => 'password',
-            'type'      => 'Zend\Form\Element\Password',
+            'type'      => 'Vivo\Form\Element\Password',
             'options'   => array(
                 'label'     => 'Password',
             ),
