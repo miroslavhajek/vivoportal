@@ -4,7 +4,9 @@ namespace Vivo\Form;
 use Vivo\Form\Factory;
 use Vivo\InputFilter\VivoInputFilter;
 
+use Zend\Form\Exception;
 use Zend\Form\Form as ZendForm;
+use Zend\Form\Fieldset as ZfFieldset;
 use Zend\InputFilter\InputFilterAwareInterface;
 use Zend\InputFilter\InputFilterProviderInterface;
 use Zend\InputFilter\InputFilterInterface;
@@ -143,6 +145,61 @@ class Form extends ZendForm
 
             // Recursively attach sub filters
             $this->attachInputFilterDefaults($filter, $fieldset);
+        }
+    }
+
+    /**
+     * Performs the standard ZF validation and adds injecting of validation results to elements
+     * @return bool
+     */
+    public function isValid()
+    {
+        $valid  = parent::isValid();
+        $this->clearValidationResults($this);
+        $this->setValidationResults($this, $this->getInputFilter());
+        return $valid;
+    }
+
+
+    /**
+     * Clears validation results recursively from a fieldset
+     * @param ZfFieldset $fieldset
+     */
+    protected function clearValidationResults(ZfFieldset $fieldset)
+    {
+        foreach ($fieldset as $elementOrFieldset) {
+            if ($elementOrFieldset instanceof ZfFieldset) {
+                $this->clearValidationResults($elementOrFieldset);
+            } elseif ($elementOrFieldset instanceof ValidationResultAwareInterface) {
+                $elementOrFieldset->setValidationResult(null);
+            }
+        }
+    }
+
+    /**
+     * Recursively sets validation results to elements
+     * @param ZfFieldset $fieldset
+     * @param InputFilterInterface $inputFilter
+     */
+    protected function setValidationResults(ZfFieldset $fieldset, InputFilterInterface $inputFilter)
+    {
+        $validInputs    = $inputFilter->getValidInput();
+        $invalidInputs  = $inputFilter->getInvalidInput();
+        foreach ($fieldset as $elementOrFieldset) {
+            $name   =  $elementOrFieldset->getName();
+            if ($elementOrFieldset instanceof ZfFieldset) {
+                $fsInputFilter  = $inputFilter->get($name);
+                $this->setValidationResults($elementOrFieldset, $fsInputFilter);
+            } elseif ($elementOrFieldset instanceof ValidationResultAwareInterface) {
+                if (array_key_exists($name, $validInputs)) {
+                    $validationResult   = true;
+                } elseif (array_key_exists($name, $invalidInputs)) {
+                    $validationResult   = false;
+                } else {
+                    $validationResult   = null;
+                }
+                $elementOrFieldset->setValidationResult($validationResult);
+            }
         }
     }
 }
