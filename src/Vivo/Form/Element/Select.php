@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Form\Element;
 
+use Vivo\Form\ValidationResultAwareInterface;
+
 use Zend\Form\Element\Select as ZendSelect;
 use Zend\Form\ElementPrepareAwareInterface;
 use Zend\Form\FormInterface;
@@ -8,8 +10,14 @@ use Zend\Validator\Explode as ExplodeValidator;
 use Zend\Validator\InArray as InArrayValidator;
 use Zend\Validator\StringLength as StringLengthValidator;
 
-class Select extends ZendSelect implements ElementPrepareAwareInterface
+class Select extends ZendSelect implements ElementPrepareAwareInterface, ValidationResultAwareInterface
 {
+    /**
+     * Flag indicating the last validation result, null means validation not performed
+     * @var bool|null
+     */
+    protected $validationResult;
+
     /**
      * Should the default InArray validator be disabled?
      * ZF2 2.2 provides this feature out of the box
@@ -56,5 +64,27 @@ class Select extends ZendSelect implements ElementPrepareAwareInterface
             }
         }
         return $this->validator;
+    }
+
+    /**
+     * Sets result of the last validation, null means validation not performed
+     * @param bool|null $validationResult
+     * @return void
+     */
+    public function setValidationResult($validationResult)
+    {
+        if (!is_null($validationResult)) {
+            $validationResult   = (bool) $validationResult;
+        }
+        $this->validationResult = $validationResult;
+    }
+
+    /**
+     * Returns result of the last validation, null means validation not performed
+     * @return bool|null
+     */
+    public function getValidationResult()
+    {
+        return $this->validationResult;
     }
 }
