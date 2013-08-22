@@ -123,7 +123,7 @@ class ResourceUrlHelper
                 'type'      => 'resource',
             );
         } else {
-            throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'.", __METHOD__));
+            throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'", __METHOD__));
         }
         $options['query']['mtime'] = $mtime;
         $options['reuse_matched_params'] = true;
