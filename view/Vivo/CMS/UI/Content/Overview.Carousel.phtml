@@ -13,13 +13,13 @@ $this->headLink()->prependStylesheet('/.Vivo.resource/css/front-Overview.Carouse
       <? foreach($children as $key => $child) : ?>
       <div class="item <? if($key == 0): ?>active<? endif; ?>">
         <? if($child->getImage()) : ?>
-          <img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+          <img src="<?=$this->resource($child->getImage(), $child) ?>" alt="">
         <? endif; ?>
         <div class="container">
           <div class="carousel-caption">
-            <h3><?=$child->getTitle();?></h3>
+            <h3><?=htmlspecialchars($child->getOverviewTitleSafe());?></h3>
             <? if ($child->getDescription()): ?>
-              <p class="lead"><?= htmlspecialchars($child->getDescription()); ?></p>
+              <p class="lead"><?=htmlspecialchars($child->getDescription());?></p>
             <? endif; ?>
             <a class="btn btn-large btn-primary" href="#">More</a>
           </div>

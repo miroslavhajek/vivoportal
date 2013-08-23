@@ -6,10 +6,10 @@
 				<a class="thumbnail" href="<?=$this->document($child)?>">
 					<div class="row-fluid">
 						<? if($child->getImage()) : ?>
-						<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+						<img src="<?=$this->resource($child->getImage(), $child) ?>" alt="">
 						<? endif; ?>
 						<div class="span12 caption">
-							<strong><?=$child->getTitle();?></strong>
+							<strong><?=htmlspecialchars($child->getOverviewTitleSafe());?></strong>
 						</div>
 					</div>
 				</a>
@@ -19,4 +19,3 @@
 	<? endif; ?>
 	</div>
 </div>
-

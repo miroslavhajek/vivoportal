@@ -1,13 +1,13 @@
 <div class="OverviewDesc">
 <? if(count($children)) : ?>
-	<ul>
-	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a>
+    <ul>
+    <? foreach($children as $child) : ?>
+        <li><a href="<?=$this->document($child)?>"><?=htmlspecialchars($child->getOverviewTitleSafe());?></a>
             <? if ($child->getDescription()): ?>
             <p><?= htmlspecialchars($child->getDescription()); ?></p>
-        	<? endif; ?>
+            <? endif; ?>
         </li>
-		<? endforeach; ?>
-	</ul>
+        <? endforeach; ?>
+    </ul>
 <? endif; ?>
 </div>

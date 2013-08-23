@@ -1,9 +1,9 @@
 <div class="OverviewInline">
 <? if(count($children)) : ?>
-	<ul class="inline">
-	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getOverviewTitle();?></a></li>
-	<? endforeach; ?>
-	</ul>
+    <ul class="inline">
+    <? foreach($children as $child) : ?>
+        <li><a href="<?=$this->document($child)?>"><?=htmlspecialchars($child->getOverviewTitleSafe());?></a></li>
+    <? endforeach; ?>
+    </ul>
 <? endif; ?>
 </div>
