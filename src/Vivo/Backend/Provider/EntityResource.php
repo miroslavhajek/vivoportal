@@ -1,11 +1,22 @@
 <?php
 namespace Vivo\Backend\Provider;
 
-use Vivo\LookupData\AbstractLookupDataProvider;
+use Vivo\CMS\Api;
 use Vivo\CMS\Model\Entity;
+use Vivo\LookupData\LookupDataProviderInterface;
 
-class EntityResource extends AbstractLookupDataProvider
+class EntityResource implements LookupDataProviderInterface
 {
+    /**
+     * @var \Vivo\CMS\Api\CMS
+     */
+    private $cmsApi;
+
+    public function __construct(Api\CMS $cmsApi)
+    {
+        $this->cmsApi = $cmsApi;
+    }
+
     /**
      * @return array
      */
@@ -13,10 +24,7 @@ class EntityResource extends AbstractLookupDataProvider
     {
         $return = array('' => '');
 
-        /* @var $cms \Vivo\CMS\Api\CMS */
-        $cms = $this->serviceManager->get('Vivo\CMS\Api\CMS');
-
-        foreach ($cms->scanResources($entity) as $name) {
+        foreach ($this->cmsApi->scanResources($entity) as $name) {
             $return[$name] = $name;
         }
 

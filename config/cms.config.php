@@ -312,6 +312,7 @@ return array(
             'Vivo\Backend\UI\ModulesPanel'      => 'Vivo\Backend\UI\ModulesPanelFactory',
             'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
             'Vivo\Backend\UI\Cache'             => 'Vivo\Backend\UI\CacheFactory',
+            'Vivo\Backend\Provider\EntityResource' => 'Vivo\Backend\Provider\EntityResourceFactory',
             'Vivo\Backend\Provider\Language'    => 'Vivo\Backend\Provider\LanguageFactory',
             'Vivo\Backend\Provider\Sorting'     => 'Vivo\Backend\Provider\SortingFactory',
         ),
