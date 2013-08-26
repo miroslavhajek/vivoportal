@@ -56,7 +56,7 @@ class LookupDataManager
      */
     private function getData($propertyName, array &$metadata, Entity $entity)
     {
-        foreach ($metadata as $key => &$value) {
+        foreach ($metadata as &$value) {
             if (is_array($value)) {
                 $this->getData($propertyName, $value, $entity);
             } elseif (strpos($value, '\\') && $this->serviceManager->has($value)) {
