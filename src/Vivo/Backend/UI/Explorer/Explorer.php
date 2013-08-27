@@ -122,7 +122,7 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
     /**
      * Create explorer component.
      * @param boolean $needInit
-     * @throws Exception
+     * @throws \Vivo\Backend\UI\Explorer\Exception\Exception
      */
     protected function createComponent($needInit = false)
     {
@@ -190,7 +190,6 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                 // try to load entity from repository
                 try {
                     $entity = $this->cmsApi->getSiteEntity($relPath, $site);
-
                     $routeParams = array(
                         'path' => $entity->getUuid(),
                         'explorerAction' => 'editor',
@@ -212,9 +211,11 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                     // ensure the entity is in given site
                     // TODO do not get entity twice from repository
                     $this->cmsApi->getSiteEntity($entity->getPath(), $site);
-                } catch (\Exception $ex) {
-                    // provided UUID is not valid
-                    // redirect to homepage (/)
+                } catch(\Vivo\CMS\Exception\InvalidArgumentException $ex) {
+                    // provided UUID is not valid, redirect to homepage (/)
+                    $this->redirectToHomepage($site);
+                } catch (\Vivo\Repository\Exception\EntityNotFoundException $ex) {
+                    // entity not found, redirect to homepage (/)
                     $this->redirectToHomepage($site);
                 }
             }
@@ -232,7 +233,7 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
     {
         return $this->entity;
     }
-    
+
     /**
      * Sets entity
      * @param \Vivo\CMS\Model\Entity
