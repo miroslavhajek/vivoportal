@@ -171,7 +171,7 @@ class MetadataManager
      * @param array $config
      */
     private function applyProvider($entityClass, &$config) {
-        foreach ($config as $key => &$value) {
+        foreach ($config as &$value) {
             if(is_array($value)) {
                 $this->applyProvider($entityClass, $value);
             }

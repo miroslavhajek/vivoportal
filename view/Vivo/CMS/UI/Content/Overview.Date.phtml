@@ -1,11 +1,10 @@
 <div class="OverviewDate">
 <? if(count($children)) : ?>
-	<ul>
-	<? foreach($children as $child) : ?>
-		<li>
-			<?=$child->getPublished()->format('d.m.Y') ?> <a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a>
-        </li>
-		<? endforeach; ?>
-	</ul>
+    <ul>
+    <? foreach($children as $child) : ?>
+        <li><?=$child->getPublished()->format('d.m.Y') ?> <a href="<?=$this->document($child)?>"><?
+                            echo htmlspecialchars($child->getOverviewTitleSafe());?></a></li>
+        <? endforeach; ?>
+    </ul>
 <? endif; ?>
 </div>

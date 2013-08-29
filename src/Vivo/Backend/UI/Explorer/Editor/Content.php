@@ -2,7 +2,6 @@
 namespace Vivo\Backend\UI\Explorer\Editor;
 
 use Vivo\UI\AbstractFieldset;
-use Vivo\Form\Form;
 use Vivo\Backend\Form\Fieldset\EntityEditor;
 use Vivo\Backend\Exception\ConfigException;
 use Vivo\CMS\Model;
@@ -201,6 +200,7 @@ class Content extends AbstractFieldset
                 $this->contentContainer = $this->documentApi->createContentContainer($this->explorer->getEntity());
             }
             $this->content->setState($fieldsetData['state']);
+            $this->content->setTemplate($fieldsetData['template']);
             $this->editorComponent->save($this->contentContainer);
             return true;
         }

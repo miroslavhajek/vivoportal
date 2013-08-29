@@ -80,11 +80,7 @@ class LocalFileSystemStorage extends AbstractStorage {
             throw new Exception\InvalidArgumentException(
                 sprintf('%s: Only absolute paths supported (%s)', __METHOD__, $storagePath));
         }
-        //FS path is built directly w/o PathBuilder to optimize performance
-//        $elements   = $this->pathBuilder->getStoragePathComponents($storagePath);
-//        array_unshift($elements, $this->root);
-//        $fsPath     = implode('/', $elements);
-        $fsPath     = $this->root . '/' . $storagePath;
+        $fsPath     = $this->root . $storagePath;
         return $fsPath;
 	}
 

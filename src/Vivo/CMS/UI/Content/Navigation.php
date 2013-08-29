@@ -69,12 +69,18 @@ class Navigation extends AbstractNavigation
                     'include_root'      => $this->navModel->includeRoot(),
                     'branch_only'       => $this->navModel->getBranchOnly(),
                 );
-                $hash   = $this->hashCacheKey(implode(',', $keyParts));
+                $key    = implode(',', $keyParts);
+                $hash   = $this->hashCacheKey($key);
                 break;
             case NavigationModel::TYPE_ENUM:
-                $concat = $this->site->getName();
-                $concat .= $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs());
-                $hash   = $this->hashCacheKey($concat);
+                $keyParts   = array(
+                    'site_name'         => $this->site->getName(),
+                    'requested_path'    => $this->cmsEvent->getRequestedPath(),
+                    'branch_only'       => $this->navModel->getBranchOnly(),
+                    'enum_doc_concat'   => $this->concatEnumeratedDocs($this->navModel->getEnumeratedDocs()),
+                );
+                $key    = implode(',', $keyParts);
+                $hash   = $this->hashCacheKey($key);
                 break;
             default:
                 throw new Exception\RuntimeException(sprintf("%s: Unsupported navigation type '%s'",

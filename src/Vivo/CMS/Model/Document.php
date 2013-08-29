@@ -161,16 +161,6 @@ class Document extends Folder
     protected $injectComponentViewModelToLayout     = false;
 
     /**
-     * Page header. If heading is not set, default document name will be returned.
-     *
-     * @return string
-     */
-    public function getHeading()
-    {
-        return $this->heading ? $this->heading : $this->title;
-    }
-
-    /**
      * Sets heading property which is the same as title by default
      *
      * @param string $heading
@@ -181,17 +171,27 @@ class Document extends Folder
     }
 
     /**
-     * Document overview title. If overview title is not set, document title will be returned.
+     * Page header. If heading is not set, default document name will be returned.
      *
      * @return string
      */
-    public function getOverviewTitle()
+    public function getHeading()
     {
-        return $this->overviewTitle ? $this->overviewTitle : $this->title;
+        return $this->heading;
     }
 
     /**
-     * Sets title which can be seen in overview
+     * Returns heading otherwise document title.
+     *
+     * @return string
+     */
+    public function getHeadingSafe()
+    {
+        return $this->getHeading() ? : $this->getTitle();
+    }
+
+    /**
+     * Sets title which can be seen in overview.
      *
      * @param string $overviewTitle
      */
@@ -201,13 +201,23 @@ class Document extends Folder
     }
 
     /**
-     * Document navigation title. If navigation title is not set, document title will be returned.
+     * Document overview title. If overview title is not set, document title will be returned.
      *
      * @return string
      */
-    public function getNavigationTitle()
+    public function getOverviewTitle()
     {
-        return $this->navigationTitle ? $this->navigationTitle : $this->title;
+        return $this->overviewTitle;
+    }
+
+    /**
+     * Returns overview title otherwise document title.
+     *
+     * @return string
+     */
+    public function getOverviewTitleSafe()
+    {
+        return $this->getOverviewTitle() ? : $this->getTitle();
     }
 
     /**
@@ -218,6 +228,26 @@ class Document extends Folder
     public function setNavigationTitle($navigationTitle)
     {
         $this->navigationTitle = $navigationTitle;
+    }
+
+    /**
+     * Document navigation title. If navigation title is not set, document title will be returned.
+     *
+     * @return string
+     */
+    public function getNavigationTitle()
+    {
+        return $this->navigationTitle;
+    }
+
+    /**
+     * Returns navigation title otherwise document title.
+     *
+     * @return string
+     */
+    public function getNavigationTitleSafe()
+    {
+        return $this->getNavigationTitle() ? : $this->getTitle();
     }
 
     /**

@@ -1,14 +1,14 @@
 <div class="OverviewDateDesc">
 <? if(count($children)) : ?>
-	<ul>
-	<? foreach($children as $child) : ?>
-		<li><a href="<?=$this->document($child)?>"><?=$child->getTitle();?></a><br>
+    <ul>
+    <? foreach($children as $child) : ?>
+        <li><a href="<?=$this->document($child)?>"><?=htmlspecialchars($child->getOverviewTitleSafe());?></a><br>
             <?=$child->getPublished()->format('d.m.Y') ?>
             <? if ($child->getDescription()): ?>
             <p><?= htmlspecialchars($child->getDescription()); ?></p>
-        	<? endif; ?>
+            <? endif; ?>
         </li>
-		<? endforeach; ?>
-	</ul>
+        <? endforeach; ?>
+    </ul>
 <? endif; ?>
 </div>

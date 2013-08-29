@@ -304,7 +304,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $form->setValidationGroup($validationGroup);
         $this->isValid      = $form->isValid();
         $this->hasValidated = true;
-        $formData           = $form->getData();
+        $formData           = $form->getData(FormInterface::VALUES_AS_ARRAY);
         $this->setFormData($formData);
         return $this->isValid;
     }

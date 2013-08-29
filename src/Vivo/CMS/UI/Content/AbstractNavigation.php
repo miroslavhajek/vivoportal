@@ -265,7 +265,7 @@ abstract class AbstractNavigation extends Component
             $docRelPath     = $this->cmsApi->getEntityRelPath($doc);
             $pageOptions    = array(
                 'sitePath'      => $docRelPath,
-                'label'         => $doc->getNavigationTitle(),
+                'label'         => $doc->getNavigationTitleSafe(),
                 'document'      => $doc,
             );
             if($this->cmsApi->getEntityRelPath($currentDoc) == $docRelPath) {

@@ -4,10 +4,9 @@ $this->headLink()
   ->prependStylesheet('/.Vivo.resource/css/front-Overview.CarouselTouch.css');
 
 // $this->headScript()
-//   ->appendFile('/.Vivo.resource/js/swiper/1.8.5/idangerous.swiper.js', $type = 'text/javascript', $attrs = array()) 
-//   ->appendFile('/.Vivo.resource/js/front-Overview.CarouselTouch.js', $type = 'text/javascript', $attrs = array()); 
+//   ->appendFile('/.Vivo.resource/js/swiper/1.8.5/idangerous.swiper.js', $type = 'text/javascript', $attrs = array())
+//   ->appendFile('/.Vivo.resource/js/front-Overview.CarouselTouch.js', $type = 'text/javascript', $attrs = array());
 ?>
-
 <div class="OverviewCarouselTouch">
 <!-- Carousel
 ================================================== -->
@@ -15,13 +14,13 @@ $this->headLink()
 <div class="swiper-container">
   <div class="pagination"></div>
   <div class="swiper-wrapper">
-    <? foreach($children as $key => $child) : ?>
+    <? foreach($children as $child) : ?>
     <div class="swiper-slide">
       <? if($child->getImage()) : ?>
-        <img src="<?=$this->resource($child->getImage(), $child) ?>" alt="" />
+        <img src="<?=$this->resource($child->getImage(), $child) ?>" alt="">
       <? endif; ?>
         <div class="swiper-caption">
-          <h3><?=$child->getTitle();?></h3>
+          <h3><?=htmlspecialchars($child->getOverviewTitleSafe())?></h3>
           <? if ($child->getDescription()): ?>
             <p class="lead"><?= htmlspecialchars($child->getDescription()); ?></p>
           <? endif; ?>
@@ -32,5 +31,4 @@ $this->headLink()
   </div>
 </div>
 <? endif; ?>
-
 </div>
