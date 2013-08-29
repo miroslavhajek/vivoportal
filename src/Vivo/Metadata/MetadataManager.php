@@ -4,10 +4,11 @@ namespace Vivo\Metadata;
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\Module\ModuleNameResolver;
 use Vivo\Module\Exception\ResourceNotFoundException;
+use Vivo\Metadata\Exception\RuntimeException;
 use Zend\ServiceManager\ServiceLocatorInterface;
-
 use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Config\Config;
+use Zend\Config\Exception\ExceptionInterface as ConfigExceptionInterface;
 use Zend\Stdlib\ArrayUtils;
 
 /**
@@ -103,7 +104,12 @@ class MetadataManager
 
                 if($path) {
                     $resource = file_get_contents($path);
-                    $entityConfig = new Config($reader->fromString($resource));
+                    try {
+                        $entityConfig = new Config($reader->fromString($resource));
+                    }
+                    catch(ConfigExceptionInterface $e) {
+                        throw new RuntimeException(sprintf("%s: Error parsing '%s'", __METHOD__, $path), null, $e);
+                    }
 
                     $config = $config->merge($entityConfig);
                 }
@@ -115,10 +121,15 @@ class MetadataManager
                 try {
                     $resource = $this->resourceManager->getResource($moduleName, $path, 'metadata');
                     $entityConfig = new Config($reader->fromString($resource));
-
-                    $config = $config->merge($entityConfig);
                 }
-                catch (ResourceNotFoundException $e) { }
+                catch (ResourceNotFoundException $e) {
+                    // Entity don't have config; it is ok
+                }
+                catch (ConfigExceptionInterface $e) {
+                    throw new RuntimeException(sprintf("%s: Error parsing '%s'", __METHOD__, $path), null, $e);
+                }
+
+                $config = $config->merge($entityConfig);
             }
 
             if(isset($this->options['custom_properties'][$class])) {
@@ -127,8 +138,20 @@ class MetadataManager
                 foreach ($defs as $vmodule => $path) {
                     $path = sprintf('%s.ini', str_replace('\\', DIRECTORY_SEPARATOR, $path));
 
-                    $resource = $this->resourceManager->getResource($vmodule, $path, 'metadata');
-                    $entityConfig = new Config($reader->fromString($resource));
+                    try {
+                        $resource = $this->resourceManager->getResource($vmodule, $path, 'metadata');
+                        $entityConfig = new Config($reader->fromString($resource));
+                    }
+                    catch (ResourceNotFoundException $e) {
+                        throw new RuntimeException(
+                            sprintf("%s: Custom properties '%s:%s' not exists", __METHOD__, $vmodule, $path),
+                                null, $e);
+                    }
+                    catch(ConfigExceptionInterface $e) {
+                        throw new RuntimeException(
+                            sprintf("%s: Error parsing custom properties '%s:%s'", __METHOD__, $vmodule, $path),
+                                null, $e);
+                    }
 
                     // Modifications is not allowed
                     $config = $entityConfig->merge($config);
