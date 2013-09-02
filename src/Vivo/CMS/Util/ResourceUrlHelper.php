@@ -3,9 +3,10 @@ namespace Vivo\CMS\Util;
 
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Entity;
-use Vivo\View\Helper\Exception\InvalidArgumentException;
 use Vivo\Module\ResourceManager\ResourceManager as ModuleResourceManager;
 use Vivo\Util\UrlHelper;
+
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * View helper for getting resource url.
@@ -20,14 +21,33 @@ class ResourceUrlHelper
         'check_resource'        => false, // useful for debugging sites
         //Path where Vivo resources are found
         'vivo_resource_path'    => null,
-        //This maps current request route name to an appropriate route name for resources
+        //This maps current request route name to an appropriate route name for Vivo and VModule resources
         'resource_route_map'    => array(
-            'vivo/cms'          => 'vivo/resource',
-            'backend/cms'       => 'backend/resource',
-            'backend/modules'   => 'backend/backend_resource',
-            'backend/explorer'  => 'backend/backend_resource',
-            'backend/other'     => 'backend/backend_resource',
-            'backend/default'   => 'backend/backend_resource',
+            'vivo/cms'                  => 'vivo/resource',
+            'vivo/resource'             => 'vivo/resource',
+            'vivo/resource_entity'      => 'vivo/resource',
+            'backend/other'             => 'backend/backend_resource',
+            'backend/default'           => 'backend/backend_resource',
+            'backend/modules'           => 'backend/backend_resource',
+            'backend/explorer'          => 'backend/backend_resource',
+            'backend/backend_resource'  => 'backend/backend_resource',
+            'backend/cms'               => 'backend/resource',
+            'backend/resource'          => 'backend/resource',
+            'backend/resource_entity'   => 'backend/resource',
+        ),
+        //This maps current request route name to an appropriate route name for entity resources
+        'entity_resource_route_map' => array(
+            'vivo/cms'                  => 'vivo/resource_entity',
+            'vivo/resource'             => 'vivo/resource_entity',
+            'vivo/resource_entity'      => 'vivo/resource_entity',
+            'backend/other'             => 'vivo/resource_entity',
+            'backend/default'           => 'vivo/resource_entity',
+            'backend/modules'           => 'vivo/resource_entity',
+            'backend/explorer'          => 'vivo/resource_entity',
+            'backend/backend_resource'  => 'vivo/resource_entity',
+            'backend/cms'               => 'backend/resource_entity',
+            'backend/resource'          => 'backend/resource_entity',
+            'backend/resource_entity'   => 'backend/resource_entity',
         ),
     );
 
@@ -38,10 +58,16 @@ class ResourceUrlHelper
     private $cmsApi;
 
     /**
-     * Route name used for resources
+     * Route name used for Vivo and VModule resources
      * @var string
      */
     protected $resourceRouteName;
+
+    /**
+     * Route name used for entity resources
+     * @var string
+     */
+    protected $entityResourceRouteName;
 
     /**
      * Module Resource Manager
@@ -63,19 +89,30 @@ class ResourceUrlHelper
      * @param string $currentRouteName
      * @param array $options
      * @throws Exception\InvalidArgumentException
+     * @throws Exception\RuntimeException
      */
     public function __construct(Api\CMS $cmsApi,
                                 ModuleResourceManager $moduleResourceManager,
                                 UrlHelper $urlHelper,
                                 $currentRouteName,
-                                $options = array())
+                                array $options = array())
     {
         $this->cmsApi                   = $cmsApi;
         $this->moduleResourceManager    = $moduleResourceManager;
         $this->urlHelper                = $urlHelper;
-        $this->options                  = array_merge($this->options, $options);
-        $this->resourceRouteName        = isset($this->options['resource_route_map'][$currentRouteName])
-                                            ? $this->options['resource_route_map'][$currentRouteName] : '';
+        $this->options                  = ArrayUtils::merge($this->options, $options);
+        if (!isset($this->options['resource_route_map'][$currentRouteName])) {
+            throw new Exception\RuntimeException(
+                sprintf("%s: 'resource_route_map' does not contain an entry for '%s' route name",
+                    __METHOD__, $currentRouteName));
+        }
+        if (!isset($this->options['entity_resource_route_map'][$currentRouteName])) {
+            throw new Exception\RuntimeException(
+                sprintf("%s: 'entity_resource_route_map' does not contain an entry for '%s' route name",
+                    __METHOD__, $currentRouteName));
+        }
+        $this->resourceRouteName        = $this->options['resource_route_map'][$currentRouteName];
+        $this->entityResourceRouteName  = $this->options['entity_resource_route_map'][$currentRouteName];
         if (!$this->options['vivo_resource_path']) {
             throw new Exception\InvalidArgumentException(sprintf("%s: 'vivo_resource_path' option not set",
                 __METHOD__));
@@ -90,7 +127,7 @@ class ResourceUrlHelper
      *      getResourceUrl('images/page/logo.png', 'MyModule');
      * @param string $resourcePath
      * @param string|Entity $source
-     * @param array Options
+     * @param array $options Options
      * @throws Exception\InvalidArgumentException
      * @return string
      */
@@ -100,14 +137,16 @@ class ResourceUrlHelper
             $this->checkResource($resourcePath, $source);
         }
         if ($source instanceof Entity) {
+            //Entity resource
             $entityUrl          = $this->cmsApi->getEntityRelPath($source);
-            $resourceRouteName  = $this->resourceRouteName . '_entity';
+            $resourceRouteName  = $this->entityResourceRouteName;
             $urlParams  = array(
                 'path'      => $resourcePath,
                 'entity'    => $entityUrl,
             );
             $mtime      = $this->cmsApi->getResourceMtime($source, $resourcePath);
         } elseif (is_string($source)) {
+            //Module or Vivo resource
             if ($source == 'Vivo') {
                 //It is a Vivo resource
                 $mtime  = $this->getVivoResourceMtime($resourcePath);
@@ -123,7 +162,8 @@ class ResourceUrlHelper
                 'type'      => 'resource',
             );
         } else {
-            throw new InvalidArgumentException(sprintf("%s: Invalid value for parameter 'source'", __METHOD__));
+            throw new Exception\InvalidArgumentException(
+                sprintf("%s: Invalid value for parameter 'source'", __METHOD__));
         }
         $options['query']['mtime'] = $mtime;
         $options['reuse_matched_params'] = true;
