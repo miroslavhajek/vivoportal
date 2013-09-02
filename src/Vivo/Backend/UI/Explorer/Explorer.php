@@ -12,9 +12,6 @@ use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\UrlHelper;
 use Vivo\Util\RedirectEvent;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\Event;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\RequestInterface;
 
@@ -236,7 +233,7 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
      * Sets entity
      * @param \Vivo\CMS\Model\Entity
      */
-    public function setEntity(\Vivo\CMS\Model\Entity $entity)
+    public function setEntity(Model\Entity $entity)
     {
         $this->entity = $entity;
     }
