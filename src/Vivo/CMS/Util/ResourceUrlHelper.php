@@ -18,37 +18,14 @@ class ResourceUrlHelper
      * @var array
      */
     private $options = array(
-        'check_resource'        => false, // useful for debugging sites
+        //Useful for debugging sites
+        'check_resource'            => false,
         //Path where Vivo resources are found
-        'vivo_resource_path'    => null,
+        'vivo_resource_path'        => null,
         //This maps current request route name to an appropriate route name for Vivo and VModule resources
-        'resource_route_map'    => array(
-            'vivo/cms'                  => 'vivo/resource',
-            'vivo/resource'             => 'vivo/resource',
-            'vivo/resource_entity'      => 'vivo/resource',
-            'backend/other'             => 'backend/backend_resource',
-            'backend/default'           => 'backend/backend_resource',
-            'backend/modules'           => 'backend/backend_resource',
-            'backend/explorer'          => 'backend/backend_resource',
-            'backend/backend_resource'  => 'backend/backend_resource',
-            'backend/cms'               => 'backend/resource',
-            'backend/resource'          => 'backend/resource',
-            'backend/resource_entity'   => 'backend/resource',
-        ),
+        'resource_route_map'        => array(),
         //This maps current request route name to an appropriate route name for entity resources
-        'entity_resource_route_map' => array(
-            'vivo/cms'                  => 'vivo/resource_entity',
-            'vivo/resource'             => 'vivo/resource_entity',
-            'vivo/resource_entity'      => 'vivo/resource_entity',
-            'backend/other'             => 'vivo/resource_entity',
-            'backend/default'           => 'vivo/resource_entity',
-            'backend/modules'           => 'vivo/resource_entity',
-            'backend/explorer'          => 'vivo/resource_entity',
-            'backend/backend_resource'  => 'vivo/resource_entity',
-            'backend/cms'               => 'backend/resource_entity',
-            'backend/resource'          => 'backend/resource_entity',
-            'backend/resource_entity'   => 'backend/resource_entity',
-        ),
+        'entity_resource_route_map' => array(),
     );
 
     /**

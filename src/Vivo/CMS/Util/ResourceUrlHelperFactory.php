@@ -22,10 +22,12 @@ class ResourceUrlHelperFactory implements FactoryInterface
         $cmsApi                 = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $moduleResourceManager  = $serviceLocator->get('module_resource_manager');
         $urlHelper              = $serviceLocator->get('Vivo\Util\UrlHelper');
-        //TODO - move to module config
-        $resourceHelperOptions  = array(
-            'vivo_resource_path'    => realpath(__DIR__ . '/../../../../resource'),
-        );
+        $config                 = $serviceLocator->get('config');
+        if (isset($config['resource_url_helper']) && is_array($config['resource_url_helper'])) {
+            $resourceHelperOptions  = $config['resource_url_helper'];
+        } else {
+            $resourceHelperOptions  = array();
+        }
         $helper                 = new ResourceUrlHelper($cmsApi,
                                                         $moduleResourceManager,
                                                         $urlHelper,

@@ -187,6 +187,41 @@ return array(
             ),
         ),
     ),
+    //Resource URL helper options
+    'resource_url_helper'       => array(
+        //Useful for debugging sites
+        'check_resource'        => false,
+        //Path where Vivo resources are found
+        'vivo_resource_path'    => realpath(__DIR__ . '/../resource'),
+        //This maps current request route name to an appropriate route name for Vivo and VModule resources
+        'resource_route_map'    => array(
+            'vivo/cms'                  => 'vivo/resource',
+            'vivo/resource'             => 'vivo/resource',
+            'vivo/resource_entity'      => 'vivo/resource',
+            'backend/other'             => 'backend/backend_resource',
+            'backend/default'           => 'backend/backend_resource',
+            'backend/modules'           => 'backend/backend_resource',
+            'backend/explorer'          => 'backend/resource',
+            'backend/backend_resource'  => 'backend/backend_resource',
+            'backend/cms'               => 'backend/resource',
+            'backend/resource'          => 'backend/resource',
+            'backend/resource_entity'   => 'backend/resource',
+        ),
+        //This maps current request route name to an appropriate route name for entity resources
+        'entity_resource_route_map' => array(
+            'vivo/cms'                  => 'vivo/resource_entity',
+            'vivo/resource'             => 'vivo/resource_entity',
+            'vivo/resource_entity'      => 'vivo/resource_entity',
+            'backend/other'             => 'backend/resource_entity',
+            'backend/default'           => 'backend/resource_entity',
+            'backend/modules'           => 'backend/resource_entity',
+            'backend/explorer'          => 'backend/resource_entity',
+            'backend/backend_resource'  => 'backend/resource_entity',
+            'backend/cms'               => 'backend/resource_entity',
+            'backend/resource'          => 'backend/resource_entity',
+            'backend/resource_entity'   => 'backend/resource_entity',
+        ),
+    ),
     'service_manager' => array(
         'allow_override' => true,
         'invokables'    => array(
