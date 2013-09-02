@@ -88,7 +88,6 @@ class CMS
     /**
      * Returns entity specified by path, UUID or symbolic reference
      * @param string $ident Path, UUID or symbolic reference
-     * @throws \Vivo\CMS\Exception\InvalidArgumentException
      * @throws \Vivo\Repository\Exception\EntityNotFoundException
      * @return \Vivo\CMS\Model\Entity
      */
@@ -99,7 +98,7 @@ class CMS
             //$ident is UUID or symbolic reference
             $path   = $this->uuidConvertor->getPath($uuid);
             if (!$path) {
-                throw new Exception\InvalidArgumentException(
+                throw new \Vivo\Repository\Exception\EntityNotFoundException(
                     sprintf("%s: Cannot convert entity identifier '%s' (UUID = '%s') to path",
                             __METHOD__, $ident, $uuid));
             }
