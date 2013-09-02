@@ -89,13 +89,11 @@ class SiteModelLoadListener implements ListenerAggregateInterface
             if ($host) {
                 $e->setHost($host);
                 $siteModel  = $this->siteApi->getSiteByHost($host);
-                if ($siteModel) {
-                    $e->setSite($siteModel);
-    //                $e->stopPropagation(true);
-                    //Update the CMSEvent
-                    $this->cmsEvent->setSite($siteModel);
-                    $this->cmsEvent->setRequestedPath($routeMatch->getParam('path'));
-                }
+                $e->setSite($siteModel);
+//                $e->stopPropagation(true);
+                //Update the CMSEvent
+                $this->cmsEvent->setSite($siteModel);
+                $this->cmsEvent->setRequestedPath($routeMatch->getParam('path'));
             }
         }
     }
