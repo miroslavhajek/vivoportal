@@ -12,9 +12,6 @@ use Vivo\UI\ComponentEventInterface;
 use Vivo\Util\UrlHelper;
 use Vivo\Util\RedirectEvent;
 
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\EventManagerAwareInterface;
-use Zend\EventManager\Event;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\RequestInterface;
 
@@ -190,6 +187,7 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                 // try to load entity from repository
                 try {
                     $entity = $this->cmsApi->getSiteEntity($relPath, $site);
+
                     $routeParams = array(
                         'path' => $entity->getUuid(),
                         'explorerAction' => 'editor',
@@ -211,9 +209,6 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
                     // ensure the entity is in given site
                     // TODO do not get entity twice from repository
                     $this->cmsApi->getSiteEntity($entity->getPath(), $site);
-                } catch(\Vivo\CMS\Exception\InvalidArgumentException $ex) {
-                    // provided UUID is not valid, redirect to homepage (/)
-                    $this->redirectToHomepage($site);
                 } catch (\Vivo\Repository\Exception\EntityNotFoundException $ex) {
                     // entity not found, redirect to homepage (/)
                     $this->redirectToHomepage($site);
@@ -238,7 +233,7 @@ class Explorer extends ComponentContainer implements RequestAwareInterface, Pers
      * Sets entity
      * @param \Vivo\CMS\Model\Entity
      */
-    public function setEntity(\Vivo\CMS\Model\Entity $entity)
+    public function setEntity(Model\Entity $entity)
     {
         $this->entity = $entity;
     }

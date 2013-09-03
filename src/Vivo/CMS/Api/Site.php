@@ -83,9 +83,11 @@ class Site
 
     /**
      * Returns Site matching given hostname.
-     * If no site matches the hostname, returns null
+     * If no site matches the hostname, throws an exception
      * @param string $host
-     * @return Model\Site|null
+     * @throws Exception\SiteHostsMismatchException
+     * @throws Exception\SiteNotFoundException
+     * @return Model\Site
      */
     public function getSiteByHost($host)
     {
@@ -94,16 +96,28 @@ class Site
         if (count($entities) == 1) {
             //Site found
             $site   = reset($entities);
+            //Check the site is really set-up to respond to this host name (indexer record might be out-of-date)
+            if (!(($site instanceof Model\Site) and (in_array($host, $site->getHosts())))) {
+                $hosts  = implode(', ', $site->getHosts());
+                throw new Exception\SiteHostsMismatchException(
+                    sprintf("%s: Site for host '%s' found in indexer (UUID = '%s') but the site entity in repository "
+                        . "does not contain this host; Hosts configured in the site entity object: '%s'; "
+                        . "Reindexing is recommended!",
+                        __METHOD__, $host, $site->getUuid(), $hosts));
+            }
         } else {
             //Site not found - fallback to traversing the repo (necessary for reindexing)
             $sites  = $this->cmsApi->getChildren(new Model\Folder('/'));
             $site   = null;
             foreach ($sites as $siteIter) {
-                /** @var $siteIter \Vivo\CMS\Model\Site */
                 if (($siteIter instanceof Model\Site) and (in_array($host, $siteIter->getHosts()))) {
                     $site   = $siteIter;
                     break;
                 }
+            }
+            if (is_null($site)) {
+                throw new Exception\SiteNotFoundException(
+                    sprintf("%s: Site not found for host '%s'", __METHOD__, $host));
             }
         }
         return $site;
@@ -126,8 +140,13 @@ class Site
         }
         //Check if any of the hosts is already used with another site
         foreach ($hosts as $host) {
-            $site   = $this->getSiteByHost($host);
-            if (!is_null($site)) {
+            $hostUsed   = true;
+            try {
+                $site   = $this->getSiteByHost($host);
+            } catch (Exception\SiteNotFoundException $e) {
+                $hostUsed   = false;
+            }
+            if ($hostUsed) {
                 throw new Exception\SiteAlreadyExistsException(
                     sprintf("%s: Host '%s' already used for site '%s'", __METHOD__, $host, $site->getName()));
             }
