@@ -158,7 +158,7 @@ return array(
             'site' => array (
                 'name' => 'site',
                 'title' => 'Site',
-                'componentClass' => 'Vivo\CMS\UI\Blank',
+                'componentClass' => 'Vivo\Backend\UI\Site',
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/site.png',
             ),
             'cache' => array (
