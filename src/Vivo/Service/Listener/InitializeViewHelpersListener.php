@@ -22,11 +22,11 @@ class InitializeViewHelpersListener
         $plugins        = $serviceLocator->get('view_helper_manager');
 
         //Set basepath for backend view
-        if ($routeName == 'backend/cms/query') {
+        if ($routeName == 'backend/cms') {
             /** @var $url ViewHelper\Url */
-            $url = $plugins->get('url');
-            $path = $url('backend/cms/query', array('path'=>''), false);
-            $basePath = $plugins->get('basepath');
+            $url        = $plugins->get('url');
+            $path       = $url('backend/cms', array('path'=>''));
+            $basePath   = $plugins->get('basepath');
             $basePath->setBasePath($path);
         }
     }

@@ -175,7 +175,7 @@ class SiteManager implements SiteManagerInterface,
         $listener->attach($this->events);
 
         $routeName  = $this->routeMatch->getMatchedRouteName();
-        if ((strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms/query')) {
+        if ((strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms')) {
             //Attach Backend config listener
             $listener   = new BackendConfigListener();
             $listener->attach($this->events);

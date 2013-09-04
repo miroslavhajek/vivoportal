@@ -16,17 +16,18 @@ class ResourceUrlHelperFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm                     = $serviceLocator;
         /** @var $application \Zend\Mvc\Application */
-        $application            = $sm->get('application');
+        $application            = $serviceLocator->get('application');
         $routeName              = $application->getMvcEvent()->getRouteMatch()->getMatchedRouteName();
-        $cmsApi                 = $sm->get('Vivo\CMS\Api\CMS');
-        $moduleResourceManager  = $sm->get('module_resource_manager');
-        $urlHelper              = $sm->get('Vivo\Util\UrlHelper');
-        $resourceHelperOptions  = array(
-            'vivo_resource_path'    => realpath(__DIR__ . '/../../../../resource'),
-        );
-
+        $cmsApi                 = $serviceLocator->get('Vivo\CMS\Api\CMS');
+        $moduleResourceManager  = $serviceLocator->get('module_resource_manager');
+        $urlHelper              = $serviceLocator->get('Vivo\Util\UrlHelper');
+        $config                 = $serviceLocator->get('config');
+        if (isset($config['resource_url_helper']) && is_array($config['resource_url_helper'])) {
+            $resourceHelperOptions  = $config['resource_url_helper'];
+        } else {
+            $resourceHelperOptions  = array();
+        }
         $helper                 = new ResourceUrlHelper($cmsApi,
                                                         $moduleResourceManager,
                                                         $urlHelper,

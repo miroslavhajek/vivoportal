@@ -61,8 +61,10 @@ class UrlHelper
      * Constructor.
      * @param RouteStackInterface $router
      * @param RouteMatch $routeMatch
+     * @param string $host
+     * @param array $options
      */
-    public function __construct(RouteStackInterface $router, RouteMatch $routeMatch, $host, $options)
+    public function __construct(RouteStackInterface $router, RouteMatch $routeMatch, $host, array $options = array())
     {
         $this->router = $router;
         $this->routeMatch = $routeMatch;
@@ -111,7 +113,7 @@ class UrlHelper
      */
     public function fromRoute($route = null, array $params = array(), array $options = array())
     {
-        $localOptions = ArrayUtils::merge($this->options, (array) $options);
+        $localOptions = ArrayUtils::merge($this->options, $options);
         $secured = $localOptions['settings']['secured'];
         $fullUrl = $localOptions['full_url'];
 
