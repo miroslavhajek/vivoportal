@@ -3,7 +3,6 @@ namespace Vivo\CMS\Indexer;
 
 use Vivo\Metadata\MetadataManager;
 use Vivo\Storage\PathBuilder\PathBuilder;
-use Vivo\CMS\Model\Entity;
 use Vivo\Indexer\IndexerInterface;
 
 /**

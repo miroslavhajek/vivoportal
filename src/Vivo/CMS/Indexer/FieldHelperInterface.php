@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\Indexer;
 
-use Vivo\CMS\Model\Entity;
-
 /**
  * FieldHelperInterface
  */
