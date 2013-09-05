@@ -89,6 +89,7 @@ class Solr implements AdapterInterface
      */
     protected $supportedTypeSuffices    = array(
         '_si',      //string, indexed
+        '_sit',     //string, indexed, tokenized
         '_sim',     //string, indexed, multi-value
         '_ss',      //string, stored
         '_ssm',     //string, stored, multi-value
@@ -132,7 +133,7 @@ class Solr implements AdapterInterface
         $this->fieldNameMap             = array_merge($this->fieldNameMap, $fieldNameMap);
         $this->supportedTypeSuffices    = array_merge($this->supportedTypeSuffices, $supportedTypeSuffices);
     }
-
+    
     /**
      * Finds documents matching the query in the index and returns a search result
      * If there are no documents found, returns an empty array
@@ -374,7 +375,27 @@ class Solr implements AdapterInterface
                 $solrDoc->addField($this->idField, $addDoc->getDocId());
             }
             try {
-                $this->solrService->addDocument($solrDoc);
+                $extractableFields = $addDoc->getExtractableFields();
+                if(count($extractableFields) == 1) {
+                    $field = reset($extractableFields);
+                    $extractParams = array(
+                        'fmap.content' => $this->getSolrFieldName($field['name']),
+                        'captureAttr'  => 'false',
+                        'lowernames'   => 'true',
+                        'commit' => 'true'
+                    );                    
+                    
+                    $this->solrService->extractFromString($field['value'], $extractParams, $solrDoc);
+                } elseif (count($extractableFields) > 1) {
+                    $ourException   = new Exception\SolrServiceException(
+                        sprintf("%s: Indexing more than one extracteble field is not implemented.", __METHOD__),
+                        0,
+                        $e
+                    );
+                    throw $ourException;
+                } else {
+                    $this->solrService->addDocument($solrDoc);
+                }
             } catch (\Exception $e) {
                 $ourException   = new Exception\SolrServiceException(
                     sprintf("%s: Solr service threw an exception", __METHOD__),
@@ -515,14 +536,14 @@ class Solr implements AdapterInterface
                 //MultiValued field
                 foreach ($field->getValue() as $singleValue) {
                     $value  = $this->convertToSolrValue($singleValue, $field->getName());
-                    if (!is_null($value)) {
+                    if (!is_null($value) && !$field->getExtractable()) {
                         $solrDoc->addField($solrFieldName, $value);
                     }
                 }
             } else {
                 //SingleValued field
                 $value  = $this->convertToSolrValue($field->getValue(), $field->getName());
-                if (!is_null($value)) {
+                if (!is_null($value) && !$field->getExtractable()) {
                     $solrDoc->addField($solrFieldName, $value);
                 }
             }

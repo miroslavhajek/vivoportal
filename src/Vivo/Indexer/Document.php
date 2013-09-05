@@ -99,6 +99,22 @@ class Document implements DocumentInterface
         $arrayObject = new ArrayObject($this->fields);
         return $arrayObject->getIterator();
     }
+    
+    /**
+     * Get extractable fields
+     * @return array
+     */
+    public function getExtractableFields()
+    {
+        $extractableFields = array();
+        foreach ($this->fields as $key => $field) {
+            if($field->getExtractable()){
+                $extractableFields[$key]['value'] = $field->getValue();
+                $extractableFields[$key]['name'] = $field->getName();
+            }
+        }
+        return $extractableFields;
+    }
 
     /**
      * Sets unique document ID

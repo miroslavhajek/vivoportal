@@ -35,6 +35,8 @@ return array(
             'Vivo\CMS\UI\Content\Navigation'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.phtml',
             'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
             'Vivo\CMS\UI\Content\SiteMap'       => __DIR__.'/../view/Vivo/CMS/UI/Content/SiteMap.phtml',
+            'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
+            'Vivo\CMS\UI\Content\Search'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Search.phtml',
 
             // Content editor component
             'Vivo\CMS\UI\Content\Editor\Editor'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',
@@ -47,6 +49,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\SiteMap'    => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/SiteMap.phtml',
             'Vivo\CMS\UI\Content\Editor\File\WysiwygAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/WysiwygAdapter.phtml',
             'Vivo\CMS\UI\Content\Editor\File\DefaultAdapter' => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/File/DefaultAdapter.phtml',
+            'Vivo\CMS\UI\Content\Editor\Search'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Search.phtml',
 
             // Other CMS
             'Vivo\CMS\UI\Rss' => __DIR__.'/../view/Vivo/CMS/UI/Rss.phtml',
@@ -101,6 +104,7 @@ return array(
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Fileboard',
             'Vivo\CMS\Model\Content\Gallery'    => 'Vivo\CMS\UI\Content\Gallery',
             'Vivo\CMS\Model\Content\SiteMap'    => 'Vivo\CMS\UI\Content\SiteMap',
+            'Vivo\CMS\Model\Content\Search'     => 'Vivo\CMS\UI\Content\Search',
         ),
         'editor_component' => array (
             'Vivo\CMS\Model\Content\Component'  => 'Vivo\CMS\UI\Content\Editor\Editor',
@@ -113,6 +117,7 @@ return array(
             'Vivo\CMS\Model\Content\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\Fileboard',
             'Vivo\CMS\Model\Content\Gallery'    => 'Vivo\CMS\UI\Content\Editor\Gallery',
             'Vivo\CMS\Model\Content\SiteMap'    => 'Vivo\CMS\UI\Content\Editor\SiteMap',
+            'Vivo\CMS\Model\Content\Search'     => 'Vivo\CMS\UI\Content\Editor\Search',
         ),
     ),
     'contents' => array (
@@ -163,6 +168,10 @@ return array(
             'site_map'    => array(
                 'class'     => 'Vivo\CMS\Model\Content\SiteMap',
                 'label'     => 'Vivo: SiteMap',
+            ),
+            'search'    => array(
+                'class'     => 'Vivo\CMS\Model\Content\Search',
+                'label'     => 'Vivo: Search',
             ),
         ),
         'restrictions' => array (
@@ -257,6 +266,7 @@ return array(
             'Vivo\CMS\UI\Content\Fileboard'  => 'Vivo\CMS\UI\Content\FileboardFactory',
             'Vivo\CMS\UI\Content\Gallery'    => 'Vivo\CMS\UI\Content\GalleryFactory',
             'Vivo\CMS\UI\Content\SiteMap'    => 'Vivo\CMS\UI\Content\SiteMapFactory',
+            'Vivo\CMS\UI\Content\Search'     => 'Vivo\CMS\UI\Content\SearchFactory',
 
             // Content editor factories
             'Vivo\CMS\UI\Content\Editor\Editor'     => 'Vivo\CMS\UI\Content\Editor\EditorFactory',
@@ -269,6 +279,7 @@ return array(
             'Vivo\CMS\UI\Content\Editor\Fileboard'  => 'Vivo\CMS\UI\Content\Editor\FileboardFactory',
             'Vivo\CMS\UI\Content\Editor\Gallery'    => 'Vivo\CMS\UI\Content\Editor\GalleryFactory',
             'Vivo\CMS\UI\Content\Editor\SiteMap'    => 'Vivo\CMS\UI\Content\Editor\SiteMapFactory',
+            'Vivo\CMS\UI\Content\Editor\Search'     => 'Vivo\CMS\UI\Content\Editor\SearchFactory',
 
             // CMS listeners
             'Vivo\CMS\Listener\FetchDocumentListener'       => 'Vivo\CMS\Listener\FetchDocumentListenerFactory',
@@ -308,13 +319,14 @@ return array(
             'Vivo\Backend\UI\Explorer\Tree'     => 'Vivo\Backend\UI\Explorer\TreeFactory',
             'Vivo\Backend\UI\Explorer\Ribbon'   => 'Vivo\Backend\UI\Explorer\RibbonFactory',
             'Vivo\Backend\UI\Logon'             => 'Vivo\Backend\UI\LogonFactory',
-            'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
             'Vivo\Backend\UI\ModulesPanel'      => 'Vivo\Backend\UI\ModulesPanelFactory',
             'Vivo\Backend\UI\Site'              => 'Vivo\Backend\UI\SiteFactory',
             'Vivo\Backend\UI\Cache'             => 'Vivo\Backend\UI\CacheFactory',
+
             'Vivo\Backend\Provider\EntityResource' => 'Vivo\Backend\Provider\EntityResourceFactory',
             'Vivo\Backend\Provider\Language'    => 'Vivo\Backend\Provider\LanguageFactory',
             'Vivo\Backend\Provider\Sorting'     => 'Vivo\Backend\Provider\SortingFactory',
+            'Vivo\Backend\ModuleResolver'       => 'Vivo\Backend\ModuleResolverFactory',
         ),
         'aliases' => array(
         ),
@@ -484,5 +496,9 @@ return array(
             'published:desc' => 'publish_date_document_only_desc',
             'random'     => 'random'
         ),
+     ),
+    'defaultSearchableFields' => array (
+            '\title'           => 'title',
+            '\resourceContent' => 'resourceContent',
      ),
 );

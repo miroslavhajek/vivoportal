@@ -2,6 +2,7 @@
 namespace Vivo\Indexer;
 
 use Vivo\Indexer\Document;
+use Vivo\Indexer\Query;
 
 use Zend\EventManager\EventManager;
 
@@ -17,6 +18,18 @@ class Indexer implements IndexerInterface
     protected $adapter;
 
     /**
+     * QueryBuilder
+     * @var Vivo\Indexer\QueryBuilder
+     */
+    protected $qb;
+
+    /**
+     * QueryBuilder
+     * @var Vivo\Indexer\QueryBuilder
+     */
+    protected $defaultSearchableFields;
+
+    /**
      * Event Manager
      * @var EventManager
      */
@@ -28,7 +41,12 @@ class Indexer implements IndexerInterface
      */
     public function __construct(Adapter\AdapterInterface $adapter)
     {
-        $this->adapter  = $adapter;
+        $this->adapter                 = $adapter;
+        $this->qb                      = new QueryBuilder();
+        $this->defaultSearchableFields = array (
+            '\title'           => 'title',
+            '\resourceContent' => 'resourceContent',
+        );
     }
 
     /**
@@ -39,13 +57,72 @@ class Indexer implements IndexerInterface
      * @return Result
      */
     public function find(Query\QueryInterface $query, $queryParams = null)
-	{
+    {
         if (is_array($queryParams)) {
             $queryParams    = new QueryParams($queryParams);
         }
+
+        $query = $this->checkAndRebuildQuery($query);
         $result = $this->adapter->find($query, $queryParams);
         return $result;
-	}
+    }
+
+    /**
+     * Check for conditions with no field specified and rebuild query to search in common fields specified in conf
+     * @param Query\QueryInterface $query
+     * @param string $branch
+     * @param Query\QueryInterface $parent
+     * @return Query\QueryInterface $query
+     */
+    protected function checkAndRebuildQuery($query, $branch = 'left', $parent = null)
+    {
+        if($query instanceof Query\BooleanInterface) {
+            $this->checkAndRebuildQuery($query->getQueryLeft(), 'left', $query);
+            $this->checkAndRebuildQuery($query->getQueryRight(), 'right', $query);
+        } else {
+            if($query instanceof Query\Term) {
+                if(!$query->getTerm()->getField()) {
+                    return $this->rebuildQuery($query->getTerm(), $branch, $parent);
+                }
+            } elseif($query instanceof Query\Range) {
+                if(!$query->getField()) {
+                    return $this->rebuildQuery($query, $branch, $parent);
+                }
+            } elseif($query instanceof Query\Wildcard) {
+                if(!$query->getPattern()->getField()) {
+                    return $this->rebuildQuery($query->getPattern(), $branch, $parent);
+                }
+            }
+        }
+        return $query;
+    }
+
+    /**
+     * Rebuilds query to search in common fields specified in conf
+     * @param Query\QueryInterface $query
+     * @param string $branch
+     * @param Query\QueryInterface $parent
+     * @return Query\QueryInterface $query
+     */
+    protected function rebuildQuery($query, $branch, $parent = null)
+    {
+        $currentQuery = null;
+        foreach ($this->defaultSearchableFields as $field => $name) {
+            $newQuery = $this->qb->cond($query->getText(), $field);
+            if($currentQuery != null){
+                $currentQuery = $this->qb->orX($currentQuery, $newQuery);
+            } else {
+                $currentQuery = $newQuery;
+            }
+        }
+        if($parent != null) {
+            $setterName = 'setQuery' . $branch;
+            $parent->$setterName($currentQuery);
+            return $parent;
+        } else {
+            return $currentQuery;
+        }
+    }
 
     /**
      * Finds and returns a document by its ID
