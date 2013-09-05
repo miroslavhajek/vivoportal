@@ -3,11 +3,12 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\Document as DocumentApi;
-use Vivo\SiteManager\Event\SiteEvent;
-use Vivo\UI\Paginator;
-use Vivo\Indexer\QueryBuilder;
 use Vivo\CMS\UI\AbstractForm;
 use Vivo\CMS\Model\Content\Search as SearchModel;
+use Vivo\UI\Paginator;
+use Vivo\UI\ComponentEventInterface;
+use Vivo\SiteManager\Event\SiteEvent;
+use Vivo\Indexer\QueryBuilder;
 use Vivo\Form\Form;
 use Vivo\Indexer\Query\QueryInterface;
 use Vivo\Repository\Exception\EntityNotFoundException;
@@ -17,25 +18,23 @@ use Vivo\Repository\Exception\EntityNotFoundException;
  *
  * Search for documents.
  */
-
 class Search extends AbstractForm
 {
-    
    /**
     * @var int
     */
    public $max_score = 1;
-   
+
     /**
      * @var \Vivo\CMS\Api\CMS
      */
     private $cmsApi;
-    
+
     /**
      * @var \Vivo\Indexer\IndexerInterface
      */
     private $indexer;
-    
+
     /**
      * Document API
      * @var DocumentApi
@@ -46,24 +45,24 @@ class Search extends AbstractForm
      * @var SiteEvent
      */
     private $siteEvent;
-    
+
     /**
      * Paginator
      * @var $paginator
      */
     protected $paginator;
-    
+
     /**
      * Search result
      * @var array
      */
-    protected $result;   
-    
+    protected $result;
+
     /**
      * Searched result count
      * @var int
      */
-    protected $numRows; 
+    protected $numRows;
 
     /**
      * Constructor
@@ -73,10 +72,10 @@ class Search extends AbstractForm
      * @param \Zend\Cache\Storage\StorageInterface $cache
      */
     public function __construct(
-            CMS $cmsApi, 
-            \Vivo\Indexer\IndexerInterface $indexer, 
-            DocumentApi $documentApi, 
-            SiteEvent $siteEvent, 
+            CMS $cmsApi,
+            \Vivo\Indexer\IndexerInterface $indexer,
+            DocumentApi $documentApi,
+            SiteEvent $siteEvent,
             Paginator $paginator)
     {
         $this->cmsApi      = $cmsApi;
@@ -85,40 +84,54 @@ class Search extends AbstractForm
         $this->siteEvent   = $siteEvent;
         $this->paginator   = $paginator;
     }
-    
-    public function init()
-    {               
-        parent::init();
+
+    public function attachListeners()
+    {
+        parent::attachListeners();
+
+        $this->getEventManager()->attach(ComponentEventInterface::EVENT_INIT,
+            array($this, 'initListenerSearchInit'));
+    }
+
+    public function initListenerSearchInit()
+    {
         $this->addComponent($this->paginator, 'paginator');
         $this->paginator->init();
         $this->paginator->initSetPage();
-        
+
         $this->paginator->setItemsPerPage($this->content->getPageSize());
-        
+
         $this->view->max_score = $this->max_score;
         $this->view->paginator = $this->paginator;
-        
+
         //Add params to paginator
         if($params = $this->request->getQuery()->toArray()) {
             $this->paginator->addParam('words', $params['words']);
             $this->paginator->addParam('operator', $params['operator']);
             $this->paginator->addParam('wildcards', $params['wildcards']);
-            $this->paginator->addParam('act', $this->getPath('getPage'));        
+            $this->paginator->addParam('act', $this->getPath('getPage'));
         }
     }
-    
-    public function getPage() {
+
+    public function getPage()
+    {
         $this->doSearch($this->request->getQuery()->toArray());
     }
-    
-    public function search() {
+
+    public function search()
+    {
         $form = $this->getForm();
         if ($form->isValid()) {
             $this->doSearch($form->getData());
         }
     }
-    
-    public function doSearch(array $data) {
+
+    /**
+     * TODO: move to Vivo\CMS\Api\Content\Search
+     * @param array $data
+     */
+    public function doSearch(array $data)
+    {
         $qb = new QueryBuilder();
         $documentList = array();
 
@@ -161,15 +174,15 @@ class Search extends AbstractForm
                 $currentQuery = $query;
             }
         }
-                
+
         $currentQuery = $qb->andX($currentQuery, $qb->cond($this->siteEvent->getSite()->getPath() . '/*','\path'));
-        
+
         $params = array();
-        
+
         // Limit and offset of paginator are not used because results are filtered next and count does not match.
         $params['page_size'] = SearchModel::$SEARCH_LIMIT;
         $result = $this->indexer->find($currentQuery, $params);
-        
+
         $this->numRows = $result->getTotalHitCount();
 
         foreach ($result->getHits() as $hit) {
@@ -202,19 +215,19 @@ class Search extends AbstractForm
                 $this->numRows -= 1;
             }
         }
-        
+
         $this->paginator->setItemCount($this->numRows);
         //Choose pages from result
         $resultPages = array_chunk($documentList, $this->content->getPageSize());
         $this->result = $resultPages[$this->paginator->getPage() - 1];
         $this->view->result = $this->result;
     }
-    
+
     /**
      * @param array $query_parts
      * @return array
      */
-    protected function addFieldConstraintToQueryParts(array $query_parts) 
+    protected function addFieldConstraintToQueryParts(array $query_parts)
     {
         $new_array = array();
         foreach ($query_parts as $part) {
@@ -225,9 +238,9 @@ class Search extends AbstractForm
 
     protected function doGetForm()
     {
-        $form = new Form('Searchform');        
+        $form = new Form('Searchform');
         $form->setAttribute('method', 'get');
-        
+
         $form->add(array(
             'name' => 'act',
             'attributes' => array(
@@ -253,13 +266,13 @@ class Search extends AbstractForm
             'name' => 'wildcards',
             'type' => 'Vivo\Form\Element\Select',
             'options' => array(
-                'label' => 'Wildcards',                
+                'label' => 'Wildcards',
             ),
             'attributes' => array(
                 'options' => $this->content->getWildcardsOptions(),
                 'value' => $this->content->getWildcards()
             ),
-            
+
         ));
         $form->add(array(
             'name' => 'submit',
@@ -267,9 +280,8 @@ class Search extends AbstractForm
             'attributes' => array(
                 'value' => 'Search',
             ),
-        ));    
+        ));
 
-        return $form;        
+        return $form;
     }
-
 }
