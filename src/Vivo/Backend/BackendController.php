@@ -114,7 +114,7 @@ class BackendController implements DispatchableInterface,
                 || $this->mvcEvent->getRouteMatch()->getMatchedRouteName() == 'backend/default'
                 || !$this->mvcEvent->getRouteMatch()->getParam('module')
                 || !$host) {
-                $url = $this->urlHelper->fromRoute('backend/modules/query', array('host' => $host?:$this->getDefaultHost()));
+                $url = $this->urlHelper->fromRoute('backend/modules', array('host' => $host?:$this->getDefaultHost()));
                 $this->redirector->redirect(new RedirectEvent($url));
                 return $response;
             }
