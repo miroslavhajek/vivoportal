@@ -1,23 +1,20 @@
-<?php
-$formType = \DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL;
-$form     = $this->form;
-echo $this->formTwb($form, $formType);
-
-?>
+<?=$this->formTwb($this->form, DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL);?>
 <? if (count($this->result)) : ?>
-    <table id="search_result" border="1">
+    <table id="search_result">
         <tbody>
-            <? foreach ($this->result as $result) : ?>
-                    <tr>
-                        <td>
-                            <a href="<?= $result['url'] ?>" title="<?= $result['title'] ?>"><?= $result['title'] ?></a>
-                            <div><?= $result['description'] ?></div>
-                            <!-- <div class="url"><a href="<?= $result['url'] ?>" title="<?= $result['title'] ?>"><?= $result['url'] ?></a></div> -->
-                        </td>
-                        <td class="rate">
-                            <?= round(($result['score'] / (float) $this->max_score) * 100, 2) . '%' ?>
-                        </td>
-                    </tr>
+            <? foreach ($this->result as $result) :
+                $document = $result['document']; /* @var $document \Vivo\CMS\Model\Document */
+                $url = $this->document($document, array('full_url' => true));
+                $title = htmlspecialchars($document->getTitle());
+            ?>
+                <tr>
+                    <td>
+                        <a href="<?=$url?>" title="<?=$title?>"><?=$title?></a>
+                        <div><?=htmlspecialchars($document->getDescription())?></div>
+                        <div class="url"><a href="<?=$url?>" title="<?=$title?>"><?=$url?></a></div>
+                    </td>
+                    <td class="rate"><?=min(round(($result['score'] / floatval($this->maxScore)) * 100, 2), 100) ?>%</td>
+                </tr>
             <? endforeach; ?>
             <tr>
                 <td colspan="2">
