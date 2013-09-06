@@ -6,7 +6,7 @@ use Vivo\TransactionalInterface;
 /**
  * IndexerInterface
  */
-interface IndexerInterface extends  TransactionalInterface
+interface IndexerInterface extends TransactionalInterface
 {
     const FIELD_TYPE_STRING     = 'string';
     const FIELD_TYPE_DATETIME   = 'datetime';
