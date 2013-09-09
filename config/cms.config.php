@@ -497,8 +497,4 @@ return array(
             'random'     => 'random'
         ),
      ),
-    'defaultSearchableFields' => array (
-            '\title'           => 'title',
-            '\resourceContent' => 'resourceContent',
-     ),
 );
