@@ -5,6 +5,7 @@ use Vivo\Indexer\Document;
 use Vivo\Indexer\Query;
 
 use Zend\EventManager\EventManager;
+use Zend\Stdlib\ArrayUtils;
 
 /**
  * Indexer
@@ -25,9 +26,9 @@ class Indexer implements IndexerInterface
 
     /**
      * QueryBuilder
-     * @var Vivo\Indexer\QueryBuilder
+     * @var array
      */
-    protected $defaultSearchableFields;
+    protected $options = array('default_searchable_fields'=> array());
 
     /**
      * Event Manager
@@ -38,15 +39,13 @@ class Indexer implements IndexerInterface
     /**
      * Construct
      * @param Adapter\AdapterInterface $adapter
+     * @param array $options
      */
-    public function __construct(Adapter\AdapterInterface $adapter)
+    public function __construct(Adapter\AdapterInterface $adapter, array $options = array())
     {
-        $this->adapter                 = $adapter;
-        $this->qb                      = new QueryBuilder();
-        $this->defaultSearchableFields = array (
-            '\title'           => 'title',
-            '\resourceContent' => 'resourceContent',
-        );
+        $this->adapter  = $adapter;
+        $this->options  = ArrayUtils::merge($this->options, $options);
+        $this->qb       = new QueryBuilder();
     }
 
     /**
@@ -107,7 +106,7 @@ class Indexer implements IndexerInterface
     protected function rebuildQuery($query, $branch, $parent = null)
     {
         $currentQuery = null;
-        foreach ($this->defaultSearchableFields as $field => $name) {
+        foreach ($this->options['default_searchable_fields'] as $field) {
             $newQuery = $this->qb->cond($query->getText(), $field);
             if($currentQuery != null){
                 $currentQuery = $this->qb->orX($currentQuery, $newQuery);

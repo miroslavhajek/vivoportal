@@ -185,14 +185,13 @@ class Search extends AbstractForm
             $params['page_size'] = SearchModel::$SEARCH_LIMIT;
             $result = $this->indexer->find($currentQuery, $params);
 
-            $this->numRows = $result->getTotalHitCount();
+            $this->numRows = 0;
 
             foreach ($result->getHits() as $hit) {
                 $entityPath = $hit->getDocument()->getField('\path')->getValue();
                 try {
                     $entity = $this->cmsApi->getSiteEntity($entityPath, $this->siteEvent->getSite());
                 } catch (EntityNotFoundException $e) {
-                    $this->numRows--;
                     continue;
                 }
 
@@ -203,7 +202,6 @@ class Search extends AbstractForm
                         $entityPath = $document->getPath();
                     }
                     else {
-                        $this->numRows--;
                         continue;
                     }
                 }
@@ -214,8 +212,8 @@ class Search extends AbstractForm
                 && $this->documentApi->isPublished($entity)) {
                     $documentList[$entityPath]['document'] = $entity;
                     $documentList[$entityPath]['score'] = $hit->getScore();
-                } else {
-                    $this->numRows--;
+
+                    $this->numRows++;
                 }
             }
 

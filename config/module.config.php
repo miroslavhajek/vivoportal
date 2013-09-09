@@ -254,7 +254,7 @@ return array(
             'lucene'                    => 'Vivo\Service\LuceneFactory',
             'storage_util'              => 'Vivo\Service\StorageUtilFactory',
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
-            'indexer'                   => 'Vivo\Service\IndexerFactory',
+            'indexer'                   => 'Vivo\Indexer\IndexerFactory',
             'repository'                => 'Vivo\Repository\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
             'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
@@ -942,6 +942,10 @@ return array(
 //                'options'   => array(
 //                    'id_field'      => 'uuid',
 //                ),
+        ),
+        'default_searchable_fields' => array(
+            '\title',
+            '\resourceContent',
         ),
         'default_indexing_options'  => array(
             'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,

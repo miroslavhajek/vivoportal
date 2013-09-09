@@ -75,7 +75,7 @@ class IndexerHelper implements IndexerHelperInterface
                     $field  = new Field('\resourceContent', $data);
                     $doc->addField($field);
                 } else {
-                    $field  = new Field('\resourceContent', $data, $extractable = true);
+                    $field  = new Field('\resourceContent', $data, true);
                     $doc->addField($field);
                 }
             }

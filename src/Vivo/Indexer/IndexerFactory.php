@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Indexer;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -17,7 +17,9 @@ class IndexerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $adapter        = $serviceLocator->get('indexer_adapter');
-        $indexer        = new \Vivo\Indexer\Indexer($adapter);
+        $config         = $serviceLocator->get('config');
+
+        $indexer        = new Indexer($adapter, $config['indexer']);
         return $indexer;
     }
 }
