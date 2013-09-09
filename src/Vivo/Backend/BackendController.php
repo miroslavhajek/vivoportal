@@ -11,7 +11,6 @@ use Vivo\UI\ComponentTreeController;
 use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
-use Vivo\UI\ComponentEventInterface;
 
 use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
@@ -27,8 +26,7 @@ use Zend\View\Model\ModelInterface;
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  */
-class BackendController implements DispatchableInterface,
-    InjectApplicationEventInterface, ServiceManagerAwareInterface
+class BackendController implements DispatchableInterface, InjectApplicationEventInterface, ServiceManagerAwareInterface
 {
 
     /**
@@ -47,7 +45,6 @@ class BackendController implements DispatchableInterface,
     protected $tree;
 
     /**
-     *
      * @var Redirector
      */
     protected $redirector;
@@ -64,7 +61,6 @@ class BackendController implements DispatchableInterface,
     protected $securityManager;
 
     /**
-     *
      * @var ModuleResolver
      */
     protected $moduleResolver;
@@ -104,9 +100,6 @@ class BackendController implements DispatchableInterface,
      */
     public function dispatch(Request $request, Response $response = null)
     {
-
-        $sm = $this->sm;
-
         //redirect bad backend urls
         $host = $this->mvcEvent->getRouteMatch()->getParam('host');
         if ($this->securityManager->getUserPrincipal()) {
@@ -121,15 +114,15 @@ class BackendController implements DispatchableInterface,
         }
 
         //Create UI component tree for backend.
-        $root = $sm->get('Vivo\CMS\UI\Root');
-        $page = $sm->get('Vivo\UI\Page');
-        if (!$this->securityManager->getUserPrincipal()) {
-            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
-        } else {
+        $root = $this->sm->get('Vivo\CMS\UI\Root');
+        $page = $this->sm->get('Vivo\UI\Page');
+        if ($this->securityManager->getUserPrincipal()) {
             $backend = $this->sm->get('Vivo\Backend\UI\Backend');
             $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
             $backend->setModuleComponent($this->moduleResolver->createComponent($moduleName));
             $page->setMain($backend);
+        } else {
+            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
         }
         $root->setMain($page);
 
@@ -157,7 +150,7 @@ class BackendController implements DispatchableInterface,
         $this->tree->done();
 
         // Return response
-        if($this->redirector->isRedirect()){
+        if($this->redirector->isRedirect()) {
             return $response;
         }
         if ($result instanceof ModelInterface) {
@@ -234,7 +227,8 @@ class BackendController implements DispatchableInterface,
     /**
      * @return RequestInterface
      */
-    public function getRequest() {
+    public function getRequest()
+    {
         return $this->mvcEvent->getRequest();
     }
 
