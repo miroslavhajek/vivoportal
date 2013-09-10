@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\CMS\Indexer;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -12,17 +12,16 @@ class IndexerHelperFactory implements FactoryInterface
 {
     /**
      * Create service
-     * @param ServiceLocatorInterface $serviceLocator
-     * @throws Exception\UnsupportedIndexerAdapterException
-     * @return mixed
+     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
+     * @return \Vivo\CMS\Indexer\IndexerHelper
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $indexerFieldHelper = $serviceLocator->get('indexer_field_helper');
         $fileApi            = $serviceLocator->get('Vivo\CMS\Api\Content\File');
-        
-        $indexerHelper      = new \Vivo\CMS\Indexer\IndexerHelper($indexerFieldHelper, $fileApi);
-        
+
+        $indexerHelper      = new IndexerHelper($indexerFieldHelper, $fileApi);
+
         return $indexerHelper;
     }
 }

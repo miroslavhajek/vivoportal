@@ -36,7 +36,7 @@ return array(
             'Vivo\CMS\UI\Content\Navigation:Breadcrumbs' => __DIR__.'/../view/Vivo/CMS/UI/Content/Navigation.Breadcrumbs.phtml',
             'Vivo\CMS\UI\Content\SiteMap'       => __DIR__.'/../view/Vivo/CMS/UI/Content/SiteMap.phtml',
             'Vivo\CMS\UI\Content\Logon'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Logon.phtml',
-            'Vivo\CMS\UI\Content\Search'         => __DIR__.'/../view/Vivo/CMS/UI/Content/Search.phtml',
+            'Vivo\CMS\UI\Content\Search'        => __DIR__.'/../view/Vivo/CMS/UI/Content/Search.phtml',
 
             // Content editor component
             'Vivo\CMS\UI\Content\Editor\Editor'     => __DIR__.'/../view/Vivo/CMS/UI/Content/Editor/Editor.phtml',

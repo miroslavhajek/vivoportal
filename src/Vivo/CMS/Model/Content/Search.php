@@ -58,13 +58,6 @@ class Search extends Model\Content
     protected $resourceLink;
 
     /**
-    * Limit the maximum number of results returned Solr. Too large value may cause problems with power / memory
-    * @var integer
-    * @see Vivo\CMS\UI\Content\Search::doSearch()
-    */
-    static $SEARCH_LIMIT = 100;
-
-    /**
      * Returns max page size
      * @return int
      */
@@ -83,21 +76,21 @@ class Search extends Model\Content
     }
 
     /**
+     * Returns page size options
+     * @return array
+     */
+    public function getPagesizeOptions()
+    {
+        return $this->pagesizeOptions;
+    }
+
+    /**
      * Returns search operator
      * @return string
      */
     public function getOperator()
     {
         return $this->operator;
-    }
-
-    /**
-     * Returns operator options
-     * @return array
-     */
-    public function getOperatorOptions()
-    {
-        return $this->operatorOptions;
     }
 
     /**
@@ -110,21 +103,21 @@ class Search extends Model\Content
     }
 
     /**
+     * Returns operator options
+     * @return array
+     */
+    public function getOperatorOptions()
+    {
+        return $this->operatorOptions;
+    }
+
+    /**
      * Returns search wildcards
      * @return string
      */
     public function getWildcards()
     {
         return $this->wildcards;
-    }
-
-    /**
-     * Returns wildcards options
-     * @return array
-     */
-    public function getWildcardsOptions()
-    {
-        return $this->wildcardsOptions;
     }
 
     /**
@@ -137,8 +130,17 @@ class Search extends Model\Content
     }
 
     /**
+     * Returns wildcards options
+     * @return array
+     */
+    public function getWildcardsOptions()
+    {
+        return $this->wildcardsOptions;
+    }
+
+    /**
      * Returns search resource link
-     * @return int
+     * @return string
      */
     public function getResourceLink()
     {
@@ -152,14 +154,5 @@ class Search extends Model\Content
     public function setResourceLink($resourceLink)
     {
         $this->resourceLink = $resourceLink;
-    }
-
-    /**
-     * Returns search resource link
-     * @return int
-     */
-    public function getPagesizeOptions()
-    {
-        return $this->pagesizeOptions;
     }
 }

@@ -21,11 +21,6 @@ use Vivo\Repository\Exception\EntityNotFoundException;
  */
 class Search extends AbstractForm
 {
-   /**
-    * @var int
-    */
-   private $maxScore = 1;
-
     /**
      * @var \Vivo\CMS\Api\CMS
      */
@@ -57,13 +52,13 @@ class Search extends AbstractForm
      * Search result
      * @var array
      */
-    private $result;
+    private $result = array();
 
     /**
      * Searched result count
      * @var int
      */
-    private $numRows;
+    private $numRows = 0;
 
     /**
      * Constructor
@@ -91,7 +86,9 @@ class Search extends AbstractForm
     {
         parent::attachListeners();
 
-        $this->getEventManager()->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSearchInit'));
+        $eventManager = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSearchInit'));
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerSearchView'));
     }
 
     public function initListenerSearchInit()
@@ -102,9 +99,6 @@ class Search extends AbstractForm
 
         $this->paginator->setItemsPerPage($this->content->getPageSize());
 
-        $this->view->maxScore = $this->maxScore;
-        $this->view->paginator = $this->paginator;
-
         //Add params to paginator
         if($params = $this->request->getQuery()->toArray()) {
             $this->paginator->addParam('words', $params['words']);
@@ -112,6 +106,13 @@ class Search extends AbstractForm
             $this->paginator->addParam('wildcards', $params['wildcards']);
             $this->paginator->addParam('act', $this->getPath('getPage'));
         }
+    }
+
+    public function viewListenerSearchView()
+    {
+        $view = $this->getView();
+        $view->result = $this->result;
+        $view->paginator = $this->paginator;
     }
 
     public function getPage()
@@ -180,10 +181,7 @@ class Search extends AbstractForm
             $currentQuery = $qb->andX($currentQuery,
                                       $qb->cond($this->siteEvent->getSite()->getPath() . '/ROOT/*', '\path'));
 
-            $params = array();
-            // Limit and offset of paginator are not used because results are filtered next and count does not match.
-            $params['page_size'] = SearchModel::$SEARCH_LIMIT;
-            $result = $this->indexer->find($currentQuery, $params);
+            $result = $this->indexer->find($currentQuery, array('page_size' => 100));
 
             $this->numRows = 0;
 
@@ -221,7 +219,6 @@ class Search extends AbstractForm
             //Choose pages from result
             $resultPages = array_chunk($documentList, $this->content->getPageSize());
             $this->result = $resultPages[$this->paginator->getPage() - 1];
-            $this->view->result = $this->result;
         }
     }
 

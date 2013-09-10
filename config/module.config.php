@@ -257,7 +257,7 @@ return array(
             'indexer'                   => 'Vivo\Indexer\IndexerFactory',
             'repository'                => 'Vivo\Repository\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
-            'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
+            'indexer_helper'            => 'Vivo\CMS\Indexer\IndexerHelperFactory',
             'Vivo\CMS\Api\Module'       => 'Vivo\CMS\Api\ModuleFactory',
             'Vivo\CMS\Api\CMS'          => 'Vivo\CMS\Api\CMSFactory',
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',

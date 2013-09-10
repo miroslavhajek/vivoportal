@@ -287,7 +287,7 @@ class Indexer implements IndexerInterface
         }
         $options    = array('published_content_types' => $publishedContentTypes);
         try {
-            $idxDoc     = $this->indexerHelper->createDocument($entity, $options);            
+            $idxDoc     = $this->indexerHelper->createDocument($entity, $options);
             $event->setIdxDoc($idxDoc);
             $this->indexerEvents->trigger(IndexerEvent::EVENT_INDEX_PRE, $event);
             $this->indexer->addDocument($idxDoc);
@@ -343,9 +343,9 @@ class Indexer implements IndexerInterface
         $saveEntities   = $event->getParam('save_entities');
         foreach ($saveEntities as $entity) {
             $this->saveEntity($entity);
-        }                
+        }
         /** @var $saveResources array('data' => ..., 'entity' => ...) */
-        $saveResources   = $event->getParam('save_data');   
+        $saveResources   = $event->getParam('save_data');
         foreach ($saveResources as $key => $value) {
             $this->saveEntity($value['entity']);
         }
@@ -354,8 +354,6 @@ class Indexer implements IndexerInterface
         foreach ($saveStreams as $key => $value) {
             $this->saveEntity($value['entity']);
         }
-               
-        //TODO - implement also support for other repository actions with resources etc.
 
         $this->indexer->commit();
     }
