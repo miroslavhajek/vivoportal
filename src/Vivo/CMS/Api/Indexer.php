@@ -344,10 +344,16 @@ class Indexer implements IndexerInterface
         foreach ($saveEntities as $entity) {
             $this->saveEntity($entity);
         }
-
-
-        //TODO - implement also support for other repository actions with resources etc.
-
+        /** @var $saveResources array('data' => ..., 'entity' => ...) */
+        $saveResources   = $event->getParam('save_data');
+        foreach ($saveResources as $key => $value) {
+            $this->saveEntity($value['entity']);
+        }
+        /** @var $saveStreams array('stream' => IO\InputStreamInterface[], 'entity' => ...) */
+        $saveStreams   = $event->getParam('save_streams');
+        foreach ($saveStreams as $key => $value) {
+            $this->saveEntity($value['entity']);
+        }
 
         $this->indexer->commit();
     }

@@ -78,8 +78,7 @@ class File extends AbstractForm implements EditorInterface, AdapterAwareInterfac
             $data = $formData['upload-file'];
             if ($data["tmp_name"] != "") {
                 $this->fileApi->saveFileWithUploadedFile($this->content, $data, $contentContainer);
-            }
-            else {
+            } else {
                 $mimeType = $this->content->getMimeType();
                 $ext = $this->fileApi->getExt($mimeType);
 
