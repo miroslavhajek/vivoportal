@@ -9,7 +9,7 @@
 	<? endif; ?>
 
 	<? foreach ($steps as $step => $queryString): ?>
-	<? if ($lastStep && $lastStep + 1 < $step): ?>
+	<? if (isset($lastStep) && $lastStep + 1 < $step): ?>
 		<span>&hellip;</span>
 	<? endif; ?>
 	<? if ($step == $this->page): ?>

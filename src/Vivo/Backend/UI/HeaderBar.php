@@ -9,9 +9,4 @@ class HeaderBar extends Component
     public function __construct()
     {
     }
-
-    public function init()
-    {
-        parent::init();
-    }
 }

@@ -1,0 +1,28 @@
+<?=$this->formTwb($this->form, DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL);?>
+<? if (count($this->result)) : ?>
+    <table id="search_result">
+        <tbody>
+            <? foreach ($this->result as $result) :
+                $document = $result['document']; /* @var $document \Vivo\CMS\Model\Document */
+                $url = $this->document($document, array('full_url' => true));
+                $title = htmlspecialchars($document->getTitle());
+            ?>
+                <tr>
+                    <td>
+                        <a href="<?=$url?>" title="<?=$title?>"><?=$title?></a>
+                        <div><?=htmlspecialchars($document->getDescription())?></div>
+                        <div class="url"><a href="<?=$url?>" title="<?=$title?>"><?=$url?></a></div>
+                    </td>
+                    <td class="rate"><?=min(round($result['score'] * 100, 2), 100) ?>%</td>
+                </tr>
+            <? endforeach; ?>
+            <tr>
+                <td colspan="2">
+                    <?= $this->paginator; ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+<? else : ?>
+    <p>No results found.</p>
+<? endif; ?>

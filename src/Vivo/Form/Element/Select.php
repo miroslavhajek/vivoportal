@@ -6,8 +6,6 @@ use Vivo\Form\ValidationResultAwareInterface;
 use Zend\Form\Element\Select as ZendSelect;
 use Zend\Form\ElementPrepareAwareInterface;
 use Zend\Form\FormInterface;
-use Zend\Validator\Explode as ExplodeValidator;
-use Zend\Validator\InArray as InArrayValidator;
 use Zend\Validator\StringLength as StringLengthValidator;
 
 class Select extends ZendSelect implements ElementPrepareAwareInterface, ValidationResultAwareInterface
@@ -59,8 +57,7 @@ class Select extends ZendSelect implements ElementPrepareAwareInterface, Validat
             if (!$this->disableInArrayValidator) {
                 parent::getValidator();
             } else {
-                    $validator = new StringLengthValidator(array('min' => 0));
-                    $this->validator = $validator;
+                $this->validator = new StringLengthValidator(array('min' => 0));
             }
         }
         return $this->validator;

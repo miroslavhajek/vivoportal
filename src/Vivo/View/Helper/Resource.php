@@ -1,9 +1,7 @@
 <?php
 namespace Vivo\View\Helper;
 
-use Vivo\CMS\Model\Entity;
 use Vivo\CMS\Util\ResourceUrlHelper;
-
 use Zend\View\Helper\AbstractHelper;
 
 /**

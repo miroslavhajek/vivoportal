@@ -254,10 +254,10 @@ return array(
             'lucene'                    => 'Vivo\Service\LuceneFactory',
             'storage_util'              => 'Vivo\Service\StorageUtilFactory',
             'indexer_adapter_lucene'    => 'Vivo\Service\IndexerAdapterLuceneFactory',
-            'indexer'                   => 'Vivo\Service\IndexerFactory',
+            'indexer'                   => 'Vivo\Indexer\IndexerFactory',
             'repository'                => 'Vivo\Repository\RepositoryFactory',
             'repository_events'         => 'Vivo\Repository\EventManagerFactory',
-            'indexer_helper'            => 'Vivo\Service\IndexerHelperFactory',
+            'indexer_helper'            => 'Vivo\CMS\Indexer\IndexerHelperFactory',
             'Vivo\CMS\Api\Module'       => 'Vivo\CMS\Api\ModuleFactory',
             'Vivo\CMS\Api\CMS'          => 'Vivo\CMS\Api\CMSFactory',
             'Vivo\CMS\Api\Document'     => 'Vivo\CMS\Api\DocumentFactory',
@@ -943,6 +943,10 @@ return array(
 //                    'id_field'      => 'uuid',
 //                ),
         ),
+        'default_searchable_fields' => array(
+            '\title',
+            '\resourceContent',
+        ),
         'default_indexing_options'  => array(
             'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
             'indexed'       => true,
@@ -1039,7 +1043,7 @@ return array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,
-                'tokenized'     => false,
+                'tokenized'     => true,
                 'multi'         => false,
             ),
             '\mimeType' => array(
@@ -1057,6 +1061,20 @@ return array(
                 'multi'         => false,
             ),
             '\allowListingInOverview'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => true,
+                'tokenized'     => false,
+                'multi'         => false,
+            ),
+            '\resourceContent'   => array(
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'indexed'       => true,
+                'stored'        => false,
+                'tokenized'     => true,
+                'multi'         => false,
+            ),
+            '\searchable'   => array(
                 'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
                 'indexed'       => true,
                 'stored'        => true,
