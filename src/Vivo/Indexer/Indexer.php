@@ -75,24 +75,19 @@ class Indexer implements IndexerInterface
      */
     protected function checkAndRebuildQuery($query, $branch = 'left', $parent = null)
     {
-        if($query instanceof Query\BooleanInterface) {
+        if($query instanceof Query\AbstractBooleanTwoOp) {
             $this->checkAndRebuildQuery($query->getQueryLeft(), 'left', $query);
             $this->checkAndRebuildQuery($query->getQueryRight(), 'right', $query);
-        } else {
-            if($query instanceof Query\Term) {
-                if(!$query->getTerm()->getField()) {
-                    return $this->rebuildQuery($query->getTerm(), $branch, $parent);
-                }
-            } elseif($query instanceof Query\Range) {
-                if(!$query->getField()) {
-                    return $this->rebuildQuery($query, $branch, $parent);
-                }
-            } elseif($query instanceof Query\Wildcard) {
-                if(!$query->getPattern()->getField()) {
-                    return $this->rebuildQuery($query->getPattern(), $branch, $parent);
-                }
-            }
+        } elseif($query instanceof Query\BooleanNot) {
+            $this->checkAndRebuildQuery($query->getQuery(), 'left', $query);
+        } elseif($query instanceof Query\Term && !$query->getTerm()->getField()) {
+            return $this->rebuildQuery($query->getTerm(), $branch, $parent);
+        } elseif($query instanceof Query\Range && !$query->getField()) {
+            return $this->rebuildQuery($query, $branch, $parent);
+        } elseif($query instanceof Query\Wildcard && !$query->getPattern()->getField()) {
+            return $this->rebuildQuery($query->getPattern(), $branch, $parent);
         }
+
         return $query;
     }
 
