@@ -28,9 +28,10 @@ class MIME implements MIMEInterface
     }
 
     /**
-     * Returns the Content-type for file extension.
+     * Returns the Content-type for file extension
+     * If file extension is not found in configured mime types, returns null
      * @param string $ext
-     * @return string
+     * @return string|null
      */
     protected function getType($ext)
     {
@@ -55,6 +56,12 @@ class MIME implements MIMEInterface
                      $this->options['types'][$type][0] : null;
     }
 
+    /**
+     * Returns the Content-type for file extension
+     * If file extension is not found, returns null
+     * @param string $ext
+     * @return null|string
+     */
     public function detectByExtension($ext)
     {
         return $this->getType($ext);
