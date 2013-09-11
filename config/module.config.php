@@ -888,13 +888,13 @@ return array(
         'headers' => array (
             'mime_type_expiration' => array (
                 //define specific expiration time for content type
-                'image/*' => 86400,
-                'audio/*' => 86400,
-                'text/*' => 86400,
-                'font/*' => 86400,
+                'image/*'                       => 86400,
+                'audio/*'                       => 86400,
+                'text/*'                        => 86400,
+                'font/*'                        => 86400,
                 'application/x-shockwave-flash' => 86400,
-                '*/*' => 86400, // other mime types
             ),
+            'default_expiration'    => 86400,
         ),
     ),
 
