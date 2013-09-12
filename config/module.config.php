@@ -854,6 +854,12 @@ return array(
             'font/woff'                     => array('woff'),
             'font/ttf'                      => array('ttf'),
             'font/opentype'                 => array('otf'),
+            'application/vnd.oasis.opendocument.text'           => array('odt'),
+            'application/vnd.oasis.opendocument.presentation'   => array('odp'),
+            'application/vnd.oasis.opendocument.spreadsheet'    => array('ods'),
+            'application/x-vnd.oasis.opendocument.text'         => array('odt'),
+            'application/x-vnd.oasis.opendocument.presentation' => array('odp'),
+            'application/x-vnd.oasis.opendocument.spreadsheet'  => array('ods'),
         ),
         'icons' => array(
             'video/avi' => 'File.avi',
@@ -889,13 +895,13 @@ return array(
         'headers' => array (
             'mime_type_expiration' => array (
                 //define specific expiration time for content type
-                'image/*' => 86400,
-                'audio/*' => 86400,
-                'text/*' => 86400,
-                'font/*' => 86400,
+                'image/*'                       => 86400,
+                'audio/*'                       => 86400,
+                'text/*'                        => 86400,
+                'font/*'                        => 86400,
                 'application/x-shockwave-flash' => 86400,
-                '*/*' => 86400, // other mime types
             ),
+            'default_expiration'    => 86400,
         ),
     ),
 
@@ -1093,6 +1099,25 @@ return array(
                 'tokenized'     => false,
                 'multi'         => false,
             ),
+        ),
+    ),
+    'indexer_helper'    => array(
+        'extractable_mime_types'    => array(
+            //NOTICE: The keys are arbitrary strings, not file extensions! The keys are not used anywhere, their
+            //purpose is to enable 'unsetting' a config option in an overriding config file (e.g. a local config)
+            //Do not add 'application/pdf' as extractable type, Solr often crashes on PDF files
+            //'pdf'       => 'application/pdf',
+            'rtf'       => 'application/rtf',
+            'doc'       => 'application/msword',
+            'docx'      => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'xls'       => 'application/vnd.ms-excel',
+            'xlsx'      => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'odt'       => 'application/vnd.oasis.opendocument.text',
+            'odp'       => 'application/vnd.oasis.opendocument.presentation',
+            'ods'       => 'application/vnd.oasis.opendocument.spreadsheet',
+            'odt2'      => 'application/x-vnd.oasis.opendocument.text',
+            'odp2'      => 'application/x-vnd.oasis.opendocument.presentation',
+            'ods2'      => 'application/x-vnd.oasis.opendocument.spreadsheet',
         ),
     ),
     //Vivo Modules configuration

@@ -64,9 +64,9 @@ class IndexerEvent extends Event
 
     /**
      * Sets indexer document
-     * @param \Vivo\Indexer\DocumentInterface $idxDoc
+     * @param IndexerDocInterface $idxDoc
      */
-    public function setIdxDoc($idxDoc)
+    public function setIdxDoc(IndexerDocInterface $idxDoc = null)
     {
         $this->idxDoc = $idxDoc;
     }

@@ -106,6 +106,7 @@ class IndexerController extends AbstractCliController
         $host           = $request->getParam('host');
         $stopOnErrors   = $request->getParam('stopOnErrors') || $request->getParam('soe');
         $this->consoleOutput->line('Reindex');
+        $this->consoleOutput->line('Memory limit: ' . ini_get('memory_limit'));
         $this->consoleOutput->line('Host: ' . $host);
         $site       = $this->siteEvent->getSite();
         if (!$site) {
@@ -113,7 +114,14 @@ class IndexerController extends AbstractCliController
             return $this->consoleOutput->toString();
         }
         $this->consoleOutput->line('Site path: '. $site->getPath());
-        $numIndexed = $this->indexerApi->reindex($site, '/', true, !$stopOnErrors);
+        try {
+            $numIndexed = $this->indexerApi->reindex($site, '/', true, !$stopOnErrors);
+        } catch (\Exception $e) {
+            $this->consoleOutput->newLine();
+            $this->displayException($e);
+            $this->consoleOutput->newLine();
+            throw $e;
+        }
         $this->consoleOutput->line(sprintf("%s items reindexed", $numIndexed));
         if (count($this->failed)) {
             $this->consoleOutput->line('Problems:');
@@ -135,12 +143,25 @@ class IndexerController extends AbstractCliController
     }
 
     /**
+     * Displays exceptions
+     * @param \Exception $e
+     */
+    protected function displayException(\Exception $e)
+    {
+        $this->consoleOutput->line($e->getMessage());
+        if ($previous = $e->getPrevious()) {
+            $this->displayException($previous);
+        }
+    }
+
+    /**
      * Listener for failed indexing attempts
      * @param IndexerEvent $e
      */
     public function onReindexFail(IndexerEvent $e)
     {
-        $this->consoleOutput->line('Error: ' . $e->getEntityPath());
+        $this->consoleOutput->line(
+            sprintf('Error (%s): %s', round(memory_get_usage(true) / 1000000) . ' MB', $e->getEntityPath()));
         $this->failed[$e->getEntityPath()] = $e->getException();
     }
 
@@ -150,6 +171,7 @@ class IndexerController extends AbstractCliController
      */
     public function onReindexPost(IndexerEvent $e)
     {
-        $this->consoleOutput->line('Reindexed: ' . $e->getEntityPath());
+        $this->consoleOutput->line(
+            sprintf('Reindexed (%s): %s', round(memory_get_usage(true) / 1000000) . ' MB', $e->getEntityPath()));
     }
 }

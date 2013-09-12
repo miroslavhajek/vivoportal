@@ -18,7 +18,6 @@ class IndexerFactory implements FactoryInterface
     {
         $adapter        = $serviceLocator->get('indexer_adapter');
         $config         = $serviceLocator->get('config');
-
         $indexer        = new Indexer($adapter, $config['indexer']);
         return $indexer;
     }
