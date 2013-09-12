@@ -220,14 +220,20 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         }
         $eventManager   = $this->getEventManager();
         $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
-        $data   = $this->request->getQuery()->toArray();
-        $data   = ArrayUtils::merge($data, $this->request->getPost()->toArray());
-        $data   = ArrayUtils::merge($data, $this->request->getFiles()->toArray());
+
+        $form   = $this->getForm();
+        $method = strtolower($form->getAttribute('method'));
+
+        if($method == 'post') {
+            $data = $this->request->getPost()->toArray();
+        } else {
+            $data = $this->request->getQuery()->toArray();
+        }
+
+        $data = ArrayUtils::merge($data, $this->request->getFiles()->toArray());
 
         //Unset act field to prevent mix up with an unrelated act field
         unset($data['act']);
-
-        $form   = $this->getForm();
 
         //If form elements are wrapped with the form name, extract only this part of the GET/POST data
         if ($form->wrapElements()) {

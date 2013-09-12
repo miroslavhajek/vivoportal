@@ -18,6 +18,7 @@ use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface as Request;
 use Zend\Stdlib\ResponseInterface as Response;
+use Zend\EventManager\EventManager;
 
 /**
  * Controller for giving all resource files
@@ -51,13 +52,14 @@ class ResourceFrontController implements DispatchableInterface,
      */
     protected $siteEvent;
 
+    /**
+     * Event Manager
+     * @var EventManager
+     */
+    private $eventManager;
+
     public function dispatch(Request $request, Response $response = null)
     {
-//        $eventManager   = new \Zend\EventManager\EventManager();
-//        $eventManager->trigger('log', $this,
-//            array ('message'    => "TEST FOO BAR",
-//                'priority'   => Logger::DEBUG));
-
         $pathToResource = $this->event->getRouteMatch()->getParam('path');
         $source = $this->event->getRouteMatch()->getParam('source');
         try {
@@ -83,11 +85,17 @@ class ResourceFrontController implements DispatchableInterface,
                 $resourceStream = $this->resourceManager->readResource($source, $pathToResource);
                 $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
             }
-            $ext = pathinfo($filename, PATHINFO_EXTENSION);
-            $mimeType = $this->mime->detectByExtension($ext);
-
-            //set headers
-            $headers = $response->getHeaders();
+            $ext        = pathinfo($filename, PATHINFO_EXTENSION);
+            //Set headers
+            $headers    = $response->getHeaders();
+            $mimeType   = $this->mime->detectByExtension($ext);
+            if (is_null($mimeType)) {
+                //Mime type not found
+                $this->getEventManager()->trigger('log', $this, array(
+                    'priority'  => Logger::WARN,
+                    'message'   => sprintf("Mime type for extension '%s' not found", $ext),
+                ));
+            }
             $headers->addHeaderLine('Content-Type: ' . $mimeType);
             $headers->addHeaderLine('Content-Disposition: inline; filename="' . $filename . '"');
             $this->headerHelper->setExpirationByMimeType($headers, $mimeType);
@@ -166,5 +174,17 @@ class ResourceFrontController implements DispatchableInterface,
     public function setMime(\Vivo\Util\MIMEInterface $mime)
     {
         $this->mime = $mime;
+    }
+
+    /**
+     * Returns Event Manager
+     * @return \Zend\EventManager\EventManager
+     */
+    public function getEventManager()
+    {
+        if (is_null($this->eventManager)) {
+            $this->eventManager = new EventManager();
+        }
+        return $this->eventManager;
     }
 }
