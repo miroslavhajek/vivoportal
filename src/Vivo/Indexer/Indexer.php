@@ -20,12 +20,12 @@ class Indexer implements IndexerInterface
 
     /**
      * QueryBuilder
-     * @var Vivo\Indexer\QueryBuilder
+     * @var \Vivo\Indexer\QueryBuilder
      */
     protected $qb;
 
     /**
-     * QueryBuilder
+     * Indexer options
      * @var array
      */
     protected $options = array('default_searchable_fields'=> array());

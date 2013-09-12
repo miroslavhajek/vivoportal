@@ -170,7 +170,9 @@ class Indexer implements IndexerInterface
         $isWatcherActive    = $this->watcher->isActive();
         $this->watcher->isActive(false);
         $this->watcher->clear();
-        $this->indexer->begin();
+        //Do not index all entities in a single transaction - commit each entity separately
+        //If something fails during reindex, at least some entities have been indexed
+        $this->indexer->commit();
         try {
             if ($deep) {
                 $delQuery   = $this->indexerHelper->buildTreeQuery($path);

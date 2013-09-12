@@ -12,6 +12,8 @@ use Vivo\CMS\Model\Document as DocumentModel;
 use Vivo\CMS\Api\Content\File as FileApi;
 use Vivo\CMS\Model\Content\File;
 
+use Zend\Stdlib\ArrayUtils;
+
 /**
  * IndexerHelper
  * Generates indexer documents for entities, builds indexer queries based on entity properties
@@ -31,14 +33,26 @@ class IndexerHelper implements IndexerHelperInterface
     protected $fileApi;
 
     /**
+     * Indexer helper options
+     * @var array
+     */
+    protected $options  = array(
+        'extractable_mime_types'    => array(
+
+        ),
+    );
+
+    /**
      * Constructor
      * @param FieldHelperInterface $indexerFieldHelper
      * @param FileApi $fileApi
+     * @param array $options
      */
-    public function __construct(FieldHelperInterface $indexerFieldHelper, FileApi $fileApi)
+    public function __construct(FieldHelperInterface $indexerFieldHelper, FileApi $fileApi, array $options = array())
     {
         $this->indexerFieldHelper   = $indexerFieldHelper;
         $this->fileApi              = $fileApi;
+        $this->options              = ArrayUtils::merge($this->options, $options);
     }
 
     /**
@@ -68,13 +82,16 @@ class IndexerHelper implements IndexerHelperInterface
                 //the resource does not exist and is indexed after save to repository.
             }
             if(isset($data)) {
-                if (strpos($entity->getmimeType(), 'text/') === 0) {
-                    if ($entity->getmimeType() == 'text/html') {
+                $entityMimeType = $entity->getmimeType();
+                if (strpos($entityMimeType, 'text/') === 0) {
+                    //Textual data
+                    if ($entityMimeType == 'text/html') {
                         $data = html_entity_decode($data, ENT_COMPAT, 'UTF-8');
                     }
                     $field  = new Field('\resourceContent', $data);
                     $doc->addField($field);
-                } else {
+                } elseif ($this->isMimeTypeExtractable($entityMimeType)) {
+                    //Extractable data
                     $field  = new Field('\resourceContent', $data, true);
                     $doc->addField($field);
                 }
@@ -91,6 +108,28 @@ class IndexerHelper implements IndexerHelperInterface
             $doc->addField(new Field($indexerConfig['name'], $value));
         }
         return $doc;
+    }
+
+    /**
+     * Returns if the specified mime type represents an extractable data type
+     * @param string $mimeType
+     * @return bool
+     */
+    protected function isMimeTypeExtractable($mimeType)
+    {
+        $isExtractable  = false;
+        $mimeType       = strtolower($mimeType);
+        foreach ($this->options['extractable_mime_types'] as $mimeTypeTpl) {
+            if (is_null($mimeTypeTpl)) {
+                continue;
+            }
+            $mimeTypeTpl    = strtolower($mimeTypeTpl);
+            if ($mimeType == $mimeTypeTpl) {
+                $isExtractable    = true;
+                break;
+            }
+        }
+        return $isExtractable;
     }
 
     /**
