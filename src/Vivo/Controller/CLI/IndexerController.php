@@ -160,7 +160,8 @@ class IndexerController extends AbstractCliController
      */
     public function onReindexFail(IndexerEvent $e)
     {
-        $this->consoleOutput->line('Error: ' . $e->getEntityPath());
+        $this->consoleOutput->line(
+            sprintf('Error (%s): %s', round(memory_get_usage(true) / 1000000) . ' MB', $e->getEntityPath()));
         $this->failed[$e->getEntityPath()] = $e->getException();
     }
 
@@ -171,6 +172,6 @@ class IndexerController extends AbstractCliController
     public function onReindexPost(IndexerEvent $e)
     {
         $this->consoleOutput->line(
-            sprintf('Reindexed (%s): %s', round(memory_get_peak_usage(true) / 1000000) . ' MB', $e->getEntityPath()));
+            sprintf('Reindexed (%s): %s', round(memory_get_usage(true) / 1000000) . ' MB', $e->getEntityPath()));
     }
 }
