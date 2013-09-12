@@ -75,11 +75,11 @@ class Entity implements PathInterface
         if(strpos($name, 'get') === 0) {
             $name = lcfirst(substr($name, 3));
 
-            return $this->customProperties->get($name);
+            return $this->getCustomProperties()->get($name);
         }
         if(strpos($name, 'set') === 0) {
             $name = lcfirst(substr($name, 3));
-            $this->customProperties->set($name, $params[0]);
+            $this->getCustomProperties()->set($name, $params[0]);
         }
     }
 
@@ -171,7 +171,7 @@ class Entity implements PathInterface
     {
         return $this->searchable;
     }
-    
+
     /**
      * Set username of creator.
      * @return string $userName
