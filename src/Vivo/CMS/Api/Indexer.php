@@ -167,6 +167,7 @@ class Indexer implements IndexerInterface
         $path           = $this->pathBuilder->buildStoragePath($pathComponents, true, false, false);
         $this->repository->commit();
         //Deactivate watcher, otherwise all entities in the site will be stored in the watcher (=>high mem requirements)
+        $isWatcherActive    = $this->watcher->isActive();
         $this->watcher->isActive(false);
         $this->watcher->clear();
         $this->indexer->begin();
@@ -182,12 +183,12 @@ class Indexer implements IndexerInterface
             $this->indexer->commit();
         } catch (\Exception $e) {
             $this->indexer->rollback();
-            $this->watcher->isActive(true);
+            $this->watcher->isActive($isWatcherActive);
             $this->watcher->clear();
             throw $e;
         }
         //Reactivate the watcher
-        $this->watcher->isActive(true);
+        $this->watcher->isActive($isWatcherActive);
         $this->watcher->clear();
         return $count;
     }
