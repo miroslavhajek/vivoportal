@@ -332,6 +332,7 @@ return array(
             'input_filter_factory'              => 'Vivo\input_filter_factory',
             'Vivo\input_filter_conditions'      => 'input_filter_conditions',
             'Vivo\cache_manager'                => 'cache_manager',
+            'Vivo\module_db_provider'           => 'module_db_provider',
         ),
         'shared' => array(
             'view_model'                    => false,
@@ -929,9 +930,20 @@ return array(
     //Core setup
     'setup'         => array(
         'db'    => array(
-            //Mapping of symbolic core table names to real names used in db
+            //Mapping of symbolic table names to real names used in db
             'table_names'   => array(
-                'vivo_users'     => 'vivo_users',
+                //Tables in Vivo Portal core
+                'core'          => array(
+                    'vivo_users'    => 'vivo_users',
+                ),
+                //Tables in modules (define in module config and override in a local config)
+                'module'        => array(
+//                    //Module name
+//                    'MyModule'          => array(
+//                        //Symbolic => real
+//                        'symbolic_table_name'   => 'real_table_name',
+//                    ),
+                ),
             ),
         ),
     ),
