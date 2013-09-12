@@ -412,6 +412,7 @@ return array(
             'overview_title'                => 'Vivo\View\Helper\OverviewTitle',
             'vivo_invalid_form_elements'    => 'Vivo\View\Helper\InvalidFormElements',
             'tae'                           => 'Vivo\View\Helper\Tae',
+            'highlight'                     => 'Vivo\View\Helper\Highlight',
         ),
         'factories' => array(
             'url'               => 'Vivo\View\Helper\UrlFactory',
