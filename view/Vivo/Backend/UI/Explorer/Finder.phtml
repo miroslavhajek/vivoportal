@@ -1,7 +1,4 @@
-<?
-$is_published = true;
-$id = "id_1";
-?>
+<? $id = 'id_1'; ?>
 <div class="finderHolder">
     <form action="" method="post" id="<?= $id ?>" name="mainFinderMulti">
         <input type="hidden" name="act" value="<?=$this->action('set')?>">
@@ -10,15 +7,9 @@ $id = "id_1";
         <input type="hidden" name="getPath[redirectToUrl]" value="<?=$this->action('redirectToUrl')?>">
         <input type="hidden" name="site[name]" value="<?=htmlspecialchars($siteTitle)?>">
         <input type="hidden" name="getPath[search]" value="<?=$this->action('renderSearchPulldown')?>">
-<?/*
-        <input type="hidden" name="actionURL[set]" value="/system/manager/explorer/?act=main-%3Eparam-%3Eparam-%3Efinder-%3Eset%3A9b4b6e3" />
-        <input type="hidden" name="finder[output]" value="main->param->param->finder->output:9b4b6e3" />
-        <input type="hidden" name="getPath[viewBookmarks]" value="main->param->param->finder->viewBookmarks:9b4b6e3" />
- */?>
-
         <table width="100%">
             <tr>
-                <td class="path_root">&nbsp;<a><img src="<?= $this->resource('backend/img/icons/24x24/explorer.png','Vivo')?>" alt=""><? if ($is_published): ?><span class="published"></span><? endif; ?></a>&nbsp;</td>
+                <td class="path_root">&nbsp;<a><img src="<?=$this->iconUrl($this->entity)?>" alt=""><? if ($this->published): ?><span class="published"></span><? endif; ?></a>&nbsp;</td>
                 <td class="path_finder">
                     <div class="inputFinder">
                         <input type="text" name="input" autocomplete="off" value="<?=$this->document($entity)?>">
