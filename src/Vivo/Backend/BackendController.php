@@ -114,15 +114,15 @@ class BackendController implements DispatchableInterface, InjectApplicationEvent
         }
 
         //Create UI component tree for backend.
-        $root = $this->sm->get('Vivo\CMS\UI\Root');
-        $page = $this->sm->get('Vivo\UI\Page');
+        $root = $this->serviceManager->get('Vivo\CMS\UI\Root');
+        $page = $this->serviceManager->get('Vivo\UI\Page');
         if ($this->securityManager->getUserPrincipal()) {
-            $backend = $this->sm->get('Vivo\Backend\UI\Backend');
+            $backend = $this->serviceManager->get('Vivo\Backend\UI\Backend');
             $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
             $backend->setModuleComponent($this->moduleResolver->createComponent($moduleName));
             $page->setMain($backend);
         } else {
-            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
+            $page->setMain($this->serviceManager->get('Vivo\Backend\UI\Logon'));
         }
         $root->setMain($page);
 
@@ -235,12 +235,6 @@ class BackendController implements DispatchableInterface, InjectApplicationEvent
     public function setServiceManager(ServiceManager $serviceManager)
     {
         $this->serviceManager = $serviceManager;
-    }
-
-    public function setSM(ServiceManager $sm)
-    {
-        //TODO use ServiceManagerAwareInitializer instead this method
-        $this->sm = $sm;
     }
 
     /**
