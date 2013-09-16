@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
@@ -18,7 +18,7 @@ class DbProviderCoreFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        /** @var $dbProviderFactory \Vivo\Service\DbProviderFactory */
+        /** @var $dbProviderFactory \Vivo\Db\DbProviderFactory */
         $dbProviderFactory  = $serviceLocator->get('db_provider_factory');
         $config             = $serviceLocator->get('config');
         if (!isset($config['setup']['db']['db_source'])) {

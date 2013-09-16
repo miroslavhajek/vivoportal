@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -20,7 +20,7 @@ class ModuleDbProviderFactory implements FactoryInterface
         /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */
         $siteEvent          = $serviceLocator->get('site_event');
         $siteConfig         = $siteEvent->getSiteConfig();
-        $indexer        = new ModuleDbProvider($dbServiceManager, $siteConfig);
-        return $indexer;
+        $moduleDbProvider   = new ModuleDbProvider($dbServiceManager, $siteConfig);
+        return $moduleDbProvider;
     }
 }

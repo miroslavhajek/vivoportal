@@ -2,9 +2,9 @@
 namespace Vivo\CMS\Security\Manager;
 
 use Vivo\Security\Principal;
-use Vivo\Service\DbTableNameProvider;
+use Vivo\Db\DbTableNameProvider;
 use Vivo\Security\Principal\User;
-use Vivo\Service\DbTableGatewayProvider;
+use Vivo\Db\DbTableGatewayProvider;
 
 use Zend\Session\SessionManager;
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
@@ -48,7 +48,7 @@ class Db extends AbstractManager
     /**
      * Constructor
      * @param \Zend\Session\SessionManager $sessionManager
-     * @param \Vivo\Service\DbTableGatewayProvider $dbTableGatewayProvider
+     * @param DbTableGatewayProvider $dbTableGatewayProvider
      * @param string $remoteAddress IP address of the remote client
      * @param array $options
      */

@@ -51,7 +51,7 @@ class Copy extends AbstractForm implements TranslatorAwareInterface
 
     /**
      * Url helper
-     * @var type
+     * @var UrlHelper
      */
     protected $urlHelper;
 

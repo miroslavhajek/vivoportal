@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -16,9 +16,9 @@ class ZdbAbstractFactoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $config                 = $serviceLocator->get('config');
-        $zdbConfig              = $config['db_service']['abstract_factory']['zdb'];
-        $zdbAf  = new \Vivo\Service\AbstractFactory\ZendDbAdapter($zdbConfig);
+        $config     = $serviceLocator->get('config');
+        $zdbConfig  = $config['db_service']['abstract_factory']['zdb'];
+        $zdbAf      = new \Vivo\Db\AbstractFactory\ZendDbAdapter($zdbConfig);
         return $zdbAf;
     }
 }

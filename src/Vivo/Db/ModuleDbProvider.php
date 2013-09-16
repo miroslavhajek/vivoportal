@@ -1,7 +1,5 @@
 <?php
-namespace Vivo\Service;
-
-use Vivo\Service\DbServiceManagerInterface;
+namespace Vivo\Db;
 
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 

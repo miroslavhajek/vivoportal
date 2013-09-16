@@ -323,10 +323,10 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function getData($recursive = true)
     {
-        if (!$this->hasValidated) {
-            throw new Exception\DomainException(sprintf('%s: cannot return data as validation has not yet occurred',
-                __METHOD__));
-        }
+//        if (!$this->hasValidated) {
+//            throw new Exception\DomainException(sprintf('%s: cannot return data as validation has not yet occurred',
+//                __METHOD__));
+//        }
         $data   = $this->formData;
         if ($recursive) {
             foreach ($this->components as $component) {

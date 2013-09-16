@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 
@@ -27,7 +27,7 @@ class DbProvider implements DbProviderInterface
 
     /**
      * Constructor
-     * @param \Vivo\Service\DbServiceManagerInterface $dbServiceManager
+     * @param DbServiceManagerInterface $dbServiceManager
      * @param string $dbSource
      * @throws Exception\DbSourceDoesNotExistException
      */

@@ -1,7 +1,7 @@
 <?php
 namespace Vivo\Controller\CLI;
 
-use Vivo\Service\DbTableNameProvider;
+use Vivo\Db\DbTableNameProvider;
 
 use Zend\Db\Adapter\Adapter as ZendDbAdapter;
 
@@ -27,7 +27,7 @@ class SetupController extends AbstractCliController
     /**
      * Constructor
      * @param \Zend\Db\Adapter\Adapter $zdba
-     * @param \Vivo\Service\DbTableNameProvider $dbTableNameProvider
+     * @param \Vivo\Db\DbTableNameProvider $dbTableNameProvider
      */
     public function __construct(ZendDbAdapter $zdba, DbTableNameProvider $dbTableNameProvider)
     {
