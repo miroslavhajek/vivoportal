@@ -16,7 +16,6 @@ use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\ServiceManagerAwareInterface;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\RequestInterface as Request;
@@ -26,7 +25,7 @@ use Zend\View\Model\ModelInterface;
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  */
-class BackendController implements DispatchableInterface, InjectApplicationEventInterface, ServiceManagerAwareInterface
+class BackendController implements DispatchableInterface, InjectApplicationEventInterface
 {
 
     /**
