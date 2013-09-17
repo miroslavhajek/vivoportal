@@ -167,12 +167,6 @@ return array(
                 'componentClass' => 'Vivo\Backend\UI\Cache',
                 'icon'  => '.Vivo.resource/backend/img/icons/24x24/down.png',
             ),
-            'blank' => array (
-                'name' => 'blank',
-                'title' => 'Blank',
-                'componentClass' => 'Vivo\CMS\UI\Blank',
-                'icon'  => '.Vivo.resource/backend/img/icons/24x24/explorer.png',
-            ),
         ),
     ),
     //Backend Vivo modules

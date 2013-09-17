@@ -58,7 +58,7 @@ class Search extends AbstractForm
      * Searched result count
      * @var int
      */
-    private $numRows = 0;
+    private $totalCount = 0;
 
     /**
      * Constructor
@@ -101,7 +101,7 @@ class Search extends AbstractForm
 
         //Add params to paginator
         if($params = $this->request->getQuery()->toArray()) {
-            $this->paginator->addParam('words', $params['words']);
+            $this->paginator->addParam('query', $params['query']);
             $this->paginator->addParam('operator', $params['operator']);
             $this->paginator->addParam('wildcards', $params['wildcards']);
             $this->paginator->addParam('act', $this->getPath('getPage'));
@@ -112,6 +112,7 @@ class Search extends AbstractForm
     {
         $view = $this->getView();
         $view->result = $this->result;
+        $view->totalCount = $this->totalCount;
         $view->paginator = $this->paginator;
     }
 
@@ -134,7 +135,7 @@ class Search extends AbstractForm
      */
     protected function doSearch(array $data)
     {
-        $wordsString = trim($data['words']);
+        $wordsString = trim($data['query']);
         if ($wordsString != '') {
             $qb = new QueryBuilder();
             $documentList = array();
@@ -183,8 +184,6 @@ class Search extends AbstractForm
 
             $result = $this->indexer->find($currentQuery, array('page_size' => 100));
 
-            $this->numRows = 0;
-
             foreach ($result->getHits() as $hit) {
                 $entityPath = $hit->getDocument()->getField('\path')->getValue();
                 try {
@@ -210,12 +209,12 @@ class Search extends AbstractForm
                 && $this->documentApi->isPublished($entity)) {
                     $documentList[$entityPath]['document'] = $entity;
                     $documentList[$entityPath]['score'] = $hit->getScore();
-
-                    $this->numRows++;
                 }
             }
 
-            $this->paginator->setItemCount($this->numRows);
+            $this->totalCount = count($documentList);
+
+            $this->paginator->setItemCount($this->totalCount);
             //Choose pages from result
             $resultPages = array_chunk($documentList, $this->content->getPageSize());
             $this->result = $resultPages[$this->paginator->getPage() - 1];
@@ -247,7 +246,7 @@ class Search extends AbstractForm
             ),
         ));
         $form->add(array(
-            'name' => 'words',
+            'name' => 'query',
             'type' => 'Vivo\Form\Element\Text',
             'options' => array('label' => 'Search term'),
         ));

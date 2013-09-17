@@ -1,3 +1,4 @@
+<? $query = $this->form->get('query')->getValue(); ?>
 <?=$this->formTwb($this->form, DluTwBootstrap\Form\FormUtil::FORM_TYPE_HORIZONTAL);?>
 <? if (count($this->result)) : ?>
     <table id="search_result">
@@ -9,8 +10,8 @@
             ?>
                 <tr>
                     <td>
-                        <a href="<?=$url?>" title="<?=$title?>"><?=$title?></a>
-                        <div><?=htmlspecialchars($document->getDescription())?></div>
+                        <a href="<?=$url?>" title="<?=$title?>"><?=$this->highlight($document->getTitle(), $query)?></a>
+                        <div><?=$this->highlight($document->getDescription(), $query)?></div>
                         <div class="url"><a href="<?=$url?>" title="<?=$title?>"><?=$url?></a></div>
                     </td>
                     <td class="rate"><?=min(round($result['score'] * 100, 2), 100) ?>%</td>

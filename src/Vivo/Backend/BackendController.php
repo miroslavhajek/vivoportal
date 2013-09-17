@@ -16,7 +16,6 @@ use Zend\EventManager\EventInterface as Event;
 use Zend\Mvc\InjectApplicationEventInterface;
 use Zend\Mvc\MvcEvent;
 use Zend\ServiceManager\ServiceManager;
-use Zend\ServiceManager\ServiceManagerAwareInterface;
 use Zend\Stdlib\DispatchableInterface;
 use Zend\Stdlib\RequestInterface;
 use Zend\Stdlib\RequestInterface as Request;
@@ -26,7 +25,7 @@ use Zend\View\Model\ModelInterface;
 /**
  * The front controller which is responsible for dispatching all requests for documents and files in CMS repository.
  */
-class BackendController implements DispatchableInterface, InjectApplicationEventInterface, ServiceManagerAwareInterface
+class BackendController implements DispatchableInterface, InjectApplicationEventInterface
 {
 
     /**
@@ -114,15 +113,15 @@ class BackendController implements DispatchableInterface, InjectApplicationEvent
         }
 
         //Create UI component tree for backend.
-        $root = $this->sm->get('Vivo\CMS\UI\Root');
-        $page = $this->sm->get('Vivo\UI\Page');
+        $root = $this->serviceManager->get('Vivo\CMS\UI\Root');
+        $page = $this->serviceManager->get('Vivo\UI\Page');
         if ($this->securityManager->getUserPrincipal()) {
-            $backend = $this->sm->get('Vivo\Backend\UI\Backend');
+            $backend = $this->serviceManager->get('Vivo\Backend\UI\Backend');
             $moduleName = $this->mvcEvent->getRouteMatch()->getParam('module');
             $backend->setModuleComponent($this->moduleResolver->createComponent($moduleName));
             $page->setMain($backend);
         } else {
-            $page->setMain($this->sm->get('Vivo\Backend\UI\Logon'));
+            $page->setMain($this->serviceManager->get('Vivo\Backend\UI\Logon'));
         }
         $root->setMain($page);
 
@@ -235,12 +234,6 @@ class BackendController implements DispatchableInterface, InjectApplicationEvent
     public function setServiceManager(ServiceManager $serviceManager)
     {
         $this->serviceManager = $serviceManager;
-    }
-
-    public function setSM(ServiceManager $sm)
-    {
-        //TODO use ServiceManagerAwareInitializer instead this method
-        $this->sm = $sm;
     }
 
     /**
