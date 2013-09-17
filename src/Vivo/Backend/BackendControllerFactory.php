@@ -24,7 +24,7 @@ class BackendControllerFactory implements FactoryInterface
         $bc->setRedirector($sm->get('redirector'));
         $bc->setUrlHelper($sm->get('Vivo\Util\UrlHelper'));
         $bc->setSiteApi($sm->get('Vivo\CMS\Api\Site'));
-        $bc->setSM($sm);  //TODO set sm using ServiceManagerAwareInterface
+        $bc->setServiceManager($sm);
         return $bc;
     }
 }
