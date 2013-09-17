@@ -4,6 +4,7 @@ namespace Vivo\Backend\UI\Explorer;
 use Vivo\CMS\Api;
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Document;
+use Vivo\CMS\Model\Folder;
 use Vivo\CMS\Util;
 use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
@@ -103,12 +104,23 @@ class Finder extends Component implements TranslatorAwareInterface
     {
         parent::attachListeners();
 
-        $this->getEventManager()->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerSetEntity'));
+        $eventManager = $this->getEventManager();
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initListenerFinderSetEntity'));
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerFinderView'));
     }
 
-    public function initListenerSetEntity()
+    public function initListenerFinderSetEntity()
     {
         $this->entity = $this->explorer->getEntity();
+    }
+
+    public function viewListenerFinderView()
+    {
+        $view = $this->getView();
+        $view->siteTitle = $this->site->getTitle();
+        $view->entity    = $this->entity;
+        $view->published = $this->isPublished($this->entity);
+        $view->entities  = $this->getParentsByUrl($this->documentUrlHelper->getDocumentUrl($this->entity));
     }
 
     public function setExplorer(ExplorerInterface $explorer)
@@ -153,6 +165,16 @@ class Finder extends Component implements TranslatorAwareInterface
         }
 
         return $titles;
+    }
+
+    /**
+     * Returns TRUE if entity is published, otherwise FALSE
+     * @param \Vivo\CMS\Model\Folder $entity
+     * @return boolean
+     */
+    private function isPublished(Folder $entity)
+    {
+        return ($entity instanceof Document) ? $this->documentApi->isPublished($entity) : false;
     }
 
     /**
@@ -282,19 +304,5 @@ class Finder extends Component implements TranslatorAwareInterface
         catch(\Vivo\Repository\Exception\EntityNotFoundException $e) {
             $this->alert->addMessage('Entity for requested URL not found', Alert::TYPE_WARNING);
         }
-    }
-
-    /**
-     * (non-PHPdoc)
-     * @see \Vivo\UI\Component::view()
-     */
-    public function view()
-    {
-        $view = parent::view();
-        $view->siteTitle = $this->site->getTitle();
-        $view->entity    = $this->entity;
-        $view->entities  = $this->getParentsByUrl($this->documentUrlHelper->getDocumentUrl($this->entity));
-
-        return $view;
     }
 }

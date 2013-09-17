@@ -2,16 +2,15 @@
 <ul>
     <? foreach ($data as $docData) :
         $document = $docData['document']; /* @var $document \Vivo\CMS\Model\Document */
-        $documentUrl = $this->document($document);
     ?>
-    <li<?=($documentsCount == $i) ? ' class="last"' : '';?>>
-        <a href="<?=$this->actionURL('redirectToUrl', array($documentUrl))?>">
-            <img src="<?=$this->iconUrl($document)?>" alt="" class="icon" />
+    <li<?=($documentsCount == $i++) ? ' class="last"' : '';?>>
+        <a href="<?=$this->url('backend/explorer', array('path' => $document->getUuid()))?>">
+            <img src="<?=$this->iconUrl($document)?>" alt="" class="icon">
             <?=htmlspecialchars($document->getTitle()) ?>
-            <span class="path" style="font-size: 13px; color: #606070"><?=$documentUrl?></span>
+            <span class="path" style="font-size: 13px; color: #606070"><?=$this->document($document)?></span>
             <?if ($docData['published']): ?><span class="published"></span><? endif; ?>
             <br>
-            <? if ($document->getDescription() || $document->getKeywords()): //FIXME: getKeywords?>
+            <? if ($document->getDescription() || $document->getKeywords()) : ?>
                 <div>
                     <? if ($document->getDescription()) : ?>
                         <div class="cell"><strong>Description:</strong> <?=$document->getDescription()?></div>
@@ -29,10 +28,9 @@
                 <div class="cell"><strong>Edited:</strong> <?=htmlspecialchars($document->getModifiedBy())?></div>
             </div>
         </a>
-        <div style="padding: 0; clear: both;"></div>
+        <div style="padding:0; clear:both;"></div>
     </li>
-    <? $i++;
-    endforeach; ?>
+    <? endforeach; ?>
 </ul>
 <div class="footer"><?
     if($documentsCount == 10) {
