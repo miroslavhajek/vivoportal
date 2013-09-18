@@ -63,35 +63,6 @@ class Folder extends Entity
     protected $lastPath;
 
     /**
-     * @var \Vivo\CMS\Model\Entity\Security
-     */
-    protected $security;
-
-    /**
-     * @param string $path Folder (entity) path in CMS repository.
-     * @param \Vivo\CMS\Model\Entity\Security $security
-     * @todo default security model
-     */
-    public function __construct($path = null, $security = null)
-    {
-        parent::__construct($path);
-
-        $this->security = $security;
-
-//         $security ?
-//                 :
-//                 //(self::$DEFAULT_SECURITY ? :
-//                     new CMS\Model\Entity\Security(
-//                         array( /*Security\Manager::ROLE_VISITOR			=> array(Security\Manager::GROUP_ANYONE),
-//                                Security\Manager::ROLE_PUBLISHER		=> array(Security\Manager::GROUP_PUBLISHERS),
-//                                Security\Manager::ROLE_ADMINISTRATOR	=> array(Security\Manager::GROUP_ADMINISTRATORS)
-//                                 */
-//                         ));
-//         // 		);
-
-    }
-
-    /**
      * Sets folder title.
      * @param string $title
      */
