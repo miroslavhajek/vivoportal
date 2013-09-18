@@ -175,8 +175,7 @@ class MetadataManager
                 catch (ResourceNotFoundException $e) { }
             }
 
-            $defs = $this->getCustomPropertiesDefs($class);
-            if($defs) {
+            if($this->getCustomPropertiesDefs($class)) {
                 $entityConfig = $this->getCustomPropertiesConfig($class);
 
                 // Modifications is not allowed
