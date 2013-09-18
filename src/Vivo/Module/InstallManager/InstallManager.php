@@ -8,7 +8,7 @@ use Vivo\CMS\Model\Site;
 use Vivo\IO\InputStreamWrapper;
 use Vivo\Module\Feature\SiteInstallableInterface;
 use Vivo\Module\Feature\SiteUninstallableInterface;
-use Vivo\Service\DbProviderFactory;
+use Vivo\Db\DbProviderFactory;
 
 /**
  * InstallManager

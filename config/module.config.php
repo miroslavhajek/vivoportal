@@ -243,7 +243,16 @@ return array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
             'translator'                => 'Zend\I18n\Translator\TranslatorServiceFactory',
             'response'                  => 'Vivo\Service\ResponseFactory',
-            'db_service_manager'        => 'Vivo\Service\DbServiceManagerFactory',
+            //DB related services
+            'db_service_manager'        => 'Vivo\Db\DbServiceManagerFactory',
+            'db_provider_factory'       => 'Vivo\Db\DbProviderFactoryFactory',
+            'db_provider_core'          => 'Vivo\Db\DbProviderCoreFactory',
+            'db_table_name_provider'    => 'Vivo\Db\DbTableNameProviderFactory',
+            'db_table_gateway_provider' => 'Vivo\Db\DbTableGatewayProviderFactory',
+            'pdo_abstract_factory'      => 'Vivo\Db\PdoAbstractFactoryFactory',
+            'zdb_abstract_factory'      => 'Vivo\Db\ZdbAbstractFactoryFactory',
+            'module_db_provider'        => 'Vivo\Db\ModuleDbProviderFactory',
+
             'uuid_convertor'            => 'Vivo\Service\UuidConvertorFactory',
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
             'remote_module'             => 'Vivo\Service\RemoteModuleFactory',
@@ -270,10 +279,6 @@ return array(
             'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
             'module_resource_manager'   => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
-            'db_provider_factory'       => 'Vivo\Service\DbProviderFactoryFactory',
-            'db_provider_core'          => 'Vivo\Service\DbProviderCoreFactory',
-            'pdo_abstract_factory'      => 'Vivo\Service\PdoAbstractFactoryFactory',
-            'zdb_abstract_factory'      => 'Vivo\Service\ZdbAbstractFactoryFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'component_factory'         => 'Vivo\CMS\ComponentFactoryFactory',
             'indexer_adapter'           => 'Vivo\Service\IndexerAdapterFactory',
@@ -284,9 +289,6 @@ return array(
             'lookup_data_manager'       => 'Vivo\LookupData\LookupDataManagerFactory',
             'redirector'                => 'Vivo\Util\RedirectorFactory',
             'template_resolver'         => 'Vivo\View\Resolver\TemplateResolverFactory',
-            'module_db_provider'        => 'Vivo\Service\ModuleDbProviderFactory',
-            'db_table_name_provider'    => 'Vivo\Service\DbTableNameProviderFactory',
-            'db_table_gateway_provider' => 'Vivo\Service\DbTableGatewayProviderFactory',
             'Vivo\CMS\Api\Manager\Manager' => 'Vivo\CMS\Api\Manager\ManagerFactory',
             'component_tree_controller' => 'Vivo\UI\ComponentTreeControllerFactory',
             'Vivo\CMS\AvailableContentsProvider' => 'Vivo\CMS\AvailableContentsProviderFactory',
@@ -332,6 +334,8 @@ return array(
             'input_filter_factory'              => 'Vivo\input_filter_factory',
             'Vivo\input_filter_conditions'      => 'input_filter_conditions',
             'Vivo\cache_manager'                => 'cache_manager',
+            'Vivo\module_db_provider'           => 'module_db_provider',
+            'Vivo\db_table_gateway_provider'    => 'db_table_gateway_provider',
         ),
         'shared' => array(
             'view_model'                    => false,
@@ -936,9 +940,25 @@ return array(
     //Core setup
     'setup'         => array(
         'db'    => array(
-            //Mapping of symbolic core table names to real names used in db
-            'table_names'   => array(
-                'vivo_users'     => 'vivo_users',
+            'table_name_provider'  => array(
+                //Mapping of symbolic table names to real names used in db
+                //When symbolic table name matches the real table name it can be safely omitted from these options
+                //as the DbTableNameProvider returns the symbolic name unchanged when it is not found in the map
+                'table_names'   => array(
+                    //Tables in Vivo Portal core
+                    //Symbolic => real
+                    'core'          => array(
+                        //'vivo_users'    => 'vivo_users',
+                    ),
+                    //Tables in modules (define in module config and override in a local config)
+                    'module'        => array(
+                        //Module name
+                        //'MyModule'          => array(
+                        //    //Symbolic => real
+                        //    'symbolic_table_name'   => 'real_table_name',
+                        //),
+                    ),
+                ),
             ),
         ),
     ),

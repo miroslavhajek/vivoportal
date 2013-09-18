@@ -17,7 +17,7 @@ class SetupControllerFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $sm                     = $serviceLocator->getServiceLocator();
-        /** @var $dbProviderCore \Vivo\Service\DbProviderInterface */
+        /** @var $dbProviderCore \Vivo\Db\DbProviderInterface */
         $dbProviderCore         = $sm->get('db_provider_core');
         $zdba                   = $dbProviderCore->getZendDbAdapter();
         $dbTableNameProvider    = $sm->get('db_table_name_provider');

@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -18,15 +18,10 @@ class DbTableGatewayProviderFactory implements FactoryInterface
     {
         /** @var $dbTableNameProvider DbTableNameProvider */
         $dbTableNameProvider    = $serviceLocator->get('db_table_name_provider');
-        $service                = new DbTableGatewayProvider();
-        $tableNames             = $dbTableNameProvider->getTableNames();
-        /** @var $dbProviderCore DbProvider */
+        $moduleDbProvider       = $serviceLocator->get('Vivo\module_db_provider');
         $dbProviderCore         = $serviceLocator->get('db_provider_core');
-        $zdba                   = $dbProviderCore->getZendDbAdapter();
-        foreach ($tableNames as $symbolic => $real) {
-            $service->add($symbolic, $zdba, $real);
-        }
-        //Register core tables
+        $coreZdba               = $dbProviderCore->getZendDbAdapter();
+        $service                = new DbTableGatewayProvider($moduleDbProvider, $coreZdba, $dbTableNameProvider);
         return $service;
     }
 }

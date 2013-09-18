@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -17,7 +17,7 @@ class DbProviderFactoryFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $dbServiceManager   = $serviceLocator->get('db_service_manager');
-        $dbProviderFactory  = new \Vivo\Service\DbProviderFactory($dbServiceManager);
+        $dbProviderFactory  = new DbProviderFactory($dbServiceManager);
         return $dbProviderFactory;
     }
 }

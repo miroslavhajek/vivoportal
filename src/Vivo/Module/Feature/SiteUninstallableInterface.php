@@ -3,7 +3,7 @@ namespace Vivo\Module\Feature;
 
 use Vivo\CMS\Model\Site;
 use Vivo\CMS\Api\CMS;
-use Vivo\Service\DbProviderInterface;
+use Vivo\Db\DbProviderInterface;
 
 /**
  * SiteUninstallableInterface

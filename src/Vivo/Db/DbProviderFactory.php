@@ -1,5 +1,5 @@
 <?php
-namespace Vivo\Service;
+namespace Vivo\Db;
 
 /**
  * DbProviderFactory
@@ -22,7 +22,7 @@ class DbProviderFactory
 
     /**
      * Constructor
-     * @param \Vivo\Service\DbServiceManagerInterface $dbServiceManager
+     * @param DbServiceManagerInterface $dbServiceManager
      */
     public function __construct(DbServiceManagerInterface $dbServiceManager)
     {
