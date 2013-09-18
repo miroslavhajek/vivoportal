@@ -9,7 +9,6 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\Config\Reader\Ini as ConfigReader;
 use Zend\Config\Config;
 use Zend\Stdlib\ArrayUtils;
-use Zend\Feed\Reader\Reader;
 
 /**
  * MetadataManager
