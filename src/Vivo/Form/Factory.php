@@ -10,6 +10,26 @@ use Zend\Form\Exception;
 class Factory extends ZendFactory
 {
     /**
+     * Create an element, fieldset, or form
+     *
+     * Introspects the 'type' key of the provided $spec, and determines what
+     * type is being requested; if none is provided, assumes the spec
+     * represents simply an element.
+     *
+     * @param  array|Traversable $spec
+     * @return ElementInterface
+     * @throws Exception\DomainException
+     */
+    public function create($spec)
+    {
+        if (!isset($spec['type'])) {
+            $spec['type'] = 'Vivo\Form\Element';
+        }
+
+        return parent::create($spec);
+    }
+
+    /**
      * Create an element based on the provided specification
      *
      * Specification can contain any of the following:
@@ -45,7 +65,7 @@ class Factory extends ZendFactory
         if ($name !== null && $name !== '') {
             $element->setName($name);
         }
-// echo __METHOD__. " $type: $name\n";
+
         if($type == 'Vivo\Form\Element\DateTime' && empty($options['format'])) {
             $options['format'] = 'Y.m.d'; //TODO
         }
@@ -59,5 +79,35 @@ class Factory extends ZendFactory
         }
 
         return $element;
+    }
+
+    /**
+     * Create a fieldset
+     *
+     * @param  array $spec
+     * @return ElementInterface
+     */
+    public function createFieldset($spec)
+    {
+        if (!isset($spec['type'])) {
+            $spec['type'] = 'Vivo\Form\Fieldset';
+        }
+
+        return parent::createFieldset($spec);
+    }
+
+    /**
+     * Create a form
+     *
+     * @param  array $spec
+     * @return ElementInterface
+     */
+    public function createForm($spec)
+    {
+        if (!isset($spec['type'])) {
+            $spec['type'] = 'Vivo\Form\Form';
+        }
+
+        return parent::createForm($spec);
     }
 }
