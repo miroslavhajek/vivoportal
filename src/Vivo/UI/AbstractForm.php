@@ -72,6 +72,20 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $autoAddCsrf          = true;
 
     /**
+     * When set to true, a hidden field containing URL of ajax validation action will be added to the form
+     * @see $autoActAjaxValidationFieldName
+     * @var bool
+     */
+    protected $autoAddActAjaxValidation = true;
+
+    /**
+     * When set to true, a hidden field indication if the form has been already submitted ('0'|'1')
+     * @see $autoFormSubmittedFieldName
+     * @var bool
+     */
+    protected $autoAddFormSubmitted     = true;
+
+    /**
      * When set to true, data will be automatically loaded to the form from request
      * Redefine in descendant if necessary
      * @var bool
@@ -120,7 +134,21 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * Name of the field containing the automatically added CSRF element
      * @var string
      */
-    protected $autoCsrfFieldName    = 'csrf';
+    protected $autoCsrfFieldName                = 'csrf';
+
+    /**
+     * Name of the field containing the automatically added element for ajax validation action url
+     * @see $autoAddActAjaxValidation
+     * @var string
+     */
+    protected $autoActAjaxValidationFieldName   = 'act_ajax_validation';
+
+    /**
+     * Name of the field containing the automatically added element for ajax validation action url
+     * @see $autoAddFormSubmitted
+     * @var string
+     */
+    protected $autoFormSubmittedFieldName       = 'form_submitted';
 
     /**
      * Form data or an empty array when validation has not been performed yet
@@ -141,6 +169,19 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $isValid      = false;
 
     /**
+     * Has the form been submitted?
+     * This property is initialized in loadFromRequest()
+     * @var bool
+     */
+    protected $isFormSubmitted;
+
+    /**
+     * Value of act field in data obtained from POST/GET - used to assess if the form has been submitted or not
+     * @var string
+     */
+    protected $actFieldInPostGet;
+
+    /**
      * Get ZF form
      * @throws Exception\InvalidArgumentException
      * @return ZfForm
@@ -154,8 +195,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
             if ($this->autoInjectInputFilterFactory) {
                 $this->injectInputFilterFactory($this->form);
             }
+            //Auto add CSRF field
             if ($this->autoAddCsrf) {
-                //Add CSRF field
                 $formName           = $this->form->getName();
                 if (!$formName) {
                     throw new Exception\InvalidArgumentException(sprintf("%s: Form name not set", __METHOD__));
@@ -174,6 +215,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 $csrfValidator->setTimeout($this->csrfTimeout);
                 $this->form->add($csrf);
             }
+            //Multistep strategy
             if ($this->multistepStrategy) {
                 $this->multistepStrategy->setForm($this->form);
                 $this->multistepStrategy->modifyForm();
@@ -194,6 +236,10 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     abstract protected function doGetForm();
 
+    /**
+     * Sets request instance
+     * @param RequestInterface $request
+     */
     public function setRequest(RequestInterface $request)
     {
         $this->request  = $request;
@@ -222,18 +268,14 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_PRE, $this);
 
         $form   = $this->getForm();
-        $method = strtolower($form->getAttribute('method'));
+        $method = $this->getFormMethod();
 
         if($method == 'post') {
             $data = $this->request->getPost()->toArray();
         } else {
             $data = $this->request->getQuery()->toArray();
         }
-
         $data = ArrayUtils::merge($data, $this->request->getFiles()->toArray());
-
-        //Unset act field to prevent mix up with an unrelated act field
-        unset($data['act']);
 
         //If form elements are wrapped with the form name, extract only this part of the GET/POST data
         if ($form->wrapElements()) {
@@ -247,10 +289,58 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 $data   = array();
             }
         }
+        //Store value of the act field
+        $this->actFieldInPostGet    = null;
+        if (isset($data['act'])) {
+            $this->actFieldInPostGet    = $data['act'];
+            //Unset act field to prevent mix up with an unrelated act field
+            unset($data['act']);
+        }
 
+        //Remove form submitted flag from the data
+        if ($this->autoAddFormSubmitted) {
+            unset($data[$this->autoFormSubmittedFieldName]);
+        }
+        //Remove act_ajax_validation from the data
+        if ($this->autoAddActAjaxValidation) {
+            unset($data[$this->autoAddActAjaxValidation]);
+        }
         $form->setData($data);
         $this->dataLoaded   = true;
         $eventManager->trigger(self::EVENT_LOAD_FROM_REQUEST_POST, $this, array('data' => $data));
+    }
+
+    /**
+     * Returns method of the form
+     * @return string
+     */
+    public function getFormMethod()
+    {
+        $method = strtolower($this->getForm()->getAttribute('method'));
+        return $method;
+    }
+
+    /**
+     * Returns if the form has been submitted or not
+     * This method returns valid result only after a call to loadFromRequest() - if called earlier, returns null
+     * @return bool|null
+     */
+    public function isFormSubmitted()
+    {
+        if (is_null($this->isFormSubmitted) && $this->dataLoaded) {
+            $this->isFormSubmitted  = false;
+            if (!is_null($this->actFieldInPostGet)) {
+                $actParts   = explode('->', $this->actFieldInPostGet);
+                if (count($actParts) >= 2) {
+                    array_pop($actParts);
+                    $formPath   = implode('->', $actParts);
+                    if ($formPath == $this->getPath()) {
+                        $this->isFormSubmitted  = true;
+                    }
+                }
+            }
+        }
+        return $this->isFormSubmitted;
     }
 
     /**
@@ -494,7 +584,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     public function ajaxValidateFormField()
     {
         $field      = $this->request->getPost('field');
-        $formData = $this->request->getPost('formData');
+        $formData   = $this->request->getPost('formData');
         // parse data from request string if needed
         if (is_string($formData)) {
             parse_str($formData, $formData);
@@ -598,6 +688,21 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     public function viewListenerPrepareAndSetForm()
     {
         $form = $this->getForm();
+        //By adding special fields (which are to be consumed only on front-end) here in a view listener,
+        //they are not stored together with the form state
+        //Auto add AJAX validation act field
+        if ($this->autoAddActAjaxValidation) {
+            $actAjaxValidation  = new \Vivo\Form\Element\Hidden($this->autoActAjaxValidationFieldName);
+            $componentPath      = $this->getPath('ajaxValidateFormField');
+            $actAjaxValidation->setValue($componentPath);
+            $this->form->add($actAjaxValidation);
+        }
+        //Auto add form submitted field
+        if ($this->autoAddFormSubmitted) {
+            $formSubmitted      = new \Vivo\Form\Element\Hidden($this->autoFormSubmittedFieldName);
+            $formSubmitted->setAttribute('value', $this->isFormSubmitted() ? '1' : '0');
+            $this->form->add($formSubmitted);
+        }
         //Prepare the form
         if ($this->autoPrepareForm) {
             $form->prepare();

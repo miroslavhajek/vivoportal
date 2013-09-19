@@ -274,6 +274,7 @@ return array(
             'Vivo\CMS\Api\Site'         => 'Vivo\CMS\Api\SiteFactory',
             'Vivo\CMS\Api\Util'         => 'Vivo\CMS\Api\UtilFactory',
             'Vivo\CMS\Api\Cache'        => 'Vivo\CMS\Api\CacheFactory',
+            'Vivo\CMS\Api\FormUtil'     => 'Vivo\CMS\Api\FormUtilFactory',
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
             'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
@@ -319,6 +320,10 @@ return array(
             'Vivo\component_creator'    => 'Vivo\UI\ComponentCreatorFactory',
             'Vivo\form_view_helper_utils'   => 'Vivo\Form\View\HelperUtilsFactory',
             'Vivo\apihelper_document_compare' => 'Vivo\CMS\Api\Helper\DocumentCompareFactory',
+            'Vivo\current_host'         => 'Vivo\Service\CurrentHostFactory',
+            'Vivo\current_site'         => 'Vivo\Service\CurrentSiteFactory',
+            'Vivo\site_session'         => 'Vivo\Session\SiteSessionContainerFactory',
+
         ),
         'aliases' => array(
             'Vivo\site_event'                   => 'site_event',
@@ -441,7 +446,8 @@ return array(
     //Filter plugin manager configuration
     'filters'       => array(
         'invokables'    => array(
-            'Vivo\date_time'    => 'Vivo\Filter\DateTime',
+            'Vivo\date_time'        => 'Vivo\Filter\DateTime',
+            'VIvo\ascii_alpha_num'  => 'Vivo\Filter\AsciiAlphaNum',
         ),
         'factories'     => array(
 

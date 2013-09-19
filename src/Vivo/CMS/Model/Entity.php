@@ -128,7 +128,7 @@ class Entity implements PathInterface
     }
 
     /**
-     * Gets entity name.
+     * Gets entity name - the last part of path
      * @return string
      */
     public function getName()
