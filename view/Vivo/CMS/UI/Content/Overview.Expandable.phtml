@@ -6,11 +6,11 @@
         foreach($this->children as $child) :
             if ($child instanceof \Vivo\CMS\Model\Document) {
                 /** @var $child \Vivo\CMS\Model\Document  */
-                $dt = $this->getOverviewTitleSafe($child);
+                $dt = $child->getOverviewTitleSafe();
                 $dd = $this->renderDocument($child);
             } elseif ($child instanceof \Vivo\CMS\Model\Folder) {
                 /** @var $child \Vivo\CMS\Model\Folder  */
-                $dt = $this->getOverviewTitleSafe($child);
+                $dt = $child->getTitle();
                 $dd = $this->escapeHtml($this->translate('Folder') . ': ' . $child->getPath());
             } else {
                 //Unsupported element type
