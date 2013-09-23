@@ -56,6 +56,12 @@ class Entity implements PathInterface
     protected $customProperties;
 
     /**
+     * Array of allowed custom properties.
+     * @var array
+     */
+    private $allowedCustomProperties = array();
+
+    /**
      * Constructor.
      * @param string $path Path to entity. If not set, it will be undefined and can be set later before persisting entity using saveEntity method of Repository.
      */
@@ -79,8 +85,32 @@ class Entity implements PathInterface
         }
         if(strpos($name, 'set') === 0) {
             $name = lcfirst(substr($name, 3));
-            $this->getCustomProperties()->set($name, $params[0]);
+
+            if(in_array($name, $this->allowedCustomProperties)) {
+                $this->getCustomProperties()->set($name, $params[0]);
+            }
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+        $vars = get_object_vars($this);
+        unset($vars['path']);
+        unset($vars['allowedCustomProperties']);
+
+        return array_keys($vars);
+    }
+
+    /**
+     * Sets allowed custom properties
+     * @param array $allowedCustomProperties
+     */
+    public function setAllowedCustomProperties(array $allowedCustomProperties)
+    {
+        $this->allowedCustomProperties = $allowedCustomProperties;
     }
 
     /**

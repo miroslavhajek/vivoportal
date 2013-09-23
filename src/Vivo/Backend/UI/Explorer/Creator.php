@@ -106,7 +106,14 @@ class Creator extends Editor
     private function doCreate()
     {
         $entityClass = $this->request->getPost('__type', 'Vivo\CMS\Model\Document');
+
         $this->entity = new $entityClass;
+
+        if($this->metadataManager->getCustomPropertiesDefs($entityClass)) {
+            $customValues = $this->metadataManager->getCustomProperties($entityClass);
+            $this->entity->setAllowedCustomProperties(array_keys($customValues));
+        }
+
         $this->resetForm();
         $this->getForm()->bind($this->entity);
         $this->getForm()->get('__type')->setValue($entityClass);

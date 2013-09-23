@@ -3,6 +3,8 @@ namespace Vivo\Serializer\Adapter;
 
 use Vivo\Serializer\Exception;
 use Vivo\Text\Text;
+use Vivo\Metadata\MetadataManager;
+use Vivo\CMS\Model;
 
 use VpLogger\Log\Logger;
 
@@ -12,7 +14,6 @@ use Zend\EventManager\EventManager;
 
 /**
  * Serializer adapter for serializing to Vivo entity format.
- *
  */
 class Entity extends AbstractAdapter
 {
@@ -22,9 +23,15 @@ class Entity extends AbstractAdapter
 
     /**
      * Text service
-     * @var Text
+     * @var \Vivo\Text\Text
      */
     protected $textService;
+
+    /**
+     * Metadata manager service
+     * @var \Vivo\Metadata\MetadataManager
+     */
+    protected $metadataManager;
 
     /**
      * Event Manager
@@ -34,18 +41,20 @@ class Entity extends AbstractAdapter
 
     /**
      * Constructor
-     * @param Text $textService
+     * @param \Vivo\Text\Text $textService
+     * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param mixed $options
      */
-    public function __construct(Text $textService, $options = null)
+    public function __construct(Text $textService, MetadataManager $metadataManager, $options = null)
     {
         parent::__construct($options);
         $this->textService  = $textService;
+        $this->metadataManager = $metadataManager;
     }
 
     /**
      * Serialize
-     * @param  mixed $value
+     * @param mixed $value
      * @return string
      */
     public function serialize($entity)
@@ -55,57 +64,56 @@ class Entity extends AbstractAdapter
 
     private function serializeRun($value, $name = false, $depth = 0)
     {
-        $out = ($indent = str_repeat(self::INDENT, $depth))
-                . ($name ? "$name " : '');
-        switch ($type = gettype($value)) {
-        case 'NULL':
-            return $out . 'NULL';
-        case 'boolean':
-            return $out . 'boolean ' . ($value ? 'true' : 'false');
-        case 'integer':
-        case 'long':
-        case 'float':
-        case 'double':
-            return $out . gettype($value) . ' ' . strval($value);
-        case 'string':
-            $str = strval($value);
-            if (substr($str, -1) == '\\')
-                $str .= '\\';
-            return $out . 'string "' . str_replace('"', '\\"', $str) . '"';
-        case 'array':
-            $out .= "array (\n";
-            foreach ($value as $key => $val) {
-                $out .= $indent . self::INDENT . $this->serializeRun($key)
-                        . ' : '
-                        . ltrim($this->serializeRun($val, false, $depth + 1))
-                        . "\n";
-            }
-            return $out . $indent . ")";
-        case 'object':
-            $class_name = get_class($value);
-            $out .= "object $class_name ";
-            $out .= "{\n";
+        $out = ($indent = str_repeat(self::INDENT, $depth)).($name ? "$name " : '');
+        $type = gettype($value);
 
-            //@todo: proc?
-            // 				if (method_exists($value, '__vivo_sleep')) {
-            // 					$vars = array();
-            // 					foreach ($value->__vivo_sleep() as $name)
-            // 						$vars[$name] = $value->$name;
-            // 				} else {
+        switch ($type) {
+            case 'NULL':
+                return $out . 'NULL';
+            case 'boolean':
+                return $out . 'boolean ' . ($value ? 'true' : 'false');
+            case 'integer':
+            case 'long':
+            case 'float':
+            case 'double':
+                return $out . $type . ' ' . strval($value);
+            case 'string':
+                $str = strval($value);
+                if (substr($str, -1) == '\\')
+                    $str .= '\\';
+                return $out . 'string "' . str_replace('"', '\\"', $str) . '"';
+            case 'array':
+                $out .= "array (\n";
+                foreach ($value as $key => $val) {
+                    $out .= $indent . self::INDENT . $this->serializeRun($key)
+                            . ' : '
+                            . ltrim($this->serializeRun($val, false, $depth + 1))
+                            . "\n";
+                }
+                return $out . $indent . ")";
+            case 'object':
+                $class_name = get_class($value);
+                $out .= "object $class_name ";
+                $out .= "{\n";
 
-            $props = $this->getObjectProperties($value);
-            unset($props['path']);
+                $allowed = array();
+                if (method_exists($value, '__sleep')) {
+                    $allowed = $value->__sleep();
+                    $allowed = is_array($allowed) ? $allowed : array();
+                }
 
-            foreach ($props as $name => $prop) {
-                $prop->setAccessible(true);
-                $val = $prop->getValue($value);
+                $props = $this->getObjectProperties($value);
+                foreach ($props as $name => $prop) {
+                    if(in_array($name, $allowed)) {
+                        $prop->setAccessible(true);
+                        $val = $prop->getValue($value);
 
-                // 					if (substr($name, 0, 2) != '__') //@fixme: proc?
-                $out .= $this->serializeRun($val, $name, $depth + 1) . "\n";
-            }
-            return $out . $indent . '}';
-        default:
-            throw new Exception\RuntimeException("Unsupported type $type of value $value");
+                        $out .= $this->serializeRun($val, $name, $depth + 1) . "\n";
+                    }
+                }
+                return $out . $indent . '}';
+            default:
+                throw new Exception\RuntimeException("Unsupported type $type of value $value");
         }
     }
 
@@ -123,17 +131,21 @@ class Entity extends AbstractAdapter
             $props_arr[$name] = $prop;
         }
         if ($parentClass = $ref->getParentClass()) {
-            $parent_props_arr = $this
-                    ->getObjectProperties($parentClass->getName());
+            $parent_props_arr = $this->getObjectProperties($parentClass->getName());
             if (count($parent_props_arr) > 0)
                 $props_arr = array_merge($parent_props_arr, $props_arr);
         }
         return $props_arr;
     }
 
+    /**
+     * Unserialize
+     * @param string
+     * @return object
+     */
     public function unserialize($serialized)
     {
-        $eventManager   = $this->getEventManager();
+        $eventManager = $this->getEventManager();
         $eventManager->trigger('log:start', $this, array('subject' => 'serializer:unserialize'));
         $pos    = 0;
         $object = $this->unserializeRun($serialized, $pos, true);
@@ -188,10 +200,16 @@ class Entity extends AbstractAdapter
             $className = $this->textService->readWord($str, $pos);
             $this->textService->expectChar('{', $str, $pos);
             if (!class_exists($className)) {
-                throw new Exception\ClassNotFoundException(
-                    sprintf("%s: Class '%s' not found", __METHOD__, $className));
+                throw new Exception\ClassNotFoundException(sprintf("%s: Class '%s' not found", __METHOD__, $className));
             }
+
             $object = new $className;
+
+            if($object instanceof Model\Entity && $this->metadataManager->getCustomPropertiesDefs($className)) {
+                $customProperties = $this->metadataManager->getCustomProperties($className);
+                $object->setAllowedCustomProperties(array_keys($customProperties));
+            }
+
             $refl   = new \ReflectionObject($object);
             $vars   = array();
             while (($name = $this->textService->readWord($str, $pos)) != '}') {
@@ -200,8 +218,8 @@ class Entity extends AbstractAdapter
                 } catch (\ReflectionException $e) {
                     //Property does not exists
                     if ($ignoreUnknownProperties) {
-                        $events = $this->getEventManager();
-                        $events->trigger('log', $this, array(
+                        $eventManager = $this->getEventManager();
+                        $eventManager->trigger('log', $this, array(
                             'message'   => sprintf("Property '%s' not found in an object of class '%s'",
                                 $name, $className),
                             'priority'  => Logger::WARN,
@@ -217,8 +235,6 @@ class Entity extends AbstractAdapter
                 $prop->setAccessible(true);
                 $prop->setValue($object, $vars[$name]);
             }
-            // 				if (method_exists($object, '__wakeup'))
-            // 				$object->__wakeup();
             if ($className == 'DateTime') {
                 try {
                     $object = new \DateTime($vars['date'], new \DateTimeZone($vars['timezone']));
@@ -231,8 +247,7 @@ class Entity extends AbstractAdapter
             return self::EOA;
         default:
             throw new Exception\RuntimeException(
-                    "Undefined type '$type' at position $pos: \""
-                            . substr(substr($str, $pos), 20) . "...\"");
+                sprintf("Undefined type '%s' at position %s: '%s...'", $type, $pos, substr(substr($str, $pos), 20)));
         }
     }
 
