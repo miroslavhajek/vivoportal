@@ -33,7 +33,7 @@ class Editor extends AbstractForm implements TranslatorAwareInterface
     /**
      * @var \Vivo\Metadata\MetadataManager
      */
-    private $metadataManager;
+    protected $metadataManager;
 
     /**
      * @var LookupDataManager

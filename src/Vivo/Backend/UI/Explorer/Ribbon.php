@@ -1,13 +1,8 @@
 <?php
 namespace Vivo\Backend\UI\Explorer;
 
-use Vivo\UI\Ribbon\Tab;
-use Vivo\UI\Ribbon\Group;
-use Vivo\UI\Ribbon\Item;
-
 /**
  * Ribbon for explorer.
- *
  */
 class Ribbon extends \Vivo\UI\Ribbon
 {
@@ -21,9 +16,9 @@ class Ribbon extends \Vivo\UI\Ribbon
 
     /**
      * (non-PHPdoc)
-     * @see \Vivo\UI\Component::getDefaultTemplate()
+     * @see \Vivo\UI\Component::getTemplate()
      */
-    public function getDefaultTemplate()
+    public function getTemplate()
     {
         //use parent template
         return get_parent_class($this);

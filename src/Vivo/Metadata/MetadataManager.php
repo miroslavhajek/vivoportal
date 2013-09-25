@@ -31,6 +31,11 @@ class MetadataManager
     protected $moduleNameResolver;
 
     /**
+     * @var \Zend\Config\Reader\Ini
+     */
+    protected $reader;
+
+    /**
      * @var array
      */
     protected $options = array(
@@ -61,6 +66,7 @@ class MetadataManager
         $this->serviceManager       = $serviceManager;
         $this->resourceManager      = $resourceManager;
         $this->moduleNameResolver   = $moduleNameResolver;
+        $this->reader = new ConfigReader();
         $this->mergeOptions($options);
     }
 
@@ -70,7 +76,55 @@ class MetadataManager
      */
     public function mergeOptions(array $options)
     {
-        $this->options  = ArrayUtils::merge($this->options, $options);
+        $this->options = ArrayUtils::merge($this->options, $options);
+    }
+
+    /**
+     * Returns custom properties definitions
+     * @param null|string $className
+     * @return array
+     */
+    public function getCustomPropertiesDefs($className = null)
+    {
+        if($className == null) {
+            return $this->options['custom_properties'];
+        }
+        else {
+            return isset($this->options['custom_properties'][$className])
+                    ? $this->options['custom_properties'][$className]
+                    : array();
+        }
+    }
+
+    /**
+     * Returns custom properties by class name
+     * @param string $className
+     * @return array
+     */
+    public function getCustomProperties($className)
+    {
+        return $this->getCustomPropertiesConfig($className)->toArray();
+    }
+
+    /**
+     * Returns custom properties by class name
+     * @param string $className
+     * @return \Zend\Config\Config
+     */
+    private function getCustomPropertiesConfig($className)
+    {
+        $config = new Config(array());
+        $defs = $this->getCustomPropertiesDefs($className);
+        foreach ($defs as $vmodule => $path) {
+            $path = sprintf('%s.ini', str_replace('\\', DIRECTORY_SEPARATOR, $path));
+
+            $resource = $this->resourceManager->getResource($vmodule, $path, 'metadata');
+            $entityConfig = new Config($this->reader->fromString($resource));
+
+            $config = $config->merge($entityConfig);
+        }
+
+        return $config;
     }
 
     /**
@@ -84,7 +138,6 @@ class MetadataManager
         }
 
         $config = new Config(array());
-        $reader = new ConfigReader();
 
         $parent = $entityClass;
         $parents = array($parent);
@@ -103,7 +156,7 @@ class MetadataManager
 
                 if($path) {
                     $resource = file_get_contents($path);
-                    $entityConfig = new Config($reader->fromString($resource));
+                    $entityConfig = new Config($this->reader->fromString($resource));
 
                     $config = $config->merge($entityConfig);
                 }
@@ -114,25 +167,18 @@ class MetadataManager
 
                 try {
                     $resource = $this->resourceManager->getResource($moduleName, $path, 'metadata');
-                    $entityConfig = new Config($reader->fromString($resource));
+                    $entityConfig = new Config($this->reader->fromString($resource));
 
                     $config = $config->merge($entityConfig);
                 }
                 catch (ResourceNotFoundException $e) { }
             }
 
-            if(isset($this->options['custom_properties'][$class])) {
-                $defs = $this->options['custom_properties'][$class];
+            if($this->getCustomPropertiesDefs($class)) {
+                $entityConfig = $this->getCustomPropertiesConfig($class);
 
-                foreach ($defs as $vmodule => $path) {
-                    $path = sprintf('%s.ini', str_replace('\\', DIRECTORY_SEPARATOR, $path));
-
-                    $resource = $this->resourceManager->getResource($vmodule, $path, 'metadata');
-                    $entityConfig = new Config($reader->fromString($resource));
-
-                    // Modifications is not allowed
-                    $config = $entityConfig->merge($config);
-                }
+                // Modifications is not allowed
+                $config = $entityConfig->merge($config);
             }
         }
 
