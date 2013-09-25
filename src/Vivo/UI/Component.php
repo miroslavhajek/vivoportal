@@ -161,11 +161,11 @@ class Component implements ComponentInterface
      */
     public function getTemplate()
     {
-        if($this->template) {
-            return $this->template;
+        if(!$this->template) {
+            $this->template = get_class($this);
         }
 
-        return get_class($this);
+        return $this->template;
     }
 
     /**
