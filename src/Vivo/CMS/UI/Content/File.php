@@ -77,7 +77,6 @@ class File extends Component
         } else {
             $templateVariant = null;
         }
-        $this->view->setTemplate($this->getDefaultTemplate() .
-                ($templateVariant ? ':' . $templateVariant : ''));
+        $this->view->setTemplate($this->getTemplate() . ($templateVariant ? ':' . $templateVariant : ''));
     }
 }
