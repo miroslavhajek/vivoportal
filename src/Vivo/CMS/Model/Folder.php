@@ -63,6 +63,11 @@ class Folder extends Entity
     protected $lastPath;
 
     /**
+     * @var \Vivo\CMS\Model\Entity\Security
+     */
+    protected $security;
+
+    /**
      * Sets folder title.
      * @param string $title
      */
