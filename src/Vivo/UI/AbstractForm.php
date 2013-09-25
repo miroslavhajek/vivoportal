@@ -5,9 +5,11 @@ use Vivo\Service\Initializer\InputFilterFactoryAwareInterface;
 use Vivo\Service\Initializer\RequestAwareInterface;
 use Vivo\Service\Initializer\RedirectorAwareInterface;
 use Vivo\Service\Initializer\TranslatorAwareInterface;
+use Vivo\Service\Initializer\FormUtilAwareInterface;
 use Vivo\Util\Redirector;
 use Vivo\Form\Multistep\MultistepStrategyInterface;
 use Vivo\UI\ZfFieldsetProviderInterface;
+use Vivo\CMS\Api\FormUtil as FormUtilApi;
 
 use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\FormInterface;
@@ -26,7 +28,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                                                                   RedirectorAwareInterface,
                                                                   TranslatorAwareInterface,
                                                                   InputFilterFactoryAwareInterface,
-                                                                  ZfFieldsetProviderInterface
+                                                                  ZfFieldsetProviderInterface,
+                                                                  FormUtilAwareInterface
 {
     /**#@+
      * Events
@@ -169,17 +172,10 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     protected $isValid      = false;
 
     /**
-     * Has the form been submitted?
-     * This property is initialized in loadFromRequest()
-     * @var bool
+     * FormUtil API
+     * @var FormUtilApi
      */
-    protected $isFormSubmitted;
-
-    /**
-     * Value of act field in data obtained from POST/GET - used to assess if the form has been submitted or not
-     * @var string
-     */
-    protected $actFieldInPostGet;
+    protected $formUtilApi;
 
     /**
      * Get ZF form
@@ -289,10 +285,25 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                 $data   = array();
             }
         }
-        //Store value of the act field
-        $this->actFieldInPostGet    = null;
+
+        //Store if the form has been submitted
+        //TODO
         if (isset($data['act'])) {
-            $this->actFieldInPostGet    = $data['act'];
+            //If there is match with the act param, set submitted to true
+            $actParts   = explode('->', $data['act']);
+            if (count($actParts) >= 2) {
+                array_pop($actParts);
+                $formPath   = implode('->', $actParts);
+                if ($formPath == $this->getPath()) {
+                    //The form is freshly submitted - set session
+                    $this->isFormSubmitted(true);
+                }
+            }
+            //If there was not a match with the act param and the session variable did not contain 'true' originally,
+            //set it to false. This initializes the session var from its default NULL state.
+            if ($this->isFormSubmitted() !== true) {
+                $this->isFormSubmitted(false);
+            }
             //Unset act field to prevent mix up with an unrelated act field
             unset($data['act']);
         }
@@ -321,26 +332,23 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     }
 
     /**
-     * Returns if the form has been submitted or not
-     * This method returns valid result only after a call to loadFromRequest() - if called earlier, returns null
+     * Sets/returns if the form has been submitted or not
+     * Returns valid result only after a call to loadFromRequest() - if called earlier, returns null
+     * @param bool|null $isSubmitted
      * @return bool|null
      */
-    public function isFormSubmitted()
+    public function isFormSubmitted($isSubmitted = null)
     {
-        if (is_null($this->isFormSubmitted) && $this->dataLoaded) {
-            $this->isFormSubmitted  = false;
-            if (!is_null($this->actFieldInPostGet)) {
-                $actParts   = explode('->', $this->actFieldInPostGet);
-                if (count($actParts) >= 2) {
-                    array_pop($actParts);
-                    $formPath   = implode('->', $actParts);
-                    if ($formPath == $this->getPath()) {
-                        $this->isFormSubmitted  = true;
-                    }
-                }
-            }
+        $formClass  = get_class($this);
+        $formName   = $this->getForm()->getName();
+        if (is_null($isSubmitted)) {
+            //Getter
+            $isSubmitted    = $this->formUtilApi->getSessionIsFormSubmitted($formClass, $formName);
+        } else {
+            //Setter
+            $this->formUtilApi->setSessionIsFormSubmitted($formClass, $formName, $isSubmitted);
         }
-        return $this->isFormSubmitted;
+        return $isSubmitted;
     }
 
     /**
@@ -734,5 +742,15 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
         $eventManager->attach(ComponentEventInterface::EVENT_INIT_LATE, array($this, 'initLateLoadFromRequest'));
         //View
         $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerPrepareAndSetForm'));
+    }
+
+    /**
+     * Sets FormUtil API
+     * @param FormUtilApi $formUtilApi
+     * @return void
+     */
+    public function setFormUtilApi(FormUtilApi $formUtilApi)
+    {
+        $this->formUtilApi  = $formUtilApi;
     }
 }

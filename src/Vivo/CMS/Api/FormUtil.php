@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\CMS\Api;
 
+use Vivo\UI\AbstractForm;
+
 use Zend\Db\TableGateway\TableGateway;
 use Zend\Json\Json;
 use Zend\Session\Container as SessionContainer;
@@ -54,17 +56,18 @@ class FormUtil
 
     /**
      * Saves form state
+     * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      * @param array $formData
      * @param array $context
      */
-    public function saveFormState($formName, $formIdent, array $formData, array $context = null)
+    public function saveFormState($formClass, $formName, $formIdent, array $formData, array $context = null)
     {
         $now                = date('Y-m-d H:i:s');
         $dataSerialized     = Json::encode($formData);
         $contextSerialized  = Json::encode($context);
-        if ($this->formStateExists($formName, $formIdent)) {
+        if ($this->formStateExists($formClass, $formName, $formIdent)) {
             //Update
             $affected       = $this->tgwSavedForm->update(array(
                 'time_saved'    => $now,
@@ -72,6 +75,7 @@ class FormUtil
                 'context'       => $contextSerialized,
             ), array(
                 'site_name'     => $this->siteName,
+                'form_class'    => $formClass,
                 'form_name'     => $formName,
                 'form_ident'    => $formIdent,
             ));
@@ -79,6 +83,7 @@ class FormUtil
             //Insert
             $affected   = $this->tgwSavedForm->insert(array(
                 'site_name'     => $this->siteName,
+                'form_class'    => $formClass,
                 'form_name'     => $formName,
                 'form_ident'    => $formIdent,
                 'time_saved'    => $now,
@@ -93,15 +98,17 @@ class FormUtil
      * If form state is not found, throws an exception
      * Returns array with the following elements:
      * array('form_data' => <form data>, 'context' => <context>, 'time_saved' => DateTime)
+     * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      * @throws Exception\RuntimeException
      * @return array
      */
-    public function loadFormState($formName, $formIdent)
+    public function loadFormState($formClass, $formName, $formIdent)
     {
         $rowSet = $this->tgwSavedForm->select(array(
             'site_name'     => $this->siteName,
+            'form_class'    => $formClass,
             'form_name'     => $formName,
             'form_ident'    => $formIdent,
         ));
@@ -122,13 +129,15 @@ class FormUtil
 
     /**
      * Returns if a saved form state exists for the given form
+     * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      * @return bool
      */
-    public function formStateExists($formName, $formIdent)
+    public function formStateExists($formClass, $formName, $formIdent)
     {
         $rowSet = $this->tgwSavedForm->select(array(
+            'form_class'    => $formClass,
             'site_name'     => $this->siteName,
             'form_name'     => $formName,
             'form_ident'    => $formIdent,
@@ -144,13 +153,15 @@ class FormUtil
     /**
      * Removes saved form state from storage
      * It's ok if the specified form's state is not saved
+     * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      */
-    public function removeFormState($formName, $formIdent)
+    public function removeFormState($formClass, $formName, $formIdent)
     {
         $this->tgwSavedForm->delete(array(
             'site_name'     => $this->siteName,
+            'form_class'    => $formClass,
             'form_name'     => $formName,
             'form_ident'    => $formIdent,
         ));
@@ -158,99 +169,134 @@ class FormUtil
 
     /**
      * Sets form identifier stored in session
+     * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      */
-    public function setSessionFormIdent($formName, $formIdent)
+    public function setSessionFormIdent($formClass, $formName, $formIdent)
     {
-        $formInfo           = $this->getSessionFormInfo($formName);
+        $formInfo           = $this->getSessionFormInfo($formClass, $formName);
         $formInfo['ident']  = $formIdent;
-        $this->setSessionFormInfo($formName, $formInfo);
+        $this->setSessionFormInfo($formClass, $formName, $formInfo);
     }
 
     /**
      * Returns form identifier stored in session
+     * @param string $formClass
      * @param string $formName
      * @return string
      */
-    public function getSessionFormIdent($formName)
+    public function getSessionFormIdent($formClass, $formName)
     {
-        $formInfo   = $this->getSessionFormInfo($formName);
+        $formInfo       = $this->getSessionFormInfo($formClass, $formName);
         if (!isset($formInfo['ident'])) {
             $formIdent          = uniqid();
             $formInfo['ident']  = $formIdent;
-            $this->setSessionFormIdent($formName, $formIdent);
+            $this->setSessionFormIdent($formClass, $formName, $formIdent);
         }
         return $formInfo['ident'];
     }
 
     /**
      * Sets flag indicating if the form has been submitted into session
+     * @param string $formClass
      * @param string $formName
      * @param bool $isSubmitted
      */
-    public function setSessionIsFormSubmitted($formName, $isSubmitted)
+    public function setSessionIsFormSubmitted($formClass, $formName, $isSubmitted)
     {
-        $formInfo                   = $this->getSessionFormInfo($formName);
+        $formInfo                   = $this->getSessionFormInfo($formClass, $formName);
         $formInfo['isSubmitted']    = $isSubmitted;
-        $this->setSessionFormInfo($formName, $formInfo);
+        $this->setSessionFormInfo($formClass, $formName, $formInfo);
     }
 
     /**
      * Returns flag indicating if the form has been submitted from session
+     * @param string $formClass
      * @param string $formName
      * @return bool
      */
-    public function getSessionIsFormSubmitted($formName)
+    public function getSessionIsFormSubmitted($formClass, $formName)
     {
-        $formInfo   = $this->getSessionFormInfo($formName);
+        $formInfo   = $this->getSessionFormInfo($formClass, $formName);
         return $formInfo['isSubmitted'];
     }
 
     /**
      * Returns if form info is present in session
+     * @param string $formClass
      * @param string $formName
      * @return bool
      */
-    public function hasSessionFormInfo($formName)
+    public function hasSessionFormInfo($formClass, $formName)
     {
-        return isset($this->session->form[$formName]);
+        $fullFormName   = $this->getFullFormName($formClass, $formName);
+        return isset($this->session->form[$fullFormName]);
     }
 
     /**
      * Returns form info stored in session
+     * @param string $formClass
      * @param string $formName
      * @return array
      */
-    public function getSessionFormInfo($formName)
+    public function getSessionFormInfo($formClass, $formName)
     {
-        if (!isset($this->session->form[$formName])) {
-            $this->setSessionFormInfo($formName, $this->sessionFormInfoTemplate);
+        $fullFormName   = $this->getFullFormName($formClass, $formName);
+        if (!isset($this->session->form[$fullFormName])) {
+            $this->setSessionFormInfo($formClass, $formName, $this->sessionFormInfoTemplate);
         }
-        return $this->session->form[$formName];
+        return $this->session->form[$fullFormName];
     }
 
     /**
      * Sets form info into session
+     * @param string $formClass
      * @param string $formName
      * @param array $formInfo
      */
-    public function setSessionFormInfo($formName, array $formInfo)
+    public function setSessionFormInfo($formClass, $formName, array $formInfo)
     {
+        $fullFormName   = $this->getFullFormName($formClass, $formName);
         if (!isset($this->session->form)) {
             $this->session->form  = array();
         }
-        $this->session->form[$formName] = $formInfo;
+        $this->session->form[$fullFormName] = $formInfo;
     }
 
     /**
      * Removes form info stored in session
+     * @param string $formClass
      * @param string $formName
      */
-    public function removeSessionFormInfo($formName)
+    public function removeSessionFormInfo($formClass, $formName)
     {
-        if ($this->hasSessionFormInfo($formName)) {
-            unset($this->session->form[$formName]);
+        $fullFormName   = $this->getFullFormName($formClass, $formName);
+        if ($this->hasSessionFormInfo($formClass, $formName)) {
+            unset($this->session->form[$fullFormName]);
         }
+    }
+
+    /**
+     * Returns full form name
+     * @param string $formClass
+     * @param string $formName
+     * @return string
+     */
+    protected function getFullFormName($formClass, $formName)
+    {
+        $fullFormName   = $formClass . '.' . $formName;
+        return $fullFormName;
+    }
+
+    /**
+     * Returns form name from form class
+     * @param AbstractForm $form
+     * @return string
+     */
+    protected function getFormName(AbstractForm $form)
+    {
+        $name   = $form->getForm()->getName();
+        return $name;
     }
 }
