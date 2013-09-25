@@ -97,14 +97,15 @@ class Entity extends AbstractAdapter
                 $out .= "{\n";
 
                 $allowed = array();
-                if (method_exists($value, '__sleep')) {
+                $sleep = method_exists($value, '__sleep');
+                if ($sleep) {
                     $allowed = $value->__sleep();
                     $allowed = is_array($allowed) ? $allowed : array();
                 }
 
                 $props = $this->getObjectProperties($value);
                 foreach ($props as $name => $prop) {
-                    if(in_array($name, $allowed)) {
+                    if(!$sleep || in_array($name, $allowed)) {
                         $prop->setAccessible(true);
                         $val = $prop->getValue($value);
 
