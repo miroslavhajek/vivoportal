@@ -45,5 +45,9 @@ class DefaultInitializer implements InitializerInterface
         if ($instance instanceof InputFilterFactoryAwareInterface) {
             $instance->setInputFilterFactory($serviceLocator->get('input_filter_factory'));
         }
+        //Inject FormUtil API
+        if ($instance instanceof FormUtilAwareInterface) {
+            $instance->setFormUtilApi($serviceLocator->get('Vivo\CMS\Api\FormUtil'));
+        }
     }
 }

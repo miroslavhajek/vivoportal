@@ -35,7 +35,12 @@ class Component implements ComponentInterface
     private $name;
 
     /**
-     *
+     * Component template name.
+     * @var string
+     */
+    private $template;
+
+    /**
      * @var ModelInterface
      */
     protected $view;
@@ -86,7 +91,7 @@ class Component implements ComponentInterface
         $view   = $this->getView();
         if ($view instanceof ModelInterface) {
             if ($view->getTemplate() == '') {
-                $view->setTemplate($this->getDefaultTemplate());
+                $view->setTemplate($this->getTemplate());
             }
             $component = array(
                 'component' => $this,
@@ -142,12 +147,25 @@ class Component implements ComponentInterface
     }
 
     /**
-     * Returns default template name
+     * Sets template name.
+     * @param string $template
+     */
+    public function setTemplate($template)
+    {
+        $this->template = $template;
+    }
+
+    /**
+     * Returns template name.
      * @return string
      */
-    public function getDefaultTemplate()
+    public function getTemplate()
     {
-        return get_class($this);
+        if(!$this->template) {
+            $this->template = get_class($this);
+        }
+
+        return $this->template;
     }
 
     /**
