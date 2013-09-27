@@ -1082,7 +1082,7 @@ return array(
                 'multi'         => false,
             ),
             '\position'   => array(
-                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_STRING,
+                'type'          => Vivo\Indexer\IndexerInterface::FIELD_TYPE_INT,
                 'indexed'       => true,
                 'stored'        => true,
                 'tokenized'     => false,
