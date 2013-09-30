@@ -1,8 +1,6 @@
 <?php
 namespace Vivo\CMS\Model;
 
-use Vivo\CMS\Security;
-
 /**
  * Represents folder in tree.
  */
@@ -140,16 +138,6 @@ class Folder extends Entity
     public function setSorting($sorting)
     {
         $this->sorting = $sorting;
-    }
-
-    public function getSecurity()
-    {
-        return $this->security;
-    }
-
-    public function setSecurity(Security $security)
-    {
-        $this->security = $security;
     }
 
     /**
