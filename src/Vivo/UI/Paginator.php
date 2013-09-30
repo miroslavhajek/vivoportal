@@ -103,13 +103,13 @@ class Paginator extends Component
     {
         parent::attachListeners();
 
-        $this->getEventManager()->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewLisenerPaginatorView'));
+        $this->getEventManager()->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerPaginatorView'));
     }
 
     /**
      * Prepares View properties
      */
-    public function viewLisenerPaginatorView()
+    public function viewListenerPaginatorView()
     {
         if ($this->pageCount < 2) {
             $steps = array($this->page);
