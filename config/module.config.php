@@ -379,20 +379,6 @@ return array(
             'cli_util'                  => 'Vivo\Controller\CLI\UtilControllerFactory',
         ),
     ),
-    'cms_front_controller' => array(
-        'listeners' => array(
-            // fetch
-            'Vivo\CMS\Listener\FetchDocumentListener'       => 100,
-            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 200,
-            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 300,
-            // redirect
-            'Vivo\CMS\Listener\RedirectMapListener' => 100,
-            // create
-            'Vivo\CMS\Listener\RssListener' => 500,
-            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 100,
-            // render
-        ),
-    ),
     'view_manager' => array(
         'display_not_found_reason' => true,
         'display_exceptions'       => false,
