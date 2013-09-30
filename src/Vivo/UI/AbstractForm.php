@@ -703,6 +703,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
             $actAjaxValidation  = new \Vivo\Form\Element\Hidden($this->autoActAjaxValidationFieldName);
             $componentPath      = $this->getPath('ajaxValidateFormField');
             $actAjaxValidation->setValue($componentPath);
+            $actAjaxValidation->setAttribute('data-act-ajax-validation', '');
             $this->form->add($actAjaxValidation);
         }
         //Auto add form submitted field
