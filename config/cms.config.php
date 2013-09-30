@@ -335,20 +335,20 @@ return array(
         'initializers' => array(
         ),
     ),
-//    'di' => array (
-//        'instance' => array (
-//            'alias' => array (
-//            ),
-//            'Vivo\UI\Component' => array (
-//                'injection' => array (
-//                ),
-//                'parameters' => array (
-//                    'view' => 'Zend\View\Model\ViewModel',
-//                ),
-//            ),
-//        ),
-//    ),
-
+    'cms_front_controller' => array(
+        'listeners' => array(
+            // fetch
+            'Vivo\CMS\Listener\FetchDocumentListener'       => 100,
+            'Vivo\CMS\Listener\FetchDocumentByUrlListener'  => 200,
+            'Vivo\CMS\Listener\FetchErrorDocumentListener'  => 300,
+            // redirect
+            'Vivo\CMS\Listener\RedirectMapListener' => 100,
+            // create
+            'Vivo\CMS\Listener\RssListener' => 500,
+            'Vivo\CMS\Listener\ComponentTreeFromDocumentListener' => 100,
+            // render
+        ),
+    ),
     'ui' => array (
         //configuration of ui components
         'Vivo\UI\Page' => array (
