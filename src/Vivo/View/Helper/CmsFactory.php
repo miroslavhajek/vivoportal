@@ -17,9 +17,10 @@ class CmsFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm         = $serviceLocator->getServiceLocator();
-        $cmsEvent   = $sm->get('cms_event');
-        $helper     = new Cms($cmsEvent);
+        $sm             = $serviceLocator->getServiceLocator();
+        $cmsEvent       = $sm->get('cms_event');
+        $documentApi    = $sm->get('Vivo\CMS\Api\Document');
+        $helper         = new Cms($cmsEvent, $documentApi);
         return $helper;
     }
 }
