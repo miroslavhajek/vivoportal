@@ -14,7 +14,7 @@ use Zend\EventManager\ListenerAggregateInterface;
  * This listener loads redirect.map (a site resource file), parses it and performs redirect.
  *
  * @example format of redirect.map file:
- * <status_code> <source> <target>
+ * <source> <target>[ <status_code>]
  */
 class RedirectMapListener implements ListenerAggregateInterface, EventManagerAwareInterface
 {
@@ -82,18 +82,18 @@ class RedirectMapListener implements ListenerAggregateInterface, EventManagerAwa
             //TODO: CMSApi should returns a concrete exception when the resoure does not exist.
             return;
         }
-        $lines  = explode("\n", $redirectMap);
 
         //parse redirect map file
+        $lines  = explode("\n", $redirectMap);
         foreach ($lines as $line) {
             if ($line = trim($line)) { //skip empty rows
-                $lineColums = array_values(array_filter(explode(" ", $line)));
-                if (count($lineColums) == 3) {
-                    list($code , $source, $target) = $lineColums;
+                $lineColums = array_values(array_filter(explode(' ', $line)));
+                $lineColumsCount = count($lineColums);
+                if ($lineColumsCount == 2 || $lineColumsCount == 3) {
+                    list($source, $target, $code) = array_merge($lineColums, array(null, null, null));
                     if ($cmsEvent->getRequestedPath() == $source) {
-                        $params = array('status_code' => $code);
-                        $this->events->trigger(new RedirectEvent($target, $params));
                         $cmsEvent->stopPropagation();
+                        $this->events->trigger(new RedirectEvent($target, array('status_code' => $code)));
                         return null;
                     }
                 }
