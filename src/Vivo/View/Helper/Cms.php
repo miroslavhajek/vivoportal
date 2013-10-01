@@ -2,6 +2,8 @@
 namespace Vivo\View\Helper;
 
 use Vivo\CMS\Event\CMSEvent;
+use Vivo\CMS\Api\Document as DocumentApi;
+use Vivo\CMS\Model\Content;
 
 use Zend\View\Helper\AbstractHelper;
 
@@ -18,16 +20,26 @@ class Cms extends AbstractHelper
     protected $cmsEvent;
 
     /**
+     * Document API
+     * @var DocumentApi
+     */
+    protected $documentApi;
+
+    /**
      * Constructor
      * @param CMSEvent $cmsEvent
+     * @param \Vivo\CMS\Api\Document $documentApi
      */
-    public function __construct(CMSEvent $cmsEvent)
+    public function __construct(CMSEvent $cmsEvent, DocumentApi $documentApi)
     {
-        $this->cmsEvent = $cmsEvent;
+        $this->cmsEvent     = $cmsEvent;
+        $this->documentApi  = $documentApi;
     }
 
     /**
      * Invoke the helper as a PhpRenderer method call
+     * @param string|null $quickCmd
+     * @throws Exception\InvalidArgumentException
      * @return mixed
      */
     public function __invoke($quickCmd = null)
@@ -78,5 +90,16 @@ class Cms extends AbstractHelper
     public function getRequestedPath()
     {
         return $this->cmsEvent->getRequestedPath();
+    }
+
+    /**
+     * Returns document for the given content
+     * @param Content $content
+     * @return \Vivo\CMS\Model\Document
+     */
+    public function getContentDocument(Content $content)
+    {
+        $document   = $this->documentApi->getContentDocument($content);
+        return $document;
     }
 }
