@@ -8,6 +8,7 @@ use Vivo\Repository\Watcher;
 use Vivo\Storage\PathBuilder\PathBuilderInterface;
 use Vivo\IO\IOUtil;
 use Vivo\CMS\UuidConvertor\UuidConvertorInterface;
+use Vivo\Metadata\MetadataManager;
 
 use Zend\Serializer\Adapter\AdapterInterface as Serializer;
 use Zend\Cache\Storage\StorageInterface as Cache;
@@ -79,6 +80,12 @@ class Repository implements RepositoryInterface
     protected $uuidConvertor;
 
     /**
+     * Metadata manager service
+     * @var \Vivo\Metadata\MetadataManager
+     */
+    protected $metadataManager;
+
+    /**
      * List of entities that are prepared to be persisted
      * @var PathInterface[]
      */
@@ -139,6 +146,7 @@ class Repository implements RepositoryInterface
      * @param \Vivo\IO\IOUtil $ioUtil
      * @param \Zend\EventManager\EventManagerInterface $events
      * @param \Vivo\CMS\UuidConvertor\UuidConvertorInterface $uuidConvertor
+     * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @throws Exception\Exception
      */
     public function __construct(StorageInterface $storage,
@@ -147,7 +155,8 @@ class Repository implements RepositoryInterface
                                 Watcher $watcher,
                                 IOUtil $ioUtil,
                                 EventManagerInterface $events,
-                                UuidConvertorInterface $uuidConvertor)
+                                UuidConvertorInterface $uuidConvertor,
+                                MetadataManager $metadataManager)
     {
         if ($cache) {
             //Check that cache supports all required data types
@@ -168,6 +177,20 @@ class Repository implements RepositoryInterface
         $this->pathBuilder      = $this->storage->getPathBuilder();
         $this->events           = $events;
         $this->uuidConvertor    = $uuidConvertor;
+        $this->metadataManager  = $metadataManager;
+
+        $this->attachListeners();
+    }
+
+    /**
+     * Attaches default listeners
+     */
+    protected function attachListeners()
+    {
+        $this->events->attach(EventInterface::EVENT_SERIALIZE_PRE,
+            array($this, 'preSerializeListenerUnsetVolatileEntityProps'));
+        $this->events->attach(EventInterface::EVENT_UNSERIALIZE_POST,
+            array($this, 'postUnserializeListenerSetVolatileEntityProps'));
     }
 
     /**
@@ -323,13 +346,11 @@ class Repository implements RepositoryInterface
         }
         //Trigger post-unserialize event
         $eventParams    = array(
+            'path'      => $path,
             'entity'    => $entity,
         );
         $event          = new Event(EventInterface::EVENT_UNSERIALIZE_POST, $this, $eventParams);
         $this->events->trigger($event);
-
-        //Set volatile path property of entity instance
-        $entity->setPath($path);
         //Store entity to watcher
         $this->watcher->add($entity);
         //Store entity to cache
@@ -955,5 +976,49 @@ class Repository implements RepositoryInterface
     {
         $hash   = hash('md4', $path);
         return $hash;
+    }
+
+    /**
+     * Unsets volatile props prior to serialization
+     * @param Event $event
+     * @throws Exception\RuntimeException
+     */
+    public function preSerializeListenerUnsetVolatileEntityProps(Event $event)
+    {
+        /** @var $entity Entity */
+        $entity = $event->getParam('entity');
+        if (is_null($entity)) {
+            throw new Exception\RuntimeException(sprintf("%s: Param 'entity' missing in event", __METHOD__));
+        }
+        //Path
+        $entity->setPath(null);
+        //Allowed custom properties
+        $entity->setAllowedCustomProperties(array());
+    }
+
+    /**
+     * Sets volatile entity props after unserialization
+     * @param Event $event
+     * @throws Exception\RuntimeException
+     */
+    public function postUnserializeListenerSetVolatileEntityProps(Event $event)
+    {
+        $path   = $event->getParam('path');
+        if (is_null($path)) {
+            throw new Exception\RuntimeException(sprintf("%s: Param 'path' missing in event", __METHOD__));
+        }
+        /** @var $entity Entity */
+        $entity = $event->getParam('entity');
+        if (is_null($entity)) {
+            throw new Exception\RuntimeException(sprintf("%s: Param 'entity' missing in event", __METHOD__));
+        }
+        //Set volatile property of entity instance: path
+        $entity->setPath($path);
+        //Set volatile property of entity instance: allowedCustomProperties
+        $className  = get_class($entity);
+        if($this->metadataManager->getCustomPropertiesDefs($className)) {
+            $customProperties = $this->metadataManager->getCustomProperties($className);
+            $entity->setAllowedCustomProperties(array_keys($customProperties));
+        }
     }
 }

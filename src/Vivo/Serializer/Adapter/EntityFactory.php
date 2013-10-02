@@ -18,8 +18,6 @@ class EntityFactory implements FactoryInterface
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $textService     = $serviceLocator->get('Vivo\text');
-        $metadataManager = $serviceLocator->get('metadata_manager');
-
-        return new Entity($textService, $metadataManager);
+        return new Entity($textService);
     }
 }

@@ -33,13 +33,21 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     protected $isConsoleRequest = false;
 
     /**
+     * Is backend running?
+     * @var
+     */
+    protected $isBackend;
+
+    /**
      * Constructor
      * @param bool $isConsoleRequest
+     * @param bool $isBackend
      * @param array $options
      */
-    public function __construct($isConsoleRequest, array $options = array())
+    public function __construct($isConsoleRequest, $isBackend, array $options = array())
     {
         $this->isConsoleRequest = (bool) $isConsoleRequest;
+        $this->isBackend        = (bool) $isBackend;
         $this->options          = array_merge($this->options, $options);
     }
 
@@ -68,8 +76,9 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if ($this->isConsoleRequest) {
-            //Request from CLI - do no use any caching - some cache backends are not supported on CLI, e.g. ZendServer
+        if ($this->isConsoleRequest || $this->isBackend) {
+            //Request from CLI - do no use any caching - some cache backends are not supported on CLI, e.g. ZendServer,
+            //or the backend is running - do not cache anything
             $options    = array(
                 'adapter'   => array(
                     'name'      => 'Vivo\null',
