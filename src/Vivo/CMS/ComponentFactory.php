@@ -20,6 +20,7 @@ use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManagerAwareInterface;
 use Zend\ServiceManager\ServiceManager;
 use Zend\Stdlib\ArrayUtils;
+use Zend\View\Model\ModelInterface;
 
 /**
  * ComponentFactory is responsible for instantiating UI components for CMS documents and resolving it's dependencies.
@@ -270,10 +271,12 @@ class ComponentFactory implements EventManagerAwareInterface
             $component->setContent($content);
             $component->setDocument($document);
         }
-        if ($content instanceof Content\ProvideTemplateInterface) {
-            if (\Vivo\Metadata\Provider\SelectableTemplatesProvider::DEFAULT_TEMPLATE != $content->getTemplate()){
-                //TODO remove using of DEFAULT_TEMPLATE constant, use empty string instead.
-                $component->getView()->setTemplate($content->getTemplate());
+        if ($content instanceof Content\ProvideTemplateInterface
+            && \Vivo\Metadata\Provider\SelectableTemplatesProvider::DEFAULT_TEMPLATE != $content->getTemplate()) {
+            //TODO remove using of DEFAULT_TEMPLATE constant, use empty string instead.
+            $view = $component->getView();
+            if($view instanceof ModelInterface) { // View can be a string
+                $view->setTemplate($content->getTemplate());
             }
         }
         return $component;
