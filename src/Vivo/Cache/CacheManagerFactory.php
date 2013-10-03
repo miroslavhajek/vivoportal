@@ -27,9 +27,8 @@ class CacheManagerFactory implements FactoryInterface
         }
         /** @var $status \Vivo\Service\Status */
         $status                 = $serviceLocator->get('Vivo\status');
-        $isConsoleRequest       = $status->isConsoleRequest();
-        $isBackend              = $status->isBackEnd();
-        $cacheAbstractFactory   = new CacheAbstractFactory($isConsoleRequest, $isBackend, $options);
+        $serveNullCache         = $status->isConsoleRequest() || $status->isBackend();
+        $cacheAbstractFactory   = new CacheAbstractFactory($serveNullCache, $options);
         $service                = new CacheManager();
         $service->addAbstractFactory($cacheAbstractFactory);
         return $service;

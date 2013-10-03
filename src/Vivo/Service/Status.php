@@ -27,7 +27,7 @@ class Status
      * Flag indicating if backend is running
      * @var bool
      */
-    private $isBackEnd;
+    private $isBackend;
 
     /**
      * Constructor
@@ -44,17 +44,17 @@ class Status
      * Returns true when backend is active, otherwise returns false
      * @return bool
      */
-    public function isBackEnd()
+    public function isBackend()
     {
-        if (is_null($this->isBackEnd)) {
+        if (is_null($this->isBackend)) {
             $routeName  = $this->getCurrentRouteName();
             if ((strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms')) {
-                $this->isBackEnd  = true;
+                $this->isBackend  = true;
             } else {
-                $this->isBackEnd  = false;
+                $this->isBackend  = false;
             }
         }
-        return $this->isBackEnd;
+        return $this->isBackend;
     }
 
     /**
