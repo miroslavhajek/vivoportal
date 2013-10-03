@@ -27,19 +27,19 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     protected $options  = array();
 
     /**
-     * Is this request a request from the console (CLI)?
+     * When set to true, a null cache will be returned upon every request instead of the configured cache
      * @var bool
      */
-    protected $isConsoleRequest = false;
+    protected $serveNullCache   = false;
 
     /**
      * Constructor
-     * @param bool $isConsoleRequest
+     * @param bool $serveNullCache
      * @param array $options
      */
-    public function __construct($isConsoleRequest, array $options = array())
+    public function __construct($serveNullCache = false, array $options = array())
     {
-        $this->isConsoleRequest = (bool) $isConsoleRequest;
+        $this->serveNullCache   = $serveNullCache;
         $this->options          = array_merge($this->options, $options);
     }
 
@@ -68,15 +68,15 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        if ($this->isConsoleRequest) {
-            //Request from CLI - do no use any caching - some cache backends are not supported on CLI, e.g. ZendServer
+        if ($this->serveNullCache) {
+            //Create null cache
             $options    = array(
                 'adapter'   => array(
                     'name'      => 'Vivo\null',
                 ),
             );
         } else {
-            //Web request - use caches as defined
+            //Create caches as defined
             $cacheName  = $this->getCacheName($name, $requestedName);
             $options    = $this->options[$cacheName];
             $this->createFolderForFsCache($options);

@@ -93,18 +93,6 @@ class Entity implements PathInterface
     }
 
     /**
-     * @return array
-     */
-    public function __sleep()
-    {
-        $vars = get_object_vars($this);
-        unset($vars['path']);
-        unset($vars['allowedCustomProperties']);
-
-        return array_keys($vars);
-    }
-
-    /**
      * Sets allowed custom properties
      * @param array $allowedCustomProperties
      */

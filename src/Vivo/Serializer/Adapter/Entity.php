@@ -3,7 +3,6 @@ namespace Vivo\Serializer\Adapter;
 
 use Vivo\Serializer\Exception;
 use Vivo\Text\Text;
-use Vivo\Metadata\MetadataManager;
 use Vivo\CMS\Model;
 
 use VpLogger\Log\Logger;
@@ -28,12 +27,6 @@ class Entity extends AbstractAdapter
     protected $textService;
 
     /**
-     * Metadata manager service
-     * @var \Vivo\Metadata\MetadataManager
-     */
-    protected $metadataManager;
-
-    /**
      * Event Manager
      * @var EventManagerInterface
      */
@@ -42,14 +35,12 @@ class Entity extends AbstractAdapter
     /**
      * Constructor
      * @param \Vivo\Text\Text $textService
-     * @param \Vivo\Metadata\MetadataManager $metadataManager
      * @param mixed $options
      */
-    public function __construct(Text $textService, MetadataManager $metadataManager, $options = null)
+    public function __construct(Text $textService, $options = null)
     {
         parent::__construct($options);
         $this->textService  = $textService;
-        $this->metadataManager = $metadataManager;
     }
 
     /**
@@ -203,14 +194,7 @@ class Entity extends AbstractAdapter
             if (!class_exists($className)) {
                 throw new Exception\ClassNotFoundException(sprintf("%s: Class '%s' not found", __METHOD__, $className));
             }
-
             $object = new $className;
-
-            if($object instanceof Model\Entity && $this->metadataManager->getCustomPropertiesDefs($className)) {
-                $customProperties = $this->metadataManager->getCustomProperties($className);
-                $object->setAllowedCustomProperties(array_keys($customProperties));
-            }
-
             $refl   = new \ReflectionObject($object);
             $vars   = array();
             while (($name = $this->textService->readWord($str, $pos)) != '}') {

@@ -3,8 +3,6 @@ namespace Vivo\Cache;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Console\Request as ConsoleRequest;
-
 
 /**
  * CacheManagerFactory
@@ -27,13 +25,10 @@ class CacheManagerFactory implements FactoryInterface
         } else {
             $options    = array();
         }
-        $request        = $serviceLocator->get('request');
-        if ($request instanceof ConsoleRequest) {
-            $isConsoleRequest   = true;
-        } else {
-            $isConsoleRequest   = false;
-        }
-        $cacheAbstractFactory   = new CacheAbstractFactory($isConsoleRequest, $options);
+        /** @var $status \Vivo\Service\Status */
+        $status                 = $serviceLocator->get('Vivo\status');
+        $serveNullCache         = $status->isConsoleRequest() || $status->isBackend();
+        $cacheAbstractFactory   = new CacheAbstractFactory($serveNullCache, $options);
         $service                = new CacheManager();
         $service->addAbstractFactory($cacheAbstractFactory);
         return $service;

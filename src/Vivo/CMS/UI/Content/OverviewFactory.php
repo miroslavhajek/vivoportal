@@ -14,7 +14,7 @@ class OverviewFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $cms         = $serviceLocator->get('Vivo\CMS\Api\CMS');        
+        $cms         = $serviceLocator->get('Vivo\CMS\Api\CMS');
         $indexerApi  = $serviceLocator->get('Vivo\CMS\Api\Indexer');
         $documentApi = $serviceLocator->get('Vivo\CMS\Api\Document');
         /** @var $siteEvent \Vivo\SiteManager\Event\SiteEventInterface */

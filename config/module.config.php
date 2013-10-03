@@ -227,7 +227,7 @@ return array(
         'invokables'    => array(
             'uuid_generator'            => 'Vivo\Uuid\Generator',
             'storage_factory'           => 'Vivo\Storage\Factory',
-            'site_event'                => 'Vivo\SiteManager\Event\SiteEvent',
+            'Vivo\site_event'           => 'Vivo\SiteManager\Event\SiteEvent',
             'cms_event'                 => 'Vivo\CMS\Event\CMSEvent',
             'io_util'                   => 'Vivo\IO\IOUtil',
             'indexer_query_builder'     => 'Vivo\Indexer\QueryBuilder',
@@ -238,6 +238,7 @@ return array(
             'Vivo\watcher'              => 'Vivo\Repository\Watcher',
             'Vivo\component_event_listener' => 'Vivo\UI\ComponentEventListener',
             'Vivo\text'                 => 'Vivo\Text\Text',
+            'Vivo\route_match_service'  => 'Vivo\Service\RouteMatchService',
         ),
         'factories' => array(
             'RoutePluginManager'        => 'Vivo\Service\RoutePluginManagerFactory',
@@ -313,7 +314,7 @@ return array(
             'input_filter_conditions'   => 'Vivo\InputFilter\Condition\ConditionPluginManagerFactory',
             'Vivo\form_factory'         => 'Vivo\Form\FactoryFactory',
             'Vivo\new_form_factory'     => 'Vivo\Form\NewFormFactoryFactory',
-            'cache_manager'             => 'Vivo\Cache\CacheManagerFactory',
+            'Vivo\cache_manager'        => 'Vivo\Cache\CacheManagerFactory',
             'session_manager'           => 'Vivo\Service\SessionManagerFactory',
             'mime'                      => 'Vivo\Util\MIMEFactory',
             'indexer_events'            => 'Vivo\Indexer\EventManagerFactory',
@@ -325,10 +326,11 @@ return array(
             'Vivo\current_host'         => 'Vivo\Service\CurrentHostFactory',
             'Vivo\current_site'         => 'Vivo\Service\CurrentSiteFactory',
             'Vivo\site_session'         => 'Vivo\Session\SiteSessionContainerFactory',
+            'Vivo\status'               => 'Vivo\Service\StatusFactory',
 
         ),
         'aliases' => array(
-            'Vivo\site_event'                   => 'site_event',
+            'site_event'                        => 'Vivo\site_event',
             'Vivo\SiteManager\Event\SiteEvent'  => 'site_event',
             'Vivo\Repository\Repository'        => 'repository',
             'Zend\Http\Response'                => 'response',
@@ -340,7 +342,7 @@ return array(
             'form_factory'                      => 'Vivo\form_factory',
             'input_filter_factory'              => 'Vivo\input_filter_factory',
             'Vivo\input_filter_conditions'      => 'input_filter_conditions',
-            'Vivo\cache_manager'                => 'cache_manager',
+            'cache_manager'                     => 'Vivo\cache_manager',
             'Vivo\module_db_provider'           => 'module_db_provider',
             'Vivo\db_table_gateway_provider'    => 'db_table_gateway_provider',
         ),
