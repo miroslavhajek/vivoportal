@@ -115,7 +115,9 @@ class LocalFileSystemStorage extends AbstractStorage {
 			}
 		}
 		clearstatcache(true);
-		chmod($absPath, 0777);
+        //TODO - FIXME - chmod probably not necessary and may be safely removed
+        //Without @ causes warnings when directory is owned by someone else and thus chmod cannot be executed
+        @chmod($absPath, 0777);
 	}
 
 	/**
