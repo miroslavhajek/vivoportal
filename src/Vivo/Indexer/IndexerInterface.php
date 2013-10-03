@@ -66,4 +66,11 @@ interface IndexerInterface extends TransactionalInterface
      * @return void
      */
     public function optimize();
+
+    /**
+     * Returns query as string
+     * @param Query\QueryInterface $query
+     * @return string
+     */
+    public function getQueryString(Query\QueryInterface $query);
 }
