@@ -10,6 +10,8 @@ class Highlight extends AbstractHelper
 {
     public function __invoke($haystack, $needle)
     {
+        $needle = preg_quote($needle);
+
         $escape   = $this->view->plugin('escapeHtml');
         $haystack = $escape($haystack);
         $needle   = $escape($needle);
