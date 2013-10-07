@@ -32,15 +32,6 @@ class FormUtil
      */
     protected $session;
 
-//    /**
-//     * Data structure saved for a form in session
-//     * @var array
-//     */
-//    protected $sessionFormInfoTemplate  = array(
-//        'ident'         => null,
-//        'isSubmitted'   => null,
-//    );
-
     /**
      * Constructor
      * @param TableGateway $tgwSavedForm
