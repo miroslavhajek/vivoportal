@@ -339,16 +339,18 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      */
     public function isFormSubmitted($isSubmitted = null)
     {
+        //TODO - implement!
         $formClass  = get_class($this);
         $formName   = $this->getForm()->getName();
         if (is_null($isSubmitted)) {
             //Getter
-            $isSubmitted    = $this->formUtilApi->getSessionIsFormSubmitted($formClass, $formName);
+//            $isSubmitted    = $this->formUtilApi->getSessionIsFormSubmitted($formClass, $formName);
         } else {
             //Setter
-            $this->formUtilApi->setSessionIsFormSubmitted($formClass, $formName, $isSubmitted);
+//            $this->formUtilApi->setSessionIsFormSubmitted($formClass, $formName, $isSubmitted);
         }
-        return $isSubmitted;
+//        return $isSubmitted;
+        return null;
     }
 
     /**
@@ -363,14 +365,16 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     /**
      * Returns validation group which should be used for validation
      * Descendants may redefine if needed
+     * @param bool $addCsrfField Should auto added csrf field be added to the validation group?
      * @return mixed
      */
-    protected function getValidationGroup()
+    protected function getValidationGroup($addCsrfField = true)
     {
         if ($this->multistepStrategy) {
             $zfForm             = $this->getForm();
             $validationGroup    = $this->multistepStrategy->getValidationGroup($zfForm);
-            if ($this->autoAddCsrf && ($validationGroup != FormInterface::VALIDATE_ALL) && (
+            if ($addCsrfField
+                    && $this->autoAddCsrf && ($validationGroup != FormInterface::VALIDATE_ALL) && (
                     (is_array($validationGroup) && !in_array($this->autoCsrfFieldName, $validationGroup))
                     || (is_string($validationGroup) && $validationGroup != $this->autoCsrfFieldName))) {
                 //Csrf field is missing in validation group, add it
@@ -389,9 +393,10 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * Validates the form and returns the validation result
      * @param bool $revalidate Force revalidation of the form even though it has been validated before
      * @param mixed $validationGroup If not set, $this->getValidationGroup() will be used to provide the VG
+     * @param bool $addAutoAddedValidationField
      * @return bool
      */
-    public function isValid($revalidate = false, $validationGroup = null)
+    public function isValid($revalidate = false, $validationGroup = null, $addAutoAddedValidationField = true)
     {
         if ($revalidate) {
             $this->hasValidated = false;
@@ -400,7 +405,7 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
             return $this->isValid;
         }
         if (is_null($validationGroup)) {
-            $validationGroup    = $this->getValidationGroup();
+            $validationGroup    = $this->getValidationGroup($addAutoAddedValidationField);
         }
         $this->isValid      = false;
         $this->formData     = array();
