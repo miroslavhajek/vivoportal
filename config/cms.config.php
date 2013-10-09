@@ -496,16 +496,14 @@ return array(
             'published:desc' => 'publish_date_document_only_desc',
             'random'     => 'random'
         ),
-     ),
-    'http_headers'  => array(
-        'static'    => array(
-            'x_generated_by'    => array(
-                'header'    => 'X-Generated-By',
-                'value'     => 'Vivo',
-            ),
+    ),
+    //Front-end response HTTP headers
+    'response_headers_frontend'  => array(
+        'static'                => array(
+            'X-Generated-By'        => 'Vivo',
         ),
-        'dynamic'   => array(
-            'x_generated_at'    => true,
+        'dynamic'               => array(
+            'X-Generated-At'        => true,
         ),
     ),
 );
