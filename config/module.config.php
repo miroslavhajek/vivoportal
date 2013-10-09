@@ -950,7 +950,7 @@ return array(
 
     'response' => array (
         'headers' => array (
-            'mime_type_expiration' => array (
+            'mime_type_expiration'  => array (
                 //define specific expiration time for content type
                 'image/*'                       => 86400,
                 'audio/*'                       => 86400,
@@ -959,6 +959,15 @@ return array(
                 'application/x-shockwave-flash' => 86400,
             ),
             'default_expiration'    => 86400,
+            //Response headers defined for backend (frontend headers are defined in cms.config.php)
+            'backend'  => array(
+                'static'                => array(
+                    'X-Generated-By'        => 'Vivo',
+                ),
+                'dynamic'               => array(
+                    'X-Generated-At'        => true,
+                ),
+            ),
         ),
     ),
 
