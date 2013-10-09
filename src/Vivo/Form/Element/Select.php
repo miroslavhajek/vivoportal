@@ -57,7 +57,8 @@ class Select extends ZendSelect implements ElementPrepareAwareInterface, Validat
             if (!$this->disableInArrayValidator) {
                 parent::getValidator();
             } else {
-                $this->validator = new StringLengthValidator(array('min' => 0));
+                $this->validator = new \Zend\Validator\NotEmpty(array('type' => \Zend\Validator\NotEmpty::NULL));
+                //$this->validator = new StringLengthValidator(array('min' => 0));
             }
         }
         return $this->validator;
