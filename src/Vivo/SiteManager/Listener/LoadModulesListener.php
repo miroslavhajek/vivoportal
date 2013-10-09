@@ -126,6 +126,8 @@ class LoadModulesListener implements ListenerAggregateInterface
         $this->initializeVivoControllerLoader($cmsConfig);
         //Prepare Vivo view helpers manager
         $this->initializeVivoViewHelperManager($cmsConfig);
+        //Prepare Vivo validator manager
+        $this->initializeVivoValidatorManager($cmsConfig);
         //Inject MetadataManager options from CMS config
         $this->injectMetadataManagerOptions($cmsConfig);
         $e->stopPropagation(true);
@@ -159,6 +161,23 @@ class LoadModulesListener implements ListenerAggregateInterface
             $viewHelperManager->setAllowOverride(false);
 
             $viewHelperConfig->configureServiceManager($viewHelperManager);
+        }
+    }
+
+    /**
+     * Initialize Vivo validator manager
+     * @param array $cmsConfig
+     */
+    protected function initializeVivoValidatorManager(array $cmsConfig)
+    {
+        if (isset($cmsConfig['validators'])) {
+            $validatorConfig   = new SmConfig($cmsConfig['validators']);
+            /** @var $validatorManager \Zend\View\HelperPluginManager */
+            $validatorManager  = $this->serviceManager->get('validator_manager');
+            //TODO - check: Do we really want to disable view helper overriding?
+            //Disable overriding - modules & sites are not supposed to override existing validators
+            $validatorManager->setAllowOverride(false);
+            $validatorConfig->configureServiceManager($validatorManager);
         }
     }
 

@@ -497,4 +497,15 @@ return array(
             'random'     => 'random'
         ),
      ),
+    'http_headers'  => array(
+        'static'    => array(
+            'x_generated_by'    => array(
+                'header'    => 'X-Generated-By',
+                'value'     => 'Vivo',
+            ),
+        ),
+        'dynamic'   => array(
+            'x_generated_at'    => true,
+        ),
+    ),
 );
