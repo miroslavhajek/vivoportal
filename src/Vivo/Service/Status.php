@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Service;
 
+use Vivo\Service\RouteMatchService;
+
 use Zend\Mvc\Router\RouteMatch;
 use Zend\Stdlib\RequestInterface;
 use Zend\Console\Request as ConsoleRequest;
@@ -12,10 +14,10 @@ use Zend\Console\Request as ConsoleRequest;
 class Status
 {
     /**
-     * RouteMatch object
-     * @var RouteMatch
+     * RouteMatch service
+     * @var RouteMatchService
      */
-    protected $routeMatch;
+    protected $routeMatchService;
 
     /**
      * Request
@@ -24,20 +26,59 @@ class Status
     protected $request;
 
     /**
+     * RouteMatch object
+     * @var RouteMatch
+     */
+    private $routeMatch;
+
+    /**
      * Flag indicating if backend is running
      * @var bool
      */
     private $isBackend;
 
     /**
+     * Name of the current route
+     * @var string|null
+     */
+    private $currentRouteName;
+
+    /**
      * Constructor
-     * @param RouteMatch $routeMatch
+     * @param RouteMatchService $routeMatchService
      * @param RequestInterface $request
      */
-    public function __construct(RouteMatch $routeMatch, RequestInterface $request)
+    public function __construct(RouteMatchService $routeMatchService, RequestInterface $request)
     {
-        $this->routeMatch   = $routeMatch;
-        $this->request      = $request;
+        $this->routeMatchService    = $routeMatchService;
+        $this->request              = $request;
+    }
+
+    /**
+     * Returns RouteMatch object
+     * @return null|RouteMatch
+     */
+    protected function getRouteMatch()
+    {
+        if (is_null($this->routeMatch)) {
+            $this->routeMatch   = $this->routeMatchService->getRouteMatch();
+        }
+        return $this->routeMatch;
+    }
+
+    /**
+     * Returns name of the current route
+     * @return string|null
+     */
+    public function getCurrentRouteName()
+    {
+        if (is_null($this->currentRouteName)) {
+            $routeMatch = $this->getRouteMatch();
+            if (!is_null($routeMatch)) {
+                $this->currentRouteName = $routeMatch->getMatchedRouteName();
+            }
+        }
+        return $this->currentRouteName;
     }
 
     /**
@@ -48,23 +89,13 @@ class Status
     {
         if (is_null($this->isBackend)) {
             $routeName  = $this->getCurrentRouteName();
-            if ((strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms')) {
+            if (!is_null($routeName) && (strpos($routeName, 'backend/') === 0) && ($routeName != 'backend/cms')) {
                 $this->isBackend  = true;
             } else {
                 $this->isBackend  = false;
             }
         }
         return $this->isBackend;
-    }
-
-    /**
-     * Returns name of the current route
-     * @throws Exception\RuntimeException
-     * @return string
-     */
-    public function getCurrentRouteName()
-    {
-        return $this->routeMatch->getMatchedRouteName();
     }
 
     /**

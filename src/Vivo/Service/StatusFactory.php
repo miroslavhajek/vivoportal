@@ -19,12 +19,8 @@ class StatusFactory implements FactoryInterface
     {
         /** @var $routeMatchService RouteMatchService */
         $routeMatchService  = $serviceLocator->get('Vivo\route_match_service');
-        $routeMatch         = $routeMatchService->getRouteMatch();
         $request            = $serviceLocator->get('request');
-//        if (is_null($routeMatch)) {
-//            throw new Exception\RuntimeException(sprintf("%s: RouteMatch object is null", __METHOD__));
-//        }
-        $status             = new Status($routeMatch, $request);
+        $status             = new Status($routeMatchService, $request);
         return $status;
     }
 }
