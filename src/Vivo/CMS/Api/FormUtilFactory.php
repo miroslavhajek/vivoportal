@@ -25,7 +25,7 @@ class FormUtilFactory implements FactoryInterface
         }
         /** @var $tgwProvider \Vivo\Db\DbTableGatewayProvider */
         $tgwProvider    = $serviceLocator->get('Vivo\db_table_gateway_provider');
-        $tgwSavedForm   = $tgwProvider->get('saved_form');
+        $tgwSavedForm   = $tgwProvider->get('vivo_saved_form');
         $session        = $serviceLocator->get('Vivo\site_session');
         $api            = new FormUtil($tgwSavedForm, $session, $siteName);
         return $api;
