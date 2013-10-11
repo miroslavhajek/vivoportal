@@ -268,7 +268,7 @@ class Navigation extends AbstractNavigation
      */
     protected function allowListing(Document $doc)
     {
-        return (bool) $doc->getAllowListingInNavigation() === false;
+        return ($this->navModel->getBranchOnly() || $doc->getAllowListingInNavigation());
     }
 
     /**

@@ -273,18 +273,17 @@ abstract class AbstractNavigation extends Component
                 $pageOptions['active']   = true;
             }
             $pageOptions = array_merge($pageOptions, $this->getAdditionalPageOptions($doc));
-            $page              = new CmsNavPage($pageOptions);
-            if ($this->allowListing($doc)) {
-                $page->visible = false;
-            }
-            if (array_key_exists('children', $docArray)
-                    && is_array($docArray['children'])
-                    && count($docArray['children']) > 0) {
-                $children   = $this->buildNavPages($docArray['children'], $limit);
-                $page->setPages($children);
-            }
+            $page          = new CmsNavPage($pageOptions);
+            $page->visible = $this->allowListing($doc);
+
             if($this->documentApi->isPublished($doc)) {
-                $pages[]    = $page;
+                if (array_key_exists('children', $docArray)
+                && is_array($docArray['children'])
+                && count($docArray['children']) > 0) {
+                    $page->setPages($this->buildNavPages($docArray['children'], $limit));
+                }
+
+                $pages[] = $page;
             }
         }
         return $pages;
@@ -297,8 +296,6 @@ abstract class AbstractNavigation extends Component
      */
     protected function hashCacheKey($key)
     {
-        $hash   = hash('md4', $key);
-        return $hash;
+        return hash('md4', $key);
     }
 }
-
