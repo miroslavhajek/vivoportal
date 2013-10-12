@@ -258,7 +258,7 @@ return array(
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
             'remote_module'             => 'Vivo\Service\RemoteModuleFactory',
             'module_storage_manager'    => 'Vivo\Service\ModuleStorageManagerFactory',
-            'module_manager_factory'    => 'Vivo\Service\ModuleManagerFactoryFactory',
+            'module_manager_factory'    => 'Vivo\Module\ModuleManagerFactoryFactory',
             'site_manager'              => 'Vivo\SiteManager\SiteManagerFactory',
             'run_site_manager_listener' => 'Vivo\Service\RunSiteManagerListenerFactory',
             'lucene'                    => 'Vivo\Service\LuceneFactory',

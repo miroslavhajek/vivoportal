@@ -6,11 +6,11 @@ use Vivo\Module\Exception;
 
 use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventManager;
-use Zend\ModuleManager\ModuleEvent;
 use Zend\ModuleManager\Listener\ModuleResolverListener;
 use Zend\ModuleManager\Listener\AutoloaderListener;
 use Zend\ModuleManager\Listener\InitTrigger;
 use Zend\ModuleManager\Listener\ConfigListener;
+use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
  * ModuleManagerFactory
@@ -37,13 +37,23 @@ class ModuleManagerFactory
     protected $appEvents;
 
     /**
+     * Main Service locator
+     * @var ServiceLocatorInterface
+     */
+    protected $serviceLocator;
+
+    /**
      * Constructor
      * @param array $modulePaths Absolute path in Storage
      * @param string $moduleStreamName
      * @param EventManagerInterface $appEvents
+     * @param \Zend\ServiceManager\ServiceLocatorInterface $serviceLocator
      * @throws Exception\InvalidArgumentException
      */
-    public function __construct(array $modulePaths, $moduleStreamName, EventManagerInterface $appEvents)
+    public function __construct(array $modulePaths,
+                                $moduleStreamName,
+                                EventManagerInterface $appEvents,
+                                ServiceLocatorInterface $serviceLocator)
     {
         if (!$moduleStreamName) {
             throw new Exception\InvalidArgumentException(sprintf('%s: Module stream name not set', __METHOD__));
@@ -51,6 +61,7 @@ class ModuleManagerFactory
         $this->modulePaths      = $modulePaths;
         $this->moduleStreamName = $moduleStreamName;
         $this->appEvents        = $appEvents;
+        $this->serviceLocator   = $serviceLocator;
     }
 
     /**
@@ -80,7 +91,8 @@ class ModuleManagerFactory
         $events->attach($configListener);
         $moduleManager  = new ModuleManager($moduleNames, $events);
         $moduleManager->setAppEventManager($this->appEvents);
-        $moduleEvent    = new ModuleEvent;
+        $moduleEvent    = new ModuleEvent();
+        $moduleEvent->setServiceLocator($this->serviceLocator);
         $moduleManager->setEvent($moduleEvent);
         return $moduleManager;
     }
