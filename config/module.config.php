@@ -1486,4 +1486,20 @@ return array(
     'options' => array(
         'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
 	),
+
+    //Session manager configuration
+    'session_config'    => array(
+        //These options are passed to the Zend\Session\Config\SessionConfig
+        //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
+        'options'       => array(
+            //Cookie name
+            //'name'                  => 'VPSESSID',
+            //'use_cookies'           => true,
+            //Expire session
+            //'remember_me_seconds'   => ,
+            //'cookie_lifetime'       => ,
+        ),
+        'start_session' => false,
+        'regenerate_id' => false,
+    ),
 );
