@@ -53,7 +53,7 @@ class FormUtil
      * @param string $formIdent
      * @param array $formData
      * @param array $context
-     * @param string|null $password When null, does not updated already stored password
+     * @param string|null $password When null, does not update already stored password
      * @param int $status 1 = auto saved, 2 = user saved, 3 = sent to telem
      */
     public function saveFormState($formClass,

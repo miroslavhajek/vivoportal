@@ -16,10 +16,13 @@ class FrontControllerFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $sm = $serviceLocator->getServiceLocator();
-        $cmsConfig = $sm->get('cms_config');
+        $sm             = $serviceLocator->getServiceLocator();
+        $cmsConfig      = $sm->get('cms_config');
+        $filterManager  = $sm->get('filter_manager');
 
-        $fc = new FrontController($cmsConfig['cms_front_controller']);
+        $fc             = new FrontController($filterManager,
+                                              $cmsConfig['cms_front_controller']);
+
         $fc->setComponentTreeController($sm->get('component_tree_controller'));
         $fc->setCMS($sm->get('Vivo\CMS\Api\CMS'));
         $fc->setDocumentApi($sm->get('Vivo\CMS\Api\Document'));

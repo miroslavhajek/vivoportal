@@ -13,6 +13,8 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
 use Vivo\UI\ComponentEventInterface;
+use Zend\Filter\FilterPluginManager;
+
 use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventInterface as Event;
@@ -101,10 +103,20 @@ class FrontController implements DispatchableInterface,
     protected $urlHelper;
 
     /**
+     * Filter Plugin manager
+     * @var FilterPluginManager
+     */
+    protected $filterPluginManager;
+
+    /**
+     * Constructor
+     * @param \Zend\Filter\FilterPluginManager $filterPluginManager
      * @param array $options Configuration.
      */
-    public function __construct(array $options)
+    public function __construct(FilterPluginManager $filterPluginManager,
+                                array $options)
     {
+        $this->filterPluginManager  = $filterPluginManager;
         $this->options = ArrayUtils::merge($this->options, $options);
     }
 
@@ -499,7 +511,10 @@ class FrontController implements DispatchableInterface,
      */
     protected function getActionFromParams(ParametersInterface $params)
     {
-        //Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
+        //TODO - filter 'act' parameter to allow only letters, numbers and ->
+        /** @var $filter \Vivo\Filter\AsciiAlphaNum */
+//        $filter = $this->filterPluginManager->get('Vivo\ascii_alpha_num');
+//        Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
         $action = $params->get('act');
         if (is_string($action)) {
             return $action;
