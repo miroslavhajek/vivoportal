@@ -243,4 +243,15 @@ class StorageCache implements StorageCacheInterface
     {
         return $this->storage->size($path);
     }
+
+    /**
+     * Returns item permissions
+     * @param string $path
+     * @param bool $oct Returns octal number when set to true, otherwise decimal
+     * @return int|string
+     */
+    public function getPermissions($path, $oct = false)
+    {
+        return $this->storage->getPermissions($path, $oct);
+    }
 }

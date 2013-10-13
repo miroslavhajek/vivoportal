@@ -113,4 +113,12 @@ interface StorageInterface {
      * @return PathBuilderInterface
      */
     public function getPathBuilder();
+
+    /**
+     * Returns item permissions
+     * @param string $path
+     * @param bool $oct Returns octal number when set to true, otherwise decimal
+     * @return int|string
+     */
+    public function getPermissions($path, $oct = false);
 }

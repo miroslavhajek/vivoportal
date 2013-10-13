@@ -345,4 +345,24 @@ class LocalFileSystemStorage extends AbstractStorage {
     {
         $this->eventManager = $eventManager;
     }
+
+    /**
+     * Returns object permissions
+     * @param string $path
+     * @param bool $oct Returns octal number when set to true, otherwise decimal
+     * @throws Exception\IOException
+     * @return int|string
+     */
+    public function getPermissions($path, $oct = false)
+    {
+        if (!$this->isObject($path)) {
+            throw new Exception\IOException(sprintf("%s: No object found at path '%s'", __METHOD__, $path));
+        }
+        $fsPath     = $this->getFsPath($path);
+        $permsDec   = fileperms($fsPath);
+        if ($oct) {
+            $permsDec   = decoct($permsDec);
+        }
+        return $permsDec;
+    }
 }

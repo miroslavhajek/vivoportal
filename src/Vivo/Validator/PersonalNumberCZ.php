@@ -17,13 +17,28 @@ class PersonalNumberCZ extends AbstractValidator
 
     const INVALID = 'PersonalNumberCZInvalid';
 
-    protected $messageTemplates = array(
-        self::INVALID => "Invalid Personal Number",
-    );
+    /**
+     * Error message templates
+     * Templates are set in constructor to enable xgettext parsing (gettext_noop)
+     * @var array
+     */
+    protected $messageTemplates;
+
+    /**
+     * Constructor
+     * @param array|Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->messageTemplates = array(
+            self::INVALID => gettext_noop("Invalid Personal Number"),
+        );
+        parent::__construct($options);
+    }
 
     public function isValid($value, $context = null)
     {
-
+        $this->setValue($value);
         $pn1 = substr($value, 0, 6);
 
         // Get Date from Personal Number (+ woman's modulo)
@@ -58,10 +73,9 @@ class PersonalNumberCZ extends AbstractValidator
         return true;
     }
 
-
     /**
      * Returns Date from Czech Personal Number in Format "d.m.Y"
-     * @param string $rc
+     * @param string $pn
      * @return string
      */
     public function getDate($pn)

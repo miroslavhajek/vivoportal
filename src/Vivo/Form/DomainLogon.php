@@ -17,7 +17,7 @@ class DomainLogon extends Logon
 
         $this->get('logon')->add(array('name' => 'domain',
             'options' => array(
-                'label' => 'Domain',
+                'label' => gettext_noop('Domain'),
             ),
             'attributes' => array(
                 'type' => 'text',
