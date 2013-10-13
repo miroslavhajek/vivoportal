@@ -64,12 +64,23 @@ class BeforeAfter extends AbstractValidator implements FilterPluginManagerAwareI
 
     /**
      * Error message templates
+     * Templates are set in constructor to enable xgettext parsing (gettext_noop)
      * @var array
      */
-    protected $messageTemplates     = array(
-        self::ERR_MSG_NOT_BEFORE    => "The date/time value is not before the reference date/time",
-        self::ERR_MSG_NOT_AFTER     => "The date/time value is not after the reference date/time",
-    );
+    protected $messageTemplates;
+
+    /**
+     * Constructor
+     * @param array|Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->messageTemplates = array(
+            self::ERR_MSG_NOT_BEFORE    => gettext_noop("The date/time value is not before the reference date/time"),
+            self::ERR_MSG_NOT_AFTER     => gettext_noop("The date/time value is not after the reference date/time"),
+        );
+        parent::__construct($options);
+    }
 
     /**
      * Returns true if and only if $value meets the validation requirements

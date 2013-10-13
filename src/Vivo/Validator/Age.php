@@ -61,6 +61,12 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
     protected $unit     = self::UNIT_YEAR;
 
     /**
+     * Unit name translated
+     * @var string
+     */
+    protected $unitTranslated;
+
+    /**
      * Minimum age
      * @var int
      */
@@ -90,19 +96,31 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
      * @var array
      */
     protected $messageVariables     = array(
-        'unit'  => 'unit',
+//        'unit'  => 'unit',
+        'unit'  => 'unitTranslated',
         'min'   => 'min',
         'max'   => 'max',
     );
 
     /**
      * Error message templates
+     * Templates are set in constructor to enable xgettext parsing (gettext_noop)
      * @var array
      */
-    protected $messageTemplates     = array(
-        self::ERR_MSG_TOO_YOUNG     => "The date/time value is younger than %min% (%unit%)",
-        self::ERR_MSG_TOO_OLD       => "The date/time value is older than %max% (%unit%)",
-    );
+    protected $messageTemplates;
+
+    /**
+     * Constructor
+     * @param array|Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->messageTemplates = array(
+            self::ERR_MSG_TOO_YOUNG     => gettext_noop("The date/time value is younger than %min% (%unit%)"),
+            self::ERR_MSG_TOO_OLD       => gettext_noop("The date/time value is older than %max% (%unit%)"),
+        );
+        parent::__construct($options);
+    }
 
     /**
      * Returns true if and only if $value meets the validation requirements
@@ -194,6 +212,13 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
             throw new Exception\InvalidArgumentException(sprintf("%s: Unit '%s' is not supported", __METHOD__, $unit));
         }
         $this->unit = $unit;
+        $translator = $this->getTranslator();
+        if ($translator) {
+            $this->unitTranslated   = $translator->translate($unit);
+        } else {
+            //Translator not available
+            $this->unitTranslated   = $unit;
+        }
     }
 
     /**
