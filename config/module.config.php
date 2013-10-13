@@ -436,7 +436,7 @@ return array(
     'filters'       => array(
         'invokables'    => array(
             'Vivo\date_time'        => 'Vivo\Filter\DateTime',
-            'VIvo\ascii_alpha_num'  => 'Vivo\Filter\AsciiAlphaNum',
+            'Vivo\ascii_alpha_num'  => 'Vivo\Filter\AsciiAlphaNum',
         ),
         'factories'     => array(
 
