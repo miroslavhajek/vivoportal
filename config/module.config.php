@@ -1501,5 +1501,12 @@ return array(
         ),
         'start_session' => false,
         'regenerate_id' => false,
+        'security'      => array(
+            'enabled'   => false,
+            'secure_ports'   => array(
+                'https1'    => 443,
+            ),
+            'secure_session_name'  => 'PHPSESSIDSEC',
+        ),
     ),
 );
