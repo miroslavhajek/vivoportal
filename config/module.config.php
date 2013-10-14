@@ -435,14 +435,15 @@ return array(
     //Filter plugin manager configuration
     'filters'       => array(
         'invokables'    => array(
-            'Vivo\date_time'        => 'Vivo\Filter\DateTime',
-            'Vivo\ascii_alpha_num'  => 'Vivo\Filter\AsciiAlphaNum',
+            'Vivo\act_param'                    => 'Vivo\Filter\ActParam',
+            'Vivo\array_to_key_value_string'    => 'Vivo\Filter\ArrayToKeyValueString',
+            'Vivo\ascii_alpha_num'              => 'Vivo\Filter\AsciiAlphaNum',
+            'Vivo\date_time'                    => 'Vivo\Filter\DateTime',
+            'Vivo\key_value_string_to_array'    => 'Vivo\Filter\KeyValueStringToArray',
         ),
         'factories'     => array(
-
         ),
         'initializers'  => array(
-
         ),
     ),
     //Validator plugin manager configuration
