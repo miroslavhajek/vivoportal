@@ -511,21 +511,29 @@ class FrontController implements DispatchableInterface,
      */
     protected function getActionFromParams(ParametersInterface $params)
     {
-        //TODO - filter 'act' parameter to allow only letters, numbers and ->
-        /** @var $filter \Vivo\Filter\AsciiAlphaNum */
-//        $filter = $this->filterPluginManager->get('Vivo\ascii_alpha_num');
-//        Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
+        /** @var $filter \Vivo\Filter\ActParam */
+        $filter = $this->filterPluginManager->get('Vivo\act_param');
+        //Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
         $action = $params->get('act');
         if (is_string($action)) {
-            return $action;
+            $filtered   = $filter->filter($action);
+            if ($filtered == '') {
+                return null;
+            } else {
+                return $filtered;
+            }
         }
         //Variant 2: there is only one item in params data and 'act' parameter is under it (Wrap elements == true)
         if ($params->count() == 1) {
             $paramsArray    = $params->toArray();
             $first          = reset($paramsArray);
             if (is_array($first) && isset($first['act']) && is_string($first['act'])) {
-                $action = $first['act'];
-                return $action;
+                $filtered = $filter->filter($first['act']);
+                if ($filtered == '') {
+                    return null;
+                } else {
+                    return $filtered;
+                }
             }
         }
         //'act' parameter not found
