@@ -118,7 +118,8 @@ class SiteMap extends AbstractNavigation
      * @param Document $doc
      * @return bool
      */
-    protected function allowListing(Document $doc) {
-        return (bool) $doc->getAllowListingInSiteMap() === false;
+    protected function allowListing(Document $doc)
+    {
+        return $doc->getAllowListingInSiteMap();
     }
 }
