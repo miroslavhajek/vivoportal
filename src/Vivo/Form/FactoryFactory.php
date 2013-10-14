@@ -17,9 +17,11 @@ class FactoryFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-        $inputFilterFactory = $serviceLocator->get('input_filter_factory');
-        $formFactory        = new Factory();
+        $inputFilterFactory     = $serviceLocator->get('input_filter_factory');
+        $newInputFilterFactory  = $serviceLocator->get('Vivo\new_input_filter_factory');
+        $formFactory            = new Factory();
         $formFactory->setInputFilterFactory($inputFilterFactory);
+        $formFactory->setNewInputFilterFactory($newInputFilterFactory);
         return $formFactory;
     }
 }

@@ -24,7 +24,7 @@ class ActParam extends AbstractFilter
         foreach (str_split(\Vivo\UI\Component::COMPONENT_SEPARATOR) as $char) {
             $rePart .= '\\' . $char;
         }
-        $pattern    = sprintf('/[^0-9a-zA-Z%s]/', $rePart);
+        $pattern    = sprintf('/[^ 0-9a-zA-Z%s]/', $rePart);
         return preg_replace($pattern, '', (string) $value);
     }
 }

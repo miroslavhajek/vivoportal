@@ -1,6 +1,8 @@
 <?php
 namespace Vivo\Form;
 
+use Vivo\InputFilter\NewInputFilterFactory;
+
 use ArrayAccess;
 use Traversable;
 use Zend\Form\Factory as ZendFactory;
@@ -9,6 +11,21 @@ use Zend\Form\Exception;
 
 class Factory extends ZendFactory
 {
+    /**
+     * NewInputFilterFactory
+     * @var NewInputFilterFactory
+     */
+    protected $newInputFilterFactory;
+
+    /**
+     * Sets NewInputFilterFactory
+     * @param \Vivo\InputFilter\NewInputFilterFactory $newInputFilterFactory
+     */
+    public function setNewInputFilterFactory(NewInputFilterFactory $newInputFilterFactory)
+    {
+        $this->newInputFilterFactory = $newInputFilterFactory;
+    }
+
     /**
      * Create an element, fieldset, or form
      *
@@ -109,5 +126,20 @@ class Factory extends ZendFactory
         }
 
         return parent::createForm($spec);
+    }
+
+    /**
+     * Creates, configures and returns a new instance of Vivo Form
+     * @param string $name
+     * @param array $options
+     * @return Form
+     */
+    public function createNewFormInstance($name, array $options = array())
+    {
+        $inputFilter    = $this->newInputFilterFactory->create();
+        $form           = new Form($name, $options);
+        $form->setFormFactory($this);
+        $form->setInputFilter($inputFilter);
+        return $form;
     }
 }
