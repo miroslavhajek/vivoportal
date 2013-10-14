@@ -1506,6 +1506,7 @@ return array(
             'secure_ports'   => array(
                 'https1'    => 443,
             ),
+            'security_http_header'  => 'X-Secured',
             'secure_session_name'  => 'PHPSESSIDSEC',
         ),
     ),
