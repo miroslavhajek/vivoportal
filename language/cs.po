@@ -1,0 +1,351 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Vivo Portal\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-10-13 15:24+0100\n"
+"PO-Revision-Date: 2013-10-13 15:30+0100\n"
+"Last-Translator: David Lukas <david.lukas@zfdaily.com>\n"
+"Language-Team: LUNDEGAARD\n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: translate;_;gettext;gettext_noop;tae\n"
+"X-Poedit-Basepath: I:\\ZendModules\\vivoportal\n"
+"X-Generator: Poedit 1.5.7\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: src\n"
+"X-Poedit-SearchPath-1: templates\n"
+"X-Poedit-SearchPath-2: view\n"
+
+#: src/Vivo/Form/DomainLogon.php:20
+msgid "Domain"
+msgstr "Doména"
+
+#: src/Vivo/Form/Logon.php:38
+msgid "Login"
+msgstr "Přihlásit"
+
+#: src/Vivo/Form/Fieldset/Logon.php:27
+msgid "Username"
+msgstr "Uživatelské jméno"
+
+#: src/Vivo/Form/Fieldset/Logon.php:36
+msgid "Password"
+msgstr "Heslo"
+
+#: src/Vivo/Validator/BeforeAfter.php:79
+msgid "The date/time value is not before the reference date/time"
+msgstr "Datový/časový údaj musí předcházet referenčnímu datu/času"
+
+#: src/Vivo/Validator/BeforeAfter.php:80
+msgid "The date/time value is not after the reference date/time"
+msgstr "Datový/časový údaj musí následovat po referenčním datu/času"
+
+#: src/Vivo/Validator/InArrayDynamic.php:100
+msgid "Haystack is not available for control field value '%cfVal%'"
+msgstr "Pro hodnotu řídicího pole '%cfVal%' není k dispozici výčet."
+
+#: src/Vivo/Validator/InArrayDynamic.php:102
+msgid "The input was not found in the haystack"
+msgstr "Vstupní hodnota nebyla ve výčtu nalezena"
+
+#: src/Vivo/Validator/PersonalNumberCZ.php:34
+msgid "Invalid Personal Number"
+msgstr "Neplatné rodné číslo"
+
+#: src/Vivo/Validator/Age.php:119
+msgid "The date/time value is younger than %min% (%unit%)"
+msgstr "Datový/časový údaj je menší než %min% (%unit%)"
+
+#: src/Vivo/Validator/Age.php:120
+msgid "The date/time value is older than %max% (%unit%)"
+msgstr "Datový/časový údaj je větší než %min% (%unit%)"
+
+#: src/Vivo/Validator/VivoInvalid.php:35
+msgid "The input is invalid"
+msgstr "Vstupní hodnota není platná"
+
+#: src/Vivo/Backend/UI/Site.php:190
+#: src/Vivo/Backend/UI/Explorer/Editor.php:290
+msgid "Document data is not valid"
+msgstr "Data dokumentu nejsou platná"
+
+#: src/Vivo/Backend/UI/Explorer/Copy.php:107
+#, php-format
+msgid "Document at path '%s' has been copied to path '%s'"
+msgstr "Dokument na cestě '%s' byl zkopírován na cestu '%s'"
+
+#: src/Vivo/Backend/UI/Explorer/Copy.php:112
+#: src/Vivo/Backend/UI/Explorer/Delete.php:99
+#: src/Vivo/Backend/UI/Explorer/Move.php:137
+msgid "Form data is not valid"
+msgstr "Data ve formuláři nejsou platná"
+
+#: src/Vivo/Backend/UI/Explorer/Delete.php:94
+#, php-format
+msgid "Document at path '%s' has been deleted"
+msgstr "Dokument na cestě '%s' byl smazán"
+
+#: src/Vivo/Backend/UI/Explorer/Move.php:128
+#, php-format
+msgid "Document at path '%s' has been moved to path '%s'"
+msgstr "Dokument na cestě '%s' byl přesunut na cestu '%s'"
+
+#: src/Vivo/Backend/UI/Explorer/Move.php:133
+msgid "An entity already exists at the target path"
+msgstr "Na cílové cestě již entita existuje"
+
+#: view/Vivo/UI/Paginator.phtml:4 view/Vivo/UI/Paginator.phtml:6
+msgid "previous"
+msgstr "předchozí"
+
+#: view/Vivo/UI/Paginator.phtml:24 view/Vivo/UI/Paginator.phtml:26
+msgid "next"
+msgstr "další"
+
+#: view/Vivo/CMS/UI/Content/Logon.phtml:13
+msgid "Invalid input provided"
+msgstr "Zadán neplatný vstup"
+
+#: view/Vivo/CMS/UI/Content/Logon.phtml:18
+msgid "User: "
+msgstr "Uživatel:"
+
+#: view/Vivo/CMS/UI/Content/Overview.Expandable.phtml:14
+msgid "Folder"
+msgstr "Složka"
+
+#: view/Vivo/Backend/UI/Logon.phtml:43
+msgid "Logon"
+msgstr "Přihlásit"
+
+#: view/Vivo/Backend/UI/Logon.phtml:74
+msgid "supported_browsers"
+msgstr "Podporované prohlížeče"
+
+#: view/Vivo/Backend/UI/Logon.phtml:83
+msgid "supported_ie"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:83
+msgid "supported_ie_more"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:84
+msgid "supported_ff"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:84
+msgid "supported_ff_more"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:85
+msgid "supported_chrome"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:85
+msgid "\\supported_chrome_more"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:86
+msgid "supported_safari"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Logon.phtml:86
+msgid "supported_safari_more"
+msgstr ""
+
+#: view/Vivo/Backend/UI/Cache.phtml:9
+msgid "Cache manager"
+msgstr "Manažer vyrovnávací paměti"
+
+#: view/Vivo/Backend/UI/Cache.phtml:12
+msgid "Cache subject"
+msgstr "Předmět vyrovnávací paměti"
+
+#: view/Vivo/Backend/UI/Cache.phtml:13
+msgid "Cache name"
+msgstr "Název vyrovnávací paměti"
+
+#: view/Vivo/Backend/UI/Cache.phtml:14
+msgid "Total space MB"
+msgstr "Celková kapacit v MB"
+
+#: view/Vivo/Backend/UI/Cache.phtml:15
+msgid "Used space MB"
+msgstr "Použitá kapacita v MB"
+
+#: view/Vivo/Backend/UI/Cache.phtml:16
+msgid "Available space MB"
+msgstr "Dostupná kapacita v MB"
+
+#: view/Vivo/Backend/UI/Cache.phtml:25 view/Vivo/Backend/UI/Cache.phtml:65
+msgid "Cache not used"
+msgstr "Vyrovnávací paměť není použita"
+
+#: view/Vivo/Backend/UI/Cache.phtml:57
+msgid "Flush results:"
+msgstr "Výsledky vyprázdnění vyrovnávací paměti:"
+
+#: view/Vivo/Backend/UI/Cache.phtml:61
+msgid "Flushed OK"
+msgstr "Vyrovnávací paměť vyprázdněna OK"
+
+#: view/Vivo/Backend/UI/Cache.phtml:63
+msgid "Flush failed!"
+msgstr "Vyprázdnění vyrovnávací paměti selhalo"
+
+#: view/Vivo/Backend/UI/Cache.phtml:67
+msgid "Unexpected result!"
+msgstr "Neočekávaný výsledek!"
+
+#: view/Vivo/Backend/UI/Explorer/Browser.phtml:11
+msgid "Document name"
+msgstr "Název dokumentu"
+
+#: view/Vivo/Backend/UI/Explorer/Browser.phtml:16
+msgid "Document path"
+msgstr "Cesta dokumentu"
+
+#: view/Vivo/Backend/UI/Explorer/Browser.phtml:33
+msgid "parent folder"
+msgstr "rodičovská složka"
+
+#: view/Vivo/Backend/UI/Explorer/Move.phtml:7
+msgid "Move"
+msgstr "Přesunout"
+
+#: view/Vivo/Backend/UI/Explorer/Viewer.phtml:14
+msgid "Open in new window"
+msgstr "Otevřít v novém okně"
+
+#: view/Vivo/Backend/UI/Explorer/Viewer.phtml:17
+msgid "Refresh"
+msgstr "Obnovit"
+
+#: view/Vivo/Backend/UI/Explorer/Viewer.phtml:29
+msgid "Published version"
+msgstr "Publikovaná verze"
+
+#: view/Vivo/Backend/UI/Explorer/Viewer.phtml:32
+msgid "Last version"
+msgstr "Poslední verze"
+
+#: view/Vivo/Backend/UI/Explorer/Viewer.phtml:47
+msgid "Version"
+msgstr "Verze"
+
+#: view/Vivo/Backend/UI/Explorer/Copy.phtml:7
+msgid "Copy"
+msgstr "Kopírovat"
+
+#: view/Vivo/Backend/UI/Explorer/Delete.phtml:4
+msgid "Delete"
+msgstr "Smazat"
+
+#: view/Vivo/Backend/UI/Explorer/Tree.Subtree.phtml:54
+msgid "more"
+msgstr "více"
+
+#: view/layout/layout.phtml:33
+msgid "Vivo 2"
+msgstr "Vivo Portal"
+
+#: view/layout/layout.phtml:36
+msgid "Home"
+msgstr "Úvod"
+
+#: view/layout/layout.phtml:50
+msgid "All rights reserved."
+msgstr "Všechna práva vyhrazena."
+
+#: view/error/404.phtml:1
+msgid "An 404 error occurred"
+msgstr "Vyskytla se chyba 404"
+
+#: view/error/404.phtml:10
+msgid "The requested controller was unable to dispatch the request."
+msgstr "Požadovaný controller nemohl vyřídit požadavek."
+
+#: view/error/404.phtml:13
+msgid ""
+"The requested controller could not be mapped to an existing controller class."
+msgstr ""
+"Požadovaný controller se nepodařilo namapovat na žádnou existující třídu "
+"controlleru."
+
+#: view/error/404.phtml:16
+msgid "The requested controller was not dispatchable."
+msgstr ""
+"Požadovaný controller nepodporuje vyřízení (controller not dispatchable)."
+
+#: view/error/404.phtml:19
+msgid "The requested URL could not be matched by routing."
+msgstr "S požadovaným URL nebyla při směrování (routing) nalezena shoda."
+
+#: view/error/404.phtml:22
+msgid "We cannot determine at this time why a 404 was generated."
+msgstr "Momentálně nedokážeme určit, proč byla vygenerována chyba 404."
+
+#: view/error/404.phtml:34
+msgid "Controller"
+msgstr "Controller"
+
+#: view/error/404.phtml:41
+#, php-format
+msgid "resolves to %s"
+msgstr "je mapován na %s"
+
+#: view/error/404.phtml:51
+msgid "Exception"
+msgstr "Výjimka"
+
+#: view/error/404.phtml:55 view/error/index.phtml:19 view/error/index.phtml:43
+msgid "Stack trace"
+msgstr "Trasování zásobníku (Stack trace)"
+
+#: view/error/index.phtml:1
+msgid "An error occurred"
+msgstr "Vyskytla se chyba"
+
+#: view/error/index.phtml:8
+msgid "Additional information"
+msgstr "Další informace"
+
+#: view/error/index.phtml:11 view/error/index.phtml:35
+msgid "File"
+msgstr "Soubor"
+
+#: view/error/index.phtml:15 view/error/index.phtml:39
+msgid "Message"
+msgstr "Zpráva"
+
+#: view/error/index.phtml:29
+msgid "Previous exceptions"
+msgstr "Předchozí výjimky"
+
+#: view/error/index.phtml:58
+msgid "No Exception available"
+msgstr "Žádná výjimka není k dispozici"
+
+#~ msgid "Street"
+#~ msgstr "Ulice"
+
+#~ msgid "Town"
+#~ msgstr "Město"
+
+#~ msgid "Post Code"
+#~ msgstr "PSČ"
+
+#~ msgid "Name"
+#~ msgstr "Jméno"
+
+#~ msgid "Security Domain"
+#~ msgstr "Bezpečnostní doména"
+
+#~ msgid "Supported browsers"
+#~ msgstr "Podporované prohlížeče"
+
+#~ msgid "year"
+#~ msgstr "rok"

@@ -10,7 +10,9 @@ use Vivo\Util\Redirector;
 use Vivo\Form\Multistep\MultistepStrategyInterface;
 use Vivo\UI\ZfFieldsetProviderInterface;
 use Vivo\CMS\Api\FormUtil as FormUtilApi;
+use Vivo\Form\Factory as FormFactory;
 
+use Zend\Form\Factory;
 use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\FormInterface;
 use Zend\Form\Form as ZfForm;
@@ -19,6 +21,7 @@ use Zend\Stdlib\RequestInterface;
 use Zend\I18n\Translator\Translator;
 use Zend\InputFilter\Factory as InputFilterFactory;
 use Zend\Stdlib\ArrayUtils;
+use Zend\Form\FormFactoryAwareInterface;
 
 /**
  * Form
@@ -29,7 +32,8 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
                                                                   TranslatorAwareInterface,
                                                                   InputFilterFactoryAwareInterface,
                                                                   ZfFieldsetProviderInterface,
-                                                                  FormUtilAwareInterface
+                                                                  FormUtilAwareInterface,
+                                                                  FormFactoryAwareInterface
 {
     /**#@+
      * Events
@@ -176,6 +180,12 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
      * @var FormUtilApi
      */
     protected $formUtilApi;
+
+    /**
+     * Form factory
+     * @var FormFactory
+     */
+    protected $formFactory;
 
     /**
      * Get ZF form
@@ -758,5 +768,14 @@ abstract class AbstractForm extends ComponentContainer implements RequestAwareIn
     public function setFormUtilApi(FormUtilApi $formUtilApi)
     {
         $this->formUtilApi  = $formUtilApi;
+    }
+
+    /**
+     * Compose a form factory into the object
+     * @param Factory $factory
+     */
+    public function setFormFactory(Factory $factory)
+    {
+        $this->formFactory  = $factory;
     }
 }

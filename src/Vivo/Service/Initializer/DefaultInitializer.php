@@ -3,6 +3,7 @@ namespace Vivo\Service\Initializer;
 
 use Zend\ServiceManager\InitializerInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\Form\FormFactoryAwareInterface;
 
 /**
  * Default initializer for instances created by service manager.
@@ -48,6 +49,10 @@ class DefaultInitializer implements InitializerInterface
         //Inject FormUtil API
         if ($instance instanceof FormUtilAwareInterface) {
             $instance->setFormUtilApi($serviceLocator->get('Vivo\CMS\Api\FormUtil'));
+        }
+        //Inject Form Factory
+        if ($instance instanceof FormFactoryAwareInterface) {
+            $instance->setFormFactory($serviceLocator->get('Vivo\form_factory'));
         }
     }
 }

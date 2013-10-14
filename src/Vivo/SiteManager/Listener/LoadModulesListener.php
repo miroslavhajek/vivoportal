@@ -120,6 +120,8 @@ class LoadModulesListener implements ListenerAggregateInterface
         $mainConfig['cms'] = array();
         $this->serviceManager->setService('config', $mainConfig);
         $this->serviceManager->setService('cms_config', $cmsConfig);
+
+        //Modify configurations of selected services
         //Prepare Vivo service manager
         $this->initializeVivoServiceManager($cmsConfig);
         //Prepare Vivo controller loader
@@ -128,6 +130,9 @@ class LoadModulesListener implements ListenerAggregateInterface
         $this->initializeVivoViewHelperManager($cmsConfig);
         //Prepare Vivo validator manager
         $this->initializeVivoValidatorManager($cmsConfig);
+        //Prepare Vivo translator
+        $this->initializeVivoTranslator($cmsConfig);
+
         //Inject MetadataManager options from CMS config
         $this->injectMetadataManagerOptions($cmsConfig);
         $e->stopPropagation(true);
@@ -194,6 +199,42 @@ class LoadModulesListener implements ListenerAggregateInterface
             //Disable overriding - modules & sites are not supposed to override existing controllers
             $controllerLoader->setAllowOverride(false);
             $controllerConfig->configureServiceManager($controllerLoader);
+        }
+    }
+
+    /**
+     * Initialize Vivo translator
+     * @param array $cmsConfig
+     */
+    protected function initializeVivoTranslator(array $cmsConfig)
+    {
+        if (isset($cmsConfig['translator'])) {
+            $moduleTranslatorConfig = $cmsConfig['translator'];
+            /** @var $translator \Zend\I18n\Translator\Translator */
+            $translator         = $this->serviceManager->get('translator');
+            //Translation file patterns
+            if (isset($moduleTranslatorConfig['translation_file_patterns'])) {
+                foreach ($moduleTranslatorConfig['translation_file_patterns'] as $pattern) {
+                    $domain = isset($pattern['text_domain']) ? $pattern['text_domain'] : 'default';
+                    $translator->addTranslationFilePattern(
+                        $pattern['type'],
+                        $pattern['base_dir'],
+                        $pattern['pattern'],
+                        $domain);
+                }
+            }
+            //Translation files
+            if (isset($moduleTranslatorConfig['translation_files'])) {
+                foreach ($moduleTranslatorConfig['translation_files'] as $file) {
+                    $domain = isset($file['text_domain']) ? $file['text_domain'] : 'default';
+                    $locale = isset($file['locale']) ? $file['locale'] : null;
+                    $translator->addTranslationFile(
+                        $file['type'],
+                        $file['filename'],
+                        $domain,
+                        $locale);
+                }
+            }
         }
     }
 

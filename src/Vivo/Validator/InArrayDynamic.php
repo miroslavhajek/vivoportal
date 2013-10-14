@@ -39,15 +39,6 @@ class InArrayDynamic extends AbstractValidator implements ValidatorPluginManager
     );
 
     /**
-     * Error message templates
-     * @var array
-     */
-    protected $messageTemplates     = array(
-        self::ERR_MSG_HAYSTACK_MISSING  => "Haystack is not available for control field value '%cfVal%'",
-        self::ERR_MSG_NOT_IN_ARRAY      => 'The input was not found in the haystack',
-    );
-
-    /**
      * Name of control field in context whose value governs which part of haystacks will be used as the actual haystack
      * @var string
      */
@@ -90,6 +81,29 @@ class InArrayDynamic extends AbstractValidator implements ValidatorPluginManager
      * @var AbstractPluginManager
      */
     protected $validatorPluginManager;
+
+    /**
+     * Error message templates
+     * Templates are set in constructor to enable xgettext parsing (gettext_noop)
+     * @var array
+     */
+    protected $messageTemplates;
+
+    /**
+     * Constructor
+     * @param array|Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->messageTemplates = array(
+            self::ERR_MSG_HAYSTACK_MISSING
+                => gettext_noop("Haystack is not available for control field value '%cfVal%'"),
+            self::ERR_MSG_NOT_IN_ARRAY
+                => gettext_noop('The input was not found in the haystack'),
+        );
+        parent::__construct($options);
+    }
+
 
     /**
      * Returns true if and only if $value meets the validation requirements

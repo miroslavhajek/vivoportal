@@ -13,6 +13,8 @@ use Vivo\Util\RedirectEvent;
 use Vivo\Util\Redirector;
 use Vivo\Util\UrlHelper;
 use Vivo\UI\ComponentEventInterface;
+use Zend\Filter\FilterPluginManager;
+
 use VpLogger\Log\Logger;
 
 use Zend\EventManager\EventInterface as Event;
@@ -101,10 +103,20 @@ class FrontController implements DispatchableInterface,
     protected $urlHelper;
 
     /**
+     * Filter Plugin manager
+     * @var FilterPluginManager
+     */
+    protected $filterPluginManager;
+
+    /**
+     * Constructor
+     * @param \Zend\Filter\FilterPluginManager $filterPluginManager
      * @param array $options Configuration.
      */
-    public function __construct(array $options)
+    public function __construct(FilterPluginManager $filterPluginManager,
+                                array $options)
     {
+        $this->filterPluginManager  = $filterPluginManager;
         $this->options = ArrayUtils::merge($this->options, $options);
     }
 
@@ -499,18 +511,29 @@ class FrontController implements DispatchableInterface,
      */
     protected function getActionFromParams(ParametersInterface $params)
     {
+        /** @var $filter \Vivo\Filter\ActParam */
+        $filter = $this->filterPluginManager->get('Vivo\act_param');
         //Variant 1: 'act' parameter is in the root of the data (Wrap elements == false)
         $action = $params->get('act');
         if (is_string($action)) {
-            return $action;
+            $filtered   = $filter->filter($action);
+            if ($filtered == '') {
+                return null;
+            } else {
+                return $filtered;
+            }
         }
         //Variant 2: there is only one item in params data and 'act' parameter is under it (Wrap elements == true)
         if ($params->count() == 1) {
             $paramsArray    = $params->toArray();
             $first          = reset($paramsArray);
             if (is_array($first) && isset($first['act']) && is_string($first['act'])) {
-                $action = $first['act'];
-                return $action;
+                $filtered = $filter->filter($first['act']);
+                if ($filtered == '') {
+                    return null;
+                } else {
+                    return $filtered;
+                }
             }
         }
         //'act' parameter not found

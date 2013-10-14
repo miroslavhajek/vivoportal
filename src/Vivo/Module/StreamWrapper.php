@@ -63,6 +63,7 @@ class StreamWrapper extends ZendViewStream
         if (self::$storage->isObject($path)) {
             $stat   = array(
                 'mtime'     => self::$storage->mtime($path),
+                'mode'      => self::$storage->getPermissions($path),
             );
         } else {
             $stat   = false;

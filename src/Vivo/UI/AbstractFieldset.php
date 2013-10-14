@@ -3,16 +3,20 @@ namespace Vivo\UI;
 
 use Vivo\Service\Initializer\TranslatorAwareInterface;
 use Vivo\UI\AbstractForm as AbstractVivoForm;
+use Vivo\Form\Factory as FormFactory;
 
 use Zend\I18n\Translator\Translator;
 use Zend\Form\Fieldset as ZfFieldset;
 use Zend\Form\Form as ZfForm;
+use Zend\Form\FormFactoryAwareInterface;
+use Zend\Form\Factory as ZendFormFactory;
 
 /**
  * AbstractFieldset
  */
 abstract class AbstractFieldset extends ComponentContainer implements TranslatorAwareInterface,
-                                                                      ZfFieldsetProviderInterface
+                                                                      ZfFieldsetProviderInterface,
+                                                                      FormFactoryAwareInterface
 {
     /**
      * Translator instance
@@ -49,6 +53,12 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
      * @var string | null
      */
     protected $stepName = null;
+
+    /**
+     * Form factory
+     * @var FormFactory
+     */
+    protected $formFactory;
 
     /**
      * Finds and returns the closest parent component containing a ZFFieldset
@@ -289,5 +299,14 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
         //View
         $eventManager->attach(ComponentEventInterface::EVENT_VIEW,
             array($this, 'viewListenerSetFieldsetAndData'));
+    }
+
+    /**
+     * Compose a form factory into the object
+     * @param ZendFormFactory $factory
+     */
+    public function setFormFactory(ZendFormFactory $factory)
+    {
+        $this->formFactory  = $factory;
     }
 }

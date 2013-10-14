@@ -35,7 +35,7 @@ class Logon extends Form
             'name' => 'submit',
             'attributes' => array(
                 'type'  => 'submit',
-                'value' => 'Login',
+                'value' => gettext_noop('Login'),
             ),
         ));
     }

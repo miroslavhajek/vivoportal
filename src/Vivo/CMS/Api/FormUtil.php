@@ -47,31 +47,38 @@ class FormUtil
 
     /**
      * Saves form state
+     *
      * @param string $formClass
      * @param string $formName
      * @param string $formIdent
      * @param array $formData
      * @param array $context
-     * @param string $password
+     * @param string|null $password When null, does not update already stored password
+     * @param int $status 1 = auto saved, 2 = user saved, 3 = sent to telem
      */
     public function saveFormState($formClass,
                                   $formName,
                                   $formIdent,
                                   array $formData,
                                   array $context = null,
-                                  $password = null)
+                                  $password = null,
+                                  $status)
     {
         $now                = date('Y-m-d H:i:s');
         $dataSerialized     = Json::encode($formData);
         $contextSerialized  = Json::encode($context);
         if ($this->formStateExists($formClass, $formName, $formIdent)) {
             //Update
-            $affected       = $this->tgwSavedForm->update(array(
+            $data           = array(
                 'time_saved'    => $now,
                 'form_data'     => $dataSerialized,
                 'context'       => $contextSerialized,
-                'password'      => $password,
-            ), array(
+                'status'        => (int) $status,
+            );
+            if (!is_null($password)) {
+                $data['password']   = $password;
+            }
+            $affected       = $this->tgwSavedForm->update($data, array(
                 'site_name'     => $this->siteName,
                 'form_class'    => $formClass,
                 'form_name'     => $formName,
@@ -85,9 +92,11 @@ class FormUtil
                 'form_name'     => $formName,
                 'form_ident'    => $formIdent,
                 'password'      => $password,
+                'time_created'  => $now,
                 'time_saved'    => $now,
                 'form_data'     => $dataSerialized,
                 'context'       => $contextSerialized,
+                'status'        => (int) $status,
             ));
         }
     }
@@ -117,7 +126,9 @@ class FormUtil
                 'form_data'     => Json::decode($row['form_data'], Json::TYPE_ARRAY),
                 'context'       => Json::decode($row['context'], Json::TYPE_ARRAY),
                 'password'      => $row['password'],
+                'time_created'  => new DateTime($row['time_created']),
                 'time_saved'    => new DateTime($row['time_saved']),
+                'status'        => $row['status'],
             );
         } else {
             //Form state not found
@@ -127,11 +138,32 @@ class FormUtil
     }
 
     /**
+     * Modifies status of the saved form
+     * Returns number of updated rows
+     * @param string $formClass
+     * @param string $formName
+     * @param string $formIdent
+     * @param int $status 1 = auto saved, 2 = user saved, 3 = sent to telem
+     * @return int
+     */
+    public function modifyFormStatus($formClass, $formName, $formIdent, $status)
+    {
+        $affected       = $this->tgwSavedForm->update(array(
+            'status'        => (int) $status,
+        ), array(
+            'site_name'     => $this->siteName,
+            'form_class'    => $formClass,
+            'form_name'     => $formName,
+            'form_ident'    => $formIdent,
+        ));
+        return $affected;
+    }
+
+    /**
      * Returns if a saved form state exists for the given form
      * @param string $formClass
      * @param string $formName
      * @param string $formIdent
-     * @param string|null $password
      * @return bool
      */
     public function formStateExists($formClass, $formName, $formIdent)

@@ -24,7 +24,7 @@ class Logon extends Fieldset implements InputFilterProviderInterface
             'name'      => 'username',
             'type'      => 'Vivo\Form\Element\Text',
             'options'   => array(
-                'label'     => 'Username',
+                'label'     => gettext_noop('Username'),
             ),
         ));
 
@@ -33,7 +33,7 @@ class Logon extends Fieldset implements InputFilterProviderInterface
             'name'      => 'password',
             'type'      => 'Vivo\Form\Element\Password',
             'options'   => array(
-                'label'     => 'Password',
+                'label'     => gettext_noop('Password'),
             ),
         ));
     }

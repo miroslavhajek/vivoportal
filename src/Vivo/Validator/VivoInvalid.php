@@ -19,13 +19,23 @@ class VivoInvalid extends AbstractValidator implements ConditionAwareInterface
     const INVALID   = 'invalid';
 
     /**
-     * Validation failure message template definitions
+     * Error message templates
+     * Templates are set in constructor to enable xgettext parsing (gettext_noop)
      * @var array
      */
-    protected $messageTemplates = array(
-        self::INVALID => "The input is invalid",
-    );
+    protected $messageTemplates;
 
+    /**
+     * Constructor
+     * @param array|Traversable|null $options
+     */
+    public function __construct($options = null)
+    {
+        $this->messageTemplates = array(
+            self::INVALID => gettext_noop("The input is invalid"),
+        );
+        parent::__construct($options);
+    }
 
     /**
      * Value of the condition

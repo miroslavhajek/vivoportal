@@ -258,7 +258,7 @@ return array(
             'module_storage'            => 'Vivo\Service\ModuleStorageFactory',
             'remote_module'             => 'Vivo\Service\RemoteModuleFactory',
             'module_storage_manager'    => 'Vivo\Service\ModuleStorageManagerFactory',
-            'module_manager_factory'    => 'Vivo\Service\ModuleManagerFactoryFactory',
+            'module_manager_factory'    => 'Vivo\Module\ModuleManagerFactoryFactory',
             'site_manager'              => 'Vivo\SiteManager\SiteManagerFactory',
             'run_site_manager_listener' => 'Vivo\Service\RunSiteManagerListenerFactory',
             'lucene'                    => 'Vivo\Service\LuceneFactory',
@@ -357,7 +357,6 @@ return array(
         ),
     ),
     'translator' => array(
-        'locale' => 'en_US',
         'translation_file_patterns' => array(
             array(
                 'type'     => 'gettext',
@@ -436,14 +435,15 @@ return array(
     //Filter plugin manager configuration
     'filters'       => array(
         'invokables'    => array(
-            'Vivo\date_time'        => 'Vivo\Filter\DateTime',
-            'VIvo\ascii_alpha_num'  => 'Vivo\Filter\AsciiAlphaNum',
+            'Vivo\act_param'                    => 'Vivo\Filter\ActParam',
+            'Vivo\array_to_key_value_string'    => 'Vivo\Filter\ArrayToKeyValueString',
+            'Vivo\ascii_alpha_num'              => 'Vivo\Filter\AsciiAlphaNum',
+            'Vivo\date_time'                    => 'Vivo\Filter\DateTime',
+            'Vivo\key_value_string_to_array'    => 'Vivo\Filter\KeyValueStringToArray',
         ),
         'factories'     => array(
-
         ),
         'initializers'  => array(
-
         ),
     ),
     //Validator plugin manager configuration
@@ -1486,4 +1486,20 @@ return array(
     'options' => array(
         'template_not_found_action' => Vivo\View\Resolver\TemplateResolver::STATE_NOT_FOUND_ACTION_COMMENT,
 	),
+
+    //Session manager configuration
+    'session_config'    => array(
+        //These options are passed to the Zend\Session\Config\SessionConfig
+        //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
+        'options'       => array(
+            //Cookie name
+            //'name'                  => 'VPSESSID',
+            //'use_cookies'           => true,
+            //Expire session
+            //'remember_me_seconds'   => ,
+            //'cookie_lifetime'       => ,
+        ),
+        'start_session' => false,
+        'regenerate_id' => false,
+    ),
 );

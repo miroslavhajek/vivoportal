@@ -336,6 +336,9 @@ class MultistepStrategy implements MultistepStrategyInterface
                 'name'  => $this->options['element_names']['goto_step'],
                 'type'  => 'hidden',
                 'value' => '',
+                'attributes'    => array(
+                    'class'    =>   'goto-step',
+                ),
             ));
         }
     }
