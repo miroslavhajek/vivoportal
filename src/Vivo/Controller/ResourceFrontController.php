@@ -9,6 +9,7 @@ use Vivo\IO\FileInputStream;
 use Vivo\Module\Exception\ResourceNotFoundException as ModuleResourceNotFoundException;
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\SiteManager\Event\SiteEvent;
+use Vivo\Cache\CacheManager;
 
 use VpLogger\Log\Logger;
 
@@ -26,7 +27,6 @@ use Zend\EventManager\EventManager;
 class ResourceFrontController implements DispatchableInterface,
         InjectApplicationEventInterface
 {
-
     /**
      * @var Api\CMS
      */
@@ -58,18 +58,84 @@ class ResourceFrontController implements DispatchableInterface,
      */
     private $eventManager;
 
+    /**
+     * Cache manager
+     * @var CacheManager
+     */
+    protected $cacheManager;
+
+    //TODO - get allowed caches from config?
+    /**
+     * Array of symbolic cache names which have allowed access
+     * @var array
+     */
+    protected $allowedCaches    = array(
+        'head_script_merge',
+    );
+
+    /**
+     * Dispatches the request
+     * @param Request $request
+     * @param Response $response
+     * @return mixed|Response
+     * @throws \Exception
+     */
     public function dispatch(Request $request, Response $response = null)
     {
-        $pathToResource = $this->event->getRouteMatch()->getParam('path');
-        $source = $this->event->getRouteMatch()->getParam('source');
+        /** @var $routeMatch \Zend\Mvc\Router\Http\RouteMatch */
+        $routeMatch     = $this->event->getRouteMatch();
+        $pathToResource = $routeMatch->getParam('path');
+        $source         = $routeMatch->getParam('source');
         try {
             if ($source === 'Vivo') {
-                //it's vivo core resource
-                $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
-                $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
+                //It's vivo core resource
+                $type   = $routeMatch->getParam('type');
+                switch ($type) {
+                    //Cache
+                    case 'cache':
+                        $parts  = explode('/', $pathToResource);
+                        if (count($parts) != 2) {
+                            throw new Exception\RuntimeException(
+                                sprintf("%s: Invalid cache item specification", __METHOD__));
+                        }
+                        $cacheName  = $parts[0];
+                        $cacheKey   = $parts[1];
+                        if (!($this->cacheManager->has($cacheName) && $this->cacheAccessAllowed($cacheName))) {
+                            throw new Exception\RuntimeException(
+                                sprintf("%s: Access to cache '%s' denied or cache does not exist",
+                                    __METHOD__, $cacheName));
+                        }
+
+//                        $cacheX = $this->cacheManager->get('merged_script_files_fs');
+                        \Zend\Debug\Debug::dump($this->cacheManager->has('headscriptmerge'), 'Has');
+
+                        \Zend\Debug\Debug::dump($this->cacheManager->getRegisteredServices());
+                        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
+
+
+
+                        /** @var $cache \Zend\Cache\Storage\StorageInterface */
+                        $cache      = $this->cacheManager->get($cacheName);
+                        if (!$cache->hasItem($cacheKey)) {
+                            throw new Exception\RuntimeException(
+                                sprintf("%s: Item with key '%s' not found in cache '%s'",
+                                    __METHOD__, $cacheKey, $cacheName));
+                        }
+
+                        //TODO - Remove!
+                        die(sprintf("%s, line %s: Debug die. Getting cached resource", __METHOD__, __LINE__));
+
+                        break;
+                    //Normal file resource
+                    case 'resource':
+                    default:
+                        $resourceStream = new FileInputStream(__DIR__ . '/../../../resource/' . $pathToResource);
+                        $filename       = pathinfo($pathToResource, PATHINFO_BASENAME);
+                        break;
+                }
             } elseif ($source === 'entity') {
                 //it's entity resource
-                $entityPath = $this->event->getRouteMatch()->getParam('entity');
+                $entityPath = $routeMatch->getParam('entity');
                 $entity = $this->cmsApi->getSiteEntity($entityPath, $this->siteEvent->getSite());
 
                 if ($entity instanceof File) {
@@ -186,5 +252,27 @@ class ResourceFrontController implements DispatchableInterface,
             $this->eventManager = new EventManager();
         }
         return $this->eventManager;
+    }
+
+    /**
+     * Sets cache manager
+     * @param \Vivo\Cache\CacheManager $cacheManager
+     */
+    public function setCacheManager(CacheManager $cacheManager)
+    {
+        $this->cacheManager = $cacheManager;
+    }
+
+    /**
+     * Returns if access for resources to the specified cache is allowed
+     * @param string $symbolicCacheName
+     * @return bool
+     */
+    protected function cacheAccessAllowed($symbolicCacheName)
+    {
+        if (in_array($symbolicCacheName, $this->allowedCaches)) {
+            return true;
+        }
+        return false;
     }
 }

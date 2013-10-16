@@ -68,6 +68,10 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
+        //TODO - Remove!
+        \Zend\Debug\Debug::dump(array($name, $requestedName), 'Name, requested name');
+        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
+
         if ($this->serveNullCache) {
             //Create null cache
             $options    = array(
@@ -94,11 +98,12 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     protected function getCacheName($canonicalName, $requestedName)
     {
-        if (array_key_exists($requestedName, $this->options)) {
-            return $requestedName;
-        }
+
         if (array_key_exists($canonicalName, $this->options)) {
             return $canonicalName;
+        }
+        if (array_key_exists($requestedName, $this->options)) {
+            return $requestedName;
         }
         return null;
     }

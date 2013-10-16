@@ -26,4 +26,14 @@ class CacheManager extends AbstractPluginManager
                     __METHOD__, 'Zend\Cache\Storage\StorageInterface', get_class($plugin)));
         }
     }
+
+    /**
+     * Publicly exposes method canonicalizeName()
+     * @param string $name
+     * @return string
+     */
+    public function canonicalize($name)
+    {
+        return $this->canonicalizeName($name);
+    }
 }

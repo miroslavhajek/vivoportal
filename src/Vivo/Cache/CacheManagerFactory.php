@@ -3,6 +3,7 @@ namespace Vivo\Cache;
 
 use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
+use Zend\ServiceManager\Config;
 
 /**
  * CacheManagerFactory
@@ -29,8 +30,28 @@ class CacheManagerFactory implements FactoryInterface
         $status                 = $serviceLocator->get('Vivo\status');
         $serveNullCache         = $status->isConsoleRequest() || $status->isBackend();
         $cacheAbstractFactory   = new CacheAbstractFactory($serveNullCache, $options);
-        $service                = new CacheManager();
+        $configAy   = array();
+        if (isset($config['cache']) && is_array($config['cache'])) {
+            foreach ($config['cache'] as $cacheSymName => $cacheName) {
+                if (is_null($cacheName) || $cacheName == '') {
+                    continue;
+                }
+                $configAy['aliases'][$cacheSymName] = $cacheName;
+            }
+        }
+        $pluginManagerConfig    = new Config($configAy);
+        $service                = new CacheManager($pluginManagerConfig);
         $service->addAbstractFactory($cacheAbstractFactory);
+
+        //TODO - Remove!
+        \Zend\Debug\Debug::dump($service->canonicalize('head_script_merge'));
+        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
+
+        //TODO - Remove!
+        $c1 = $service->get('head_script_merge');
+        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
+
+
         return $service;
     }
 }
