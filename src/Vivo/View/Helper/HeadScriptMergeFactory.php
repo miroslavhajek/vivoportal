@@ -5,9 +5,9 @@ use Zend\ServiceManager\FactoryInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
 /**
- * HeadScriptMergingFactory
+ * HeadScriptMergeFactory
  */
-class HeadScriptMergingFactory implements FactoryInterface
+class HeadScriptMergeFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -28,7 +28,8 @@ class HeadScriptMergingFactory implements FactoryInterface
         $cacheManager       = $sm->get('cache_manager');
         $cache              = $cacheManager->get($config['cache']['head_script_merge']);
         $urlHelper          = $sm->get('Vivo\Util\UrlHelper');
-        $helper             = new HeadScriptMerging($cache, $urlHelper);
+        $resourceManager    = $sm->get('Vivo\module_resource_manager');
+        $helper             = new HeadScriptMerge($cache, $urlHelper, $resourceManager);
         return $helper;
     }
 }

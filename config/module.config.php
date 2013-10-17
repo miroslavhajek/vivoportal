@@ -280,7 +280,7 @@ return array(
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
             'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
-            'module_resource_manager'   => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
+            'Vivo\module_resource_manager'      => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'component_factory'         => 'Vivo\CMS\ComponentFactoryFactory',
@@ -345,6 +345,8 @@ return array(
             'cache_manager'                     => 'Vivo\cache_manager',
             'Vivo\module_db_provider'           => 'module_db_provider',
             'Vivo\db_table_gateway_provider'    => 'db_table_gateway_provider',
+            'module_resource_manager'           => 'Vivo\module_resource_manager',
+
         ),
         'shared' => array(
             'view_model'                    => false,
@@ -423,7 +425,7 @@ return array(
             'render_document'               => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'                          => 'Vivo\View\Helper\UserFactory',
             'transliterate'                 => 'Vivo\View\Helper\TransliterateFactory',
-            'vivo_head_script_merging'      => 'Vivo\View\Helper\HeadScriptMergingFactory',
+            'vivo_head_script_merge'        => 'Vivo\View\Helper\HeadScriptMergeFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers

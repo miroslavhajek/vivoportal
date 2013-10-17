@@ -42,16 +42,6 @@ class CacheManagerFactory implements FactoryInterface
         $pluginManagerConfig    = new Config($configAy);
         $service                = new CacheManager($pluginManagerConfig);
         $service->addAbstractFactory($cacheAbstractFactory);
-
-        //TODO - Remove!
-        \Zend\Debug\Debug::dump($service->canonicalize('head_script_merge'));
-        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
-
-        //TODO - Remove!
-        $c1 = $service->get('head_script_merge');
-        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
-
-
         return $service;
     }
 }

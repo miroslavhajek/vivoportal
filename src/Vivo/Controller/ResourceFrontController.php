@@ -6,6 +6,7 @@ use Vivo\CMS\Model\Content\File;
 use Vivo\Http\HeaderHelper;
 use Vivo\IO\Exception\ExceptionInterface as IOException;
 use Vivo\IO\FileInputStream;
+use Vivo\IO\ByteArrayInputStream;
 use Vivo\Module\Exception\ResourceNotFoundException as ModuleResourceNotFoundException;
 use Vivo\Module\ResourceManager\ResourceManager;
 use Vivo\SiteManager\Event\SiteEvent;
@@ -105,15 +106,6 @@ class ResourceFrontController implements DispatchableInterface,
                                 sprintf("%s: Access to cache '%s' denied or cache does not exist",
                                     __METHOD__, $cacheName));
                         }
-
-//                        $cacheX = $this->cacheManager->get('merged_script_files_fs');
-                        \Zend\Debug\Debug::dump($this->cacheManager->has('headscriptmerge'), 'Has');
-
-                        \Zend\Debug\Debug::dump($this->cacheManager->getRegisteredServices());
-                        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
-
-
-
                         /** @var $cache \Zend\Cache\Storage\StorageInterface */
                         $cache      = $this->cacheManager->get($cacheName);
                         if (!$cache->hasItem($cacheKey)) {
@@ -121,10 +113,15 @@ class ResourceFrontController implements DispatchableInterface,
                                 sprintf("%s: Item with key '%s' not found in cache '%s'",
                                     __METHOD__, $cacheKey, $cacheName));
                         }
-
-                        //TODO - Remove!
-                        die(sprintf("%s, line %s: Debug die. Getting cached resource", __METHOD__, __LINE__));
-
+                        $success    = null;
+                        $cacheItem  = $cache->getItem($cacheKey, $success);
+                        if (!$success) {
+                            throw new Exception\RuntimeException(
+                                sprintf("%s: Reading item '%s' from cache '%s' failed",
+                                    __METHOD__, $cacheKey, $cacheName));
+                        }
+                        $resourceStream = new ByteArrayInputStream($cacheItem);
+                        $filename       = $cacheKey;
                         break;
                     //Normal file resource
                     case 'resource':

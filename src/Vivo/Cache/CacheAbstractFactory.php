@@ -33,6 +33,17 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     protected $serveNullCache   = false;
 
     /**
+     * Canonical names created so far
+     * @var array
+     */
+    protected $canonicalNames   = array();
+
+    /**
+     * @var array map of characters to be replaced through strtr
+     */
+    protected $canonicalNamesReplacements = array('-' => '', '_' => '', ' ' => '', '\\' => '', '/' => '');
+
+    /**
      * Constructor
      * @param bool $serveNullCache
      * @param array $options
@@ -40,7 +51,21 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     public function __construct($serveNullCache = false, array $options = array())
     {
         $this->serveNullCache   = $serveNullCache;
-        $this->options          = array_merge($this->options, $options);
+        $this->setOptions($options);
+    }
+
+    /**
+     * Sets options
+     * @param array $options
+     */
+    protected function setOptions(array $options)
+    {
+        $adjustedOptions    = array();
+        foreach ($options as $cacheName => $cacheConfig) {
+            $canonicalCacheName = $this->canonicalizeName($cacheName);
+            $adjustedOptions[$canonicalCacheName]   = $cacheConfig;
+        }
+        $this->options          = array_merge($this->options, $adjustedOptions);
     }
 
     /**
@@ -68,10 +93,6 @@ class CacheAbstractFactory implements AbstractFactoryInterface
      */
     public function createServiceWithName(ServiceLocatorInterface $serviceLocator, $name, $requestedName)
     {
-        //TODO - Remove!
-        \Zend\Debug\Debug::dump(array($name, $requestedName), 'Name, requested name');
-        die(sprintf("%s, line %s: Debug die", __METHOD__, __LINE__));
-
         if ($this->serveNullCache) {
             //Create null cache
             $options    = array(
@@ -90,20 +111,21 @@ class CacheAbstractFactory implements AbstractFactoryInterface
     }
 
     /**
-     * Checks if the requested name or alternatively the canonical name (in this order) exists in options as a cache
-     * name and returns the first match. If neither name exists in options, returns null
+     * Checks if the canonical name or alternatively the requested name (in this order) exists in options as a cache
+     * name and returns the first match (returned name is always canonical)
+     * If neither name exists in options, returns null
      * @param $canonicalName
      * @param $requestedName
      * @return string|null
      */
     protected function getCacheName($canonicalName, $requestedName)
     {
-
         if (array_key_exists($canonicalName, $this->options)) {
             return $canonicalName;
         }
-        if (array_key_exists($requestedName, $this->options)) {
-            return $requestedName;
+        $requestedNameCanonical = $this->canonicalizeName($requestedName);
+        if (array_key_exists($requestedNameCanonical, $this->options)) {
+            return $requestedNameCanonical;
         }
         return null;
     }
@@ -136,5 +158,20 @@ class CacheAbstractFactory implements AbstractFactoryInterface
                 }
             }
         }
+    }
+
+    /**
+     * Canonicalize name
+     * @see Zend\ServiceManager\ServiceManager::canonicalizeName()
+     * @param  string $name
+     * @return string
+     */
+    protected function canonicalizeName($name)
+    {
+        if (!isset($this->canonicalNames[$name])) {
+            // this is just for performance instead of using str_replace
+            $this->canonicalNames[$name] = strtolower(strtr($name, $this->canonicalNamesReplacements));
+        }
+        return $this->canonicalNames[$name];
     }
 }
