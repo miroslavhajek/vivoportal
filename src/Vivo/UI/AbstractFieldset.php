@@ -257,7 +257,6 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
     {
         $viewModel                  = $this->getView();
         $viewModel->fieldset        = $this->getFieldset();
-        $viewModel->fieldsetData    = $this->getFieldsetData();
         $viewModel->form            = $this->getParentZfForm();
         //Set current step name
         $formComponent  = $this->getParentFormComponent();
@@ -292,13 +291,11 @@ abstract class AbstractFieldset extends ComponentContainer implements Translator
     public function attachListeners()
     {
         parent::attachListeners();
-        $eventManager   = $this->getEventManager();
+        $eventManager = $this->getEventManager();
         //Init
-        $eventManager->attach(ComponentEventInterface::EVENT_INIT,
-            array($this, 'initAddSelfToParentFieldset'));
+        $eventManager->attach(ComponentEventInterface::EVENT_INIT, array($this, 'initAddSelfToParentFieldset'));
         //View
-        $eventManager->attach(ComponentEventInterface::EVENT_VIEW,
-            array($this, 'viewListenerSetFieldsetAndData'));
+        $eventManager->attach(ComponentEventInterface::EVENT_VIEW, array($this, 'viewListenerSetFieldsetAndData'));
     }
 
     /**
