@@ -5,11 +5,11 @@ use Vivo\IO\Exception\InvalidArgumentException;
 use Vivo\IO\InputStreamInterface;
 
 /**
- *
+ * ByteArrayInputStream
+ * Reads data from a string in memory
  */
 class ByteArrayInputStream implements InputStreamInterface
 {
-
     /**
      * @var integer
      */
