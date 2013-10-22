@@ -6,6 +6,7 @@ use Vivo\Module\ResourceManager\ResourceManager;
 
 use Zend\View\Helper\HeadScript;
 use Zend\Cache\Storage\StorageInterface as Cache;
+use Zend\Stdlib\ArrayUtils;
 
 use stdClass;
 
@@ -34,14 +35,37 @@ class HeadScriptMerge extends HeadScript
     protected $resourceManager;
 
     /**
+     * Helper options
+     * @var array
+     */
+    protected $options  = array(
+        //Disable merging of scripts for debugging
+        'merging_enabled'       => true,
+        //Name of the route for access to resources
+        'resource_route_name'   => 'vivo/resource',
+        //Params of the route used to access cached data resources
+        'cache_resource_route_params' => array(
+            'source'    => 'Vivo',
+            'type'      => 'cache',
+            //'path' contains %s placeholder for sprintf, which will be replaced with cache key
+            'path'      => 'head_script_merge/%s',
+        ),
+    );
+
+    /**
      * Constructor
      * @param Cache $cache
      * @param UrlHelper $urlHelper
      * @param ResourceManager $resourceManager
+     * @param array $options
      */
-    public function __construct(Cache $cache, UrlHelper $urlHelper,  ResourceManager $resourceManager)
+    public function __construct(Cache $cache,
+                                UrlHelper $urlHelper,
+                                ResourceManager $resourceManager,
+                                array $options = array())
     {
         parent::__construct();
+        $this->options          = ArrayUtils::merge($this->options, $options);
         $this->cache            = $cache;
         $this->urlHelper        = $urlHelper;
         $this->resourceManager  = $resourceManager;
@@ -54,31 +78,45 @@ class HeadScriptMerge extends HeadScript
      */
     public function toString($indent = null)
     {
-        $hash   = $this->getHash();
-        if (is_null($hash)) {
-            //No scripts in the container
-            return '<!-- No valid entries in the HeadScriptMerge container -->';
+        if ($this->options['merging_enabled']) {
+            //Merging enabled
+            $hash   = $this->getHash();
+            if (is_null($hash)) {
+                //No scripts in the container
+                return '<!-- No valid entries in the HeadScriptMerge container -->';
+            }
+            $cacheKey   = $this->assembleCacheKey($hash);
+            if (!$this->cache->hasItem($cacheKey)) {
+                //Build merged file and store it to cache
+                $merged = $this->buildMergedData();
+                $this->cache->setItem($cacheKey, $merged);
+            }
+
+            $url    = $this->urlHelper->fromRoute($this->options['resource_route_name'], array(
+                'source'    => $this->options['cache_resource_route_params']['source'],
+                'type'      => $this->options['cache_resource_route_params']['type'],
+                'path'      => sprintf($this->options['cache_resource_route_params']['path'], $cacheKey),
+            ));
+
+            $tag    = $this->assembleScriptTag($url, $indent);
+            return $tag;
+        } else {
+            //Merging disabled
+            /** @var $item stdClass */
+            //Assemble 'src' attribute and call the parent implementation
+            foreach ($this as $item) {
+                if ($this->isValid($item)) {
+                    $routeParams    = array(
+                        'type'      => $item->attributes['rsc_mgr']['type'],
+                        'path'      => $item->attributes['rsc_mgr']['path'],
+                        'source'    => $item->attributes['rsc_mgr']['module'],
+                    );
+                    $url    = $this->urlHelper->fromRoute($this->options['resource_route_name'], $routeParams);
+                    $item->attributes['src']    = $url;
+                }
+            }
+            return parent::toString($indent);
         }
-        $cacheKey   = $this->assembleCacheKey($hash);
-        if (!$this->cache->hasItem($cacheKey)) {
-            //Build merged file and store it to cache
-
-        }
-
-        //TODO - route params configurable?
-        $url    = $this->urlHelper->fromRoute('vivo/resource', array(
-            'source'    => 'Vivo',
-            'type'      => 'cache',
-            'path'      => 'head_script_merge/' . $cacheKey,
-        ));
-
-        $tag    = $this->assembleScriptTag($url, $indent);
-        return $tag;
-
-        //hash = getResourcesHash()
-        //if !cache has hash, build merged file and store to cache
-        //assemble merged file url
-        //return script tag linking the cached merged file
     }
 
     /**
@@ -106,6 +144,24 @@ class HeadScriptMerge extends HeadScript
             $hash   = hash('md4', $str);
         }
         return $hash;
+    }
+
+    /**
+     * Is the script provided valid?
+     * @param  mixed  $value  Is the given script valid?
+     * @return bool
+     */
+    protected function isValid($value)
+    {
+        if ((!$value instanceof stdClass)
+            || !isset($value->type)
+            || !isset($value->attributes['rsc_mgr']['module'])
+            || !isset($value->attributes['rsc_mgr']['type'])
+            || !isset($value->attributes['rsc_mgr']['path'])
+        ) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -173,30 +229,37 @@ class HeadScriptMerge extends HeadScript
         return $tag;
     }
 
-    protected function buildMergedFile()
+    /**
+     * Returns merged data
+     * @return string
+     * @throws Exception\RuntimeException
+     */
+    protected function buildMergedData()
     {
+        $header     = sprintf('/* ***** Script files merged by Vivo Portal, %s ***** */', date('Y-m-d, H:i:s')) . PHP_EOL . PHP_EOL;
+        $data       = '';
+        $scriptInfo = '/* Merged script files (module, type, path):' . PHP_EOL . PHP_EOL;
         $this->getContainer()->ksort();
         foreach ($this as $item) {
             if (!$this->isValid($item)) {
+                //Script item not valid
                 continue;
             }
             if ($item->type != 'text/javascript') {
                 //Unsupported script type
+                throw new Exception\RuntimeException(sprintf("%s: Unsupported script type '%s", __METHOD__, $item->type));
             }
-            if (isset($item->attributes['src'])) {
-                $scriptUrl  = $item->attributes['src'];
-            } elseif (isset($item->source)) {
-                $scriptUrl  = $item->source;
-            } else {
-                throw new Exception\RuntimeException(sprintf("%s: Source not defined", __METHOD__));
-            }
-
-
-            //TODO - mtime!
-            $mtime  = 0;
-
-            $str    .= $scriptUrl . ',' . $mtime . PHP_EOL;
+            $module     = $item->attributes['rsc_mgr']['module'];
+            $type       = $item->attributes['rsc_mgr']['type'];
+            $path       = $item->attributes['rsc_mgr']['path'];
+            $scriptInfo .= sprintf("'%s', '%s', '%s'", $module, $type, $path) . PHP_EOL;
+            $data       .= sprintf("/* ***** Module: '%s', Type: '%s', Path: '%s' ***** */", $module, $type, $path)
+                        . PHP_EOL . PHP_EOL;
+            $itemData   = $this->resourceManager->getResource($module, $path, $type);
+            $data       .= $itemData . PHP_EOL . PHP_EOL;
         }
-
+        $scriptInfo     .= PHP_EOL . '*/'  . PHP_EOL . PHP_EOL;
+        $merged         = $header . $scriptInfo . $data . '/* End of merged scripts */';
+        return $merged;
     }
 }

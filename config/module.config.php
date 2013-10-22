@@ -1510,4 +1510,21 @@ return array(
             'secure_session_name'   => 'VPSESSIDSEC',
         ),
     ),
+
+    //Options passed to view helpers upon creation
+    'view_helper_options'    => array(
+        'Vivo\head_script_merge'    => array(
+            //Disable merging of scripts for debugging
+            'merging_enabled'       => true,
+            //Name of the route for access to resources
+            'resource_route_name'   => 'vivo/resource',
+            //Params of the route used to access cached data resources
+            'cache_resource_route_params' => array(
+                'source'    => 'Vivo',
+                'type'      => 'cache',
+                //'path' contains %s placeholder for sprintf, which will be replaced with cache key
+                'path'      => 'head_script_merge/%s',
+            ),
+        ),
+    ),
 );
