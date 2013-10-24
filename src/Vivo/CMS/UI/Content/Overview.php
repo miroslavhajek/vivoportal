@@ -218,8 +218,8 @@ class Overview extends Component
                     /* @var $item \Vivo\CMS\Model\Document */
                     $document = $this->cmsApi->getSiteEntity($item, $this->site);
                     if ($document instanceof Document
-                    && $document->getAllowListingInOverview()
-                    && $this->documentApi->isPublished($document))
+                        && $document->getAllowListingInOverview()
+                        && $this->documentApi->isPublished($document))
                     {
                         $documents[] = $document;
                     }
