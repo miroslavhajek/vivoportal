@@ -31,7 +31,7 @@ class Folder extends Entity
      * Allows listing documents in overview
      * @var bool
      */
-    protected $allowListing = true;
+    protected $allowListingInOverview = true;
 
     /**
      * Allows listing documents in sitemap
@@ -102,9 +102,9 @@ class Folder extends Entity
      * Returns bool value determinates if document can be included to overview.
      * @return bool
      */
-    public function getAllowListing()
+    public function getAllowListingInOverview()
     {
-        return $this->allowListing;
+        return $this->allowListingInOverview;
     }
 
     /**
@@ -150,11 +150,11 @@ class Folder extends Entity
 
     /**
      * Sets bool property determining if document can be listed in overview
-     * @param bool allowListing
+     * @param bool $allowListingInOverview
      */
-    public function setAllowListing($allowListing = true)
+    public function setAllowListingInOverview($allowListingInOverview = true)
     {
-        $this->allowListing = (bool)$allowListing;
+        $this->allowListingInOverview = (bool)$allowListingInOverview;
     }
 
     /**
