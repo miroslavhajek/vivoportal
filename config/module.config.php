@@ -1516,6 +1516,10 @@ return array(
         'Vivo\head_script_merge'    => array(
             //Disable merging of scripts for debugging
             'merging_enabled'       => true,
+            //When set to true, the merged js file will be regenerated upon every request (useful for debugging)
+            'always_regenerate'     => false,
+            //When set to true, .min.js file will be used instead of the defined one, if exists
+            'use_min_file'          => true,
             //Name of the route for access to resources
             'resource_route_name'   => 'vivo/resource',
             //Params of the route used to access cached data resources

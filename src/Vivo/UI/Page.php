@@ -252,6 +252,7 @@ class Page extends ComponentContainer
             }
             $scriptObj          = new \stdClass();
             $scriptObj->type    = $script['type'];
+            $scriptObj->source  = null;
             unset($script['type']);
             $scriptObj->attributes = $script;
             $scripts[$offset]   = $scriptObj;
