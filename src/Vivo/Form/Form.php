@@ -202,4 +202,17 @@ class Form extends ZendForm
             }
         }
     }
+
+    /**
+     * Adds HTML class into form element
+     * @param string $class
+     */
+    public function addClass($class)
+    {
+        $classes = explode(' ', $this->getAttribute('class'));
+        if(!in_array($class, $classes)) {
+            $classes[] = $class;
+            $this->setAttribute('class', implode(' ', $classes));
+        }
+    }
 }
