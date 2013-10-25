@@ -71,7 +71,7 @@ class ResourceFrontController implements DispatchableInterface,
      * @var array
      */
     protected $allowedCaches    = array(
-        'head_script_merge',
+        'head_script',
     );
 
     /**

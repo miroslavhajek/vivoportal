@@ -425,7 +425,7 @@ return array(
             'render_document'               => 'Vivo\View\Helper\RenderDocumentFactory',
             'user'                          => 'Vivo\View\Helper\UserFactory',
             'transliterate'                 => 'Vivo\View\Helper\TransliterateFactory',
-            'vivo_head_script_merge'        => 'Vivo\View\Helper\HeadScriptMergeFactory',
+            'vivo_head_script'              => 'Vivo\View\Helper\HeadScriptFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers
@@ -1513,9 +1513,9 @@ return array(
 
     //Options passed to view helpers upon creation
     'view_helper_options'    => array(
-        'Vivo\head_script_merge'    => array(
+        'Vivo\head_script'    => array(
             //Disable merging of scripts for debugging
-            'merging_enabled'       => true,
+            'enabled'       => true,
             //When set to true, the merged js file will be regenerated upon every request (useful for debugging)
             'always_regenerate'     => false,
             //When set to true, .min.js file will be used instead of the defined one, if exists
@@ -1527,7 +1527,7 @@ return array(
                 'source'    => 'Vivo',
                 'type'      => 'cache',
                 //'path' contains %s placeholder for sprintf, which will be replaced with cache key
-                'path'      => 'head_script_merge/%s',
+                'path'      => 'head_script/%s',
             ),
         ),
     ),

@@ -8,7 +8,7 @@ use Zend\ServiceManager\ServiceLocatorInterface;
 /**
  * HeadScriptMergeFactory
  */
-class HeadScriptMergeFactory implements FactoryInterface
+class HeadScriptFactory implements FactoryInterface
 {
     /**
      * Create service
@@ -21,22 +21,22 @@ class HeadScriptMergeFactory implements FactoryInterface
         $sm                 = $serviceLocator->getServiceLocator();
         $config             = $sm->get('config');
         //Get cache for merged files
-        if (!isset($config['cache']['head_script_merge'])) {
+        if (!isset($config['cache']['head_script'])) {
             throw new Exception\ConfigException(
-                sprintf("%s: Config option ['cache']['head_script_merge'] defining cache used for merged "
+                sprintf("%s: Config option ['cache']['head_script'] defining cache used for merged "
                 . "script files is not set", __METHOD__));
         }
         $cacheManager       = $sm->get('cache_manager');
         /** @var $cache StorageInterface */
-        $cache              = $cacheManager->get($config['cache']['head_script_merge']);
+        $cache              = $cacheManager->get($config['cache']['head_script']);
         $urlHelper          = $sm->get('Vivo\Util\UrlHelper');
         $resourceManager    = $sm->get('Vivo\module_resource_manager');
-        if (isset($config['view_helper_options']['Vivo\head_script_merge'])) {
-            $options    = $config['view_helper_options']['Vivo\head_script_merge'];
+        if (isset($config['view_helper_options']['Vivo\head_script'])) {
+            $options    = $config['view_helper_options']['Vivo\head_script'];
         } else {
             $options    = array();
         }
-        $helper             = new HeadScriptMerge($cache, $urlHelper, $resourceManager, $options);
+        $helper             = new HeadScript($cache, $urlHelper, $resourceManager, $options);
         return $helper;
     }
 }
