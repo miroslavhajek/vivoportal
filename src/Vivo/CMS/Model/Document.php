@@ -6,11 +6,6 @@ namespace Vivo\CMS\Model;
  */
 class Document extends Folder
 {
-
-    const ALL = 0;
-    const PUBLISHED = 1;
-    const AVAILABLE = 2;
-
     /**
      * URI of the document. If there is not specifically specified, URI is always a straight path to the document.
      * (relative to the root document ROOT).

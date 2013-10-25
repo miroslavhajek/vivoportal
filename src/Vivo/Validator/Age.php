@@ -37,8 +37,9 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
     /**#@+
      * Error message keys
      */
-    const ERR_MSG_TOO_OLD   = 'too_old';
-    const ERR_MSG_TOO_YOUNG = 'too_young';
+    const ERR_MSG_DATE_INVALID = 'ageDateInvalid';
+    const ERR_MSG_TOO_OLD      = 'ageTooOld';
+    const ERR_MSG_TOO_YOUNG    = 'ageTooYoung';
     /**#@-*/
 
     /**
@@ -116,6 +117,7 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
     public function __construct($options = null)
     {
         $this->messageTemplates = array(
+            self::ERR_MSG_DATE_INVALID  => gettext_noop("The date/time value is in future"),
             self::ERR_MSG_TOO_YOUNG     => gettext_noop("The date/time value is younger than %min% (%unit%)"),
             self::ERR_MSG_TOO_OLD       => gettext_noop("The date/time value is older than %max% (%unit%)"),
         );
@@ -144,6 +146,12 @@ class Age extends AbstractValidator implements FilterPluginManagerAwareInterface
         }
         $refDate    = $this->getRefDate();
         $interval   = $valueObject->diff($refDate, false);
+
+        if($interval->invert) {
+            $this->error(self::ERR_MSG_DATE_INVALID);
+            return false;
+        }
+
         $seconds    = $refDate->getTimestamp() - $valueObject->getTimestamp();
         $valid      = true;
         switch ($this->unit) {
