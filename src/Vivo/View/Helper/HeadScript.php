@@ -5,7 +5,7 @@ use Vivo\Util\UrlHelper;
 use Vivo\Module\ResourceManager\ResourceManager;
 
 use Zend\View\Exception;
-use Zend\View\Helper\HeadScript;
+use Zend\View\Helper\HeadScript as ZendHeadScript;
 use Zend\Cache\Storage\StorageInterface as Cache;
 use Zend\Stdlib\ArrayUtils;
 use Zend\View\Helper\Placeholder\Container\AbstractContainer;
@@ -13,10 +13,10 @@ use Zend\View\Helper\Placeholder\Container\AbstractContainer;
 use stdClass;
 
 /**
- * HeadScriptMerge
+ * HeadScript
  * Merges collected scripts into one file and caches the result
  */
-class HeadScriptMerge extends HeadScript
+class HeadScript extends ZendHeadScript
 {
     /**
      * Cache for merged files
@@ -54,7 +54,7 @@ class HeadScriptMerge extends HeadScript
      */
     protected $options  = array(
         //Disable merging of scripts for debugging
-        'merging_enabled'       => true,
+        'enabled'       => true,
         //When set to true, the merged js file will be regenerated upon every request (useful for debugging)
         'always_regenerate'     => false,
         //When set to true, .min.js file will be used instead of the defined one, if exists
@@ -66,7 +66,7 @@ class HeadScriptMerge extends HeadScript
             'source'    => 'Vivo',
             'type'      => 'cache',
             //'path' contains %s placeholder for sprintf, which will be replaced with cache key
-            'path'      => 'head_script_merge/%s',
+            'path'      => 'head_script/%s',
         ),
     );
 
@@ -94,12 +94,11 @@ class HeadScriptMerge extends HeadScript
      * Prepends script from a resource
      * @param string $module
      * @param string $path
-     * @param string $type
      * @throws Exception\InvalidArgumentException
      */
-    public function prependResource($module, $path, $type = 'resource')
+    public function prependResource($module, $path)
     {
-        $scriptObj  = $this->createScriptObjForResource($module, $path, $type);
+        $scriptObj  = $this->createScriptObjForResource($module, $path, 'resource');
         if (!$this->isValidForMerge($scriptObj)) {
             throw new Exception\InvalidArgumentException(sprintf("%s: Script resource not valid", __METHOD__));
         }
@@ -110,12 +109,11 @@ class HeadScriptMerge extends HeadScript
      * Appends script from a resource
      * @param string $module
      * @param string $path
-     * @param string $type
      * @throws Exception\InvalidArgumentException
      */
-    public function appendResource($module, $path, $type = 'resource')
+    public function appendResource($module, $path)
     {
-        $scriptObj  = $this->createScriptObjForResource($module, $path, $type);
+        $scriptObj  = $this->createScriptObjForResource($module, $path, 'resource');
         if (!$this->isValidForMerge($scriptObj)) {
             throw new Exception\InvalidArgumentException(sprintf("%s: Script resource not valid", __METHOD__));
         }
@@ -125,11 +123,9 @@ class HeadScriptMerge extends HeadScript
     /**
      * Appends script source to the container
      * @param string $content
-     * @param string $type
-     * @param null $attrs
      * @throws Exception\InvalidArgumentException
      */
-    public function appendScript($content, $type, $attrs = null)
+    public function appendScript($content)
     {
         $scriptObj  = $this->createScriptObjForSource($content);
         if (!$this->isValidForMerge($scriptObj)) {
@@ -141,11 +137,9 @@ class HeadScriptMerge extends HeadScript
     /**
      * Prepends script source to the container
      * @param string $content
-     * @param string $type
-     * @param null $attrs
      * @throws Exception\InvalidArgumentException
      */
-    public function prependScript($content, $type, $attrs = null)
+    public function prependScript($content)
     {
         $scriptObj  = $this->createScriptObjForSource($content);
         if (!$this->isValidForMerge($scriptObj)) {
@@ -196,7 +190,7 @@ class HeadScriptMerge extends HeadScript
      */
     public function toString($indent = null)
     {
-        if ($this->options['merging_enabled']) {
+        if ($this->options['enabled']) {
             //Merging enabled
             $hash   = $this->getHash($this->mergeContainer);
             if (!is_null($hash)) {
