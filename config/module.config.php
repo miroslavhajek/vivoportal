@@ -1489,25 +1489,40 @@ return array(
 
     //Session manager configuration
     'session_config'    => array(
+        //Regenerates session id on every request (applies only when start_session == true)
+        'regenerate_id' => false,
+        //Number of seconds after which the session expires when the user is inactive
+        'inactivity_expiration' => 3600,
+        //Security params
+        'security'      => array(
+            //When enabled, uses 'secure_options' when secure connection is detected
+            'enabled'               => true,
+            //When the following header is present in the request, the connection is considered secure
+            'security_http_header'  => 'X-Secured',
+        ),
         //These options are passed to the Zend\Session\Config\SessionConfig
         //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
         'options'       => array(
             //Cookie name
-            //'name'                  => 'VPSESSID',
-            //'use_cookies'           => true,
-            //Expire session
+            'name'                  => 'VPSESSID',
+            'use_cookies'           => true,
+            'cookie_httponly'       => true,
+            'cookie_secure'         => false,
+            //'gc_maxlifetime'        => ,
             //'remember_me_seconds'   => ,
             //'cookie_lifetime'       => ,
         ),
-        'start_session' => false,
-        'regenerate_id' => false,
-        'security'      => array(
-            'enabled'   => false,
-            'secure_ports'   => array(
-                'https1'    => 443,
-            ),
-            'security_http_header'  => 'X-Secured',
-            'secure_session_name'  => 'PHPSESSIDSEC',
+        //These options are passed to the Zend\Session\Config\SessionConfig when secure connection is detected
+        //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
+        'secure_options'    => array(
+            //Cookie name
+            'name'                  => 'VPSESSIDSEC',
+            'use_cookies'           => true,
+            'cookie_httponly'       => true,
+            'cookie_secure'         => true,
+            //'gc_maxlifetime'        => ,
+            //'remember_me_seconds'   => ,
+            //'cookie_lifetime'       => ,
         ),
     ),
 );
