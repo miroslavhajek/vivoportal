@@ -26,7 +26,8 @@ class SessionManagerFactory implements FactoryInterface
             $request    = $serviceLocator->get('request');
             if ($request instanceof \Zend\Http\PhpEnvironment\Request) {
                 $headerName = $config['session_config']['security']['security_http_header'];
-                if ($request->getHeader($headerName) || $_SERVER['HTTPS']) {
+                if ($request->getHeader($headerName)
+                        || (isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')) {
                     $sessionConfigOptions   = $config['session_config']['secure_options'];
                 }
             }
