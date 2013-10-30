@@ -963,6 +963,8 @@ return array(
             'backend'  => array(
                 'static'                => array(
                     'X-Generated-By'        => 'Vivo',
+                    //Backend cannot be displayed in an iframe
+                    'X-Frame-Options'       => 'DENY',
                 ),
                 'dynamic'               => array(
                     'X-Generated-At'        => true,
@@ -1489,10 +1491,18 @@ return array(
 
     //Session manager configuration
     'session_config'    => array(
-        //Regenerates session id on every request (applies only when start_session == true)
+        //Regenerates session id on every request
         'regenerate_id' => false,
-        //Number of seconds after which the session expires when the user is inactive
-        'inactivity_expiration' => 3600,
+        //When user is inactive, the session is expired
+        'inactivity_expiration' => array(
+            //Number of seconds after which the session expires when the user is inactive
+            'timeout'   => 3600,
+            //Options passed to SessionManager::destroy() upon session expiration due to user inactivity
+            'destroy_options'   => array(
+                'send_expire_cookie' => false,
+                'clear_storage'      => true,
+            ),
+        ),
         //Security params
         'security'      => array(
             //When enabled, uses 'secure_options' when secure connection is detected
@@ -1508,7 +1518,8 @@ return array(
             'use_cookies'           => true,
             'cookie_httponly'       => true,
             'cookie_secure'         => false,
-            //'gc_maxlifetime'        => ,
+            //GC may occur after this inactivity. Set to at least the same value as ['inactivity_expiration']['timeout']
+            'gc_maxlifetime'        => 3600,
             //'remember_me_seconds'   => ,
             //'cookie_lifetime'       => ,
         ),
@@ -1520,7 +1531,8 @@ return array(
             'use_cookies'           => true,
             'cookie_httponly'       => true,
             'cookie_secure'         => true,
-            //'gc_maxlifetime'        => ,
+            //GC may occur after this inactivity. Set to at least the same value as ['inactivity_expiration']['timeout']
+            'gc_maxlifetime'        => 3600,
             //'remember_me_seconds'   => ,
             //'cookie_lifetime'       => ,
         ),

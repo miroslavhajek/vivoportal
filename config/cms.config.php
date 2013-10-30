@@ -501,6 +501,8 @@ return array(
     'response_headers_frontend'  => array(
         'static'                => array(
             'X-Generated-By'        => 'Vivo',
+            //Front-end can be displayed in an iframe, but only from the same origin (necessary for backend view)
+            'X-Frame-Options'       => 'SAMEORIGIN',
         ),
         'dynamic'               => array(
             'X-Generated-At'        => true,

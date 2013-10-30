@@ -47,8 +47,8 @@ class SessionManagerFactory implements FactoryInterface
         $now        = time();
         $session    = new Container('vivo_session_management');
         if (isset($session->lastActivity)
-                && ($now - $session->lastActivity > $config['session_config']['inactivity_expiration'])) {
-            $sessionManager->destroy();
+                && ($now - $session->lastActivity > $config['session_config']['inactivity_expiration']['timeout'])) {
+            $sessionManager->destroy($config['session_config']['inactivity_expiration']['destroy_options']);
         }
         $session->lastActivity  = $now;
 
