@@ -583,7 +583,8 @@ class Document implements DocumentInterface
                 return $documentCompareHelper->compare($a, $b, $criteriaString);
             });
         }
-
+        //Reset array keys
+        $documents  = array_values($documents);
         return $documents;
     }
 
