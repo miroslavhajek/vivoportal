@@ -31,13 +31,13 @@ class Folder extends Entity
      * Allows listing documents in overview
      * @var bool
      */
-    protected $allowListingInOverview = true;
+    protected $allowListingInOverview   = true;
 
     /**
      * Allows listing documents in sitemap
      * @var bool
      */
-    protected $allowListingInSitemap = true;
+    protected $allowListingInSitemap    = true;
 
     /**
      * @var int Position of the document in layer. This property could be used as sorting option of the document.
@@ -127,7 +127,8 @@ class Folder extends Entity
 
     public function getPosition()
     {
-        return $this->position;
+        //Cast to int necessary as repository contains entities with position serialized as string
+        return (int) $this->position;
     }
 
     public function getSorting()
@@ -145,7 +146,7 @@ class Folder extends Entity
      */
     public function setPosition($position)
     {
-        $this->position = $position;
+        $this->position = (int) $position;
     }
 
     /**
