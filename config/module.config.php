@@ -1492,25 +1492,53 @@ return array(
 
     //Session manager configuration
     'session_config'    => array(
+        //Regenerates session id on every request
+        'regenerate_id' => false,
+        //When user is inactive, the session is expired
+        'inactivity_expiration' => array(
+            //Number of seconds after which the session expires when the user is inactive
+            'timeout'   => 3600,
+            //Options passed to SessionManager::destroy() upon session expiration due to user inactivity
+            'destroy_options'   => array(
+                'send_expire_cookie' => false,
+                'clear_storage'      => true,
+            ),
+        ),
+        //Security params
+        'security'      => array(
+            //When enabled, uses 'secure_options' when secure connection is detected
+            'enabled'               => true,
+            //When the following header is present in the request, the connection is considered secure
+            'security_http_header'  => 'X-Secured',
+        ),
         //These options are passed to the Zend\Session\Config\SessionConfig
         //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
         'options'       => array(
             //Cookie name
-            //'name'                  => 'VPSESSID',
-            //'use_cookies'           => true,
-            //Expire session
+            'name'                  => 'VPSESSID',
+            'use_cookies'           => true,
+            'cookie_httponly'       => true,
+            'cookie_secure'         => false,
+            //GC may occur after this inactivity. Set to at least the same value as ['inactivity_expiration']['timeout']
+            'gc_maxlifetime'        => 3600,
             //'remember_me_seconds'   => ,
             //'cookie_lifetime'       => ,
         ),
-        'start_session' => false,
-        'regenerate_id' => false,
-        'security'      => array(
-            'enabled'   => false,
-            'security_http_header'  => 'X-Secured',
-            'secure_session_name'   => 'VPSESSIDSEC',
+        //These options are passed to the Zend\Session\Config\SessionConfig when secure connection is detected
+        //See http://framework.zend.com/manual/2.1/en/modules/zend.session.config.html
+        'secure_options'    => array(
+            //Cookie name
+            'name'                  => 'VPSESSIDSEC',
+            'use_cookies'           => true,
+            'cookie_httponly'       => true,
+            'cookie_secure'         => true,
+            //GC may occur after this inactivity. Set to at least the same value as ['inactivity_expiration']['timeout']
+            'gc_maxlifetime'        => 3600,
+            //'remember_me_seconds'   => ,
+            //'cookie_lifetime'       => ,
         ),
     ),
-
+    
     //Options passed to view helpers upon creation
     'view_helper_options'    => array(
         'Vivo\head_script'    => array(
