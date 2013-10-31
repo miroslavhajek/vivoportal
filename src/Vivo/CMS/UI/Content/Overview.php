@@ -189,20 +189,24 @@ class Overview extends Component
                 if(strpos($sort, "parent") !== false && $parentSorting != null) {
                     $sort = $parentSorting;
                 }
-                if(strpos($sort, ":") !== false){
-                    $propertyName = substr($sort, 0,  strpos($sort,':'));
-                    $sortWay = substr($sort,strpos($sort,':')+1);
-                } else {
-                    $propertyName = $sort;
-                    $sortWay = 'asc';
-                }
-                if($propertyName == 'random') {
-                    //$params['sort'] = "\\random_" . mt_rand(1, 10000);
-                    //@TODO VP-187 Implement random sorting
-                    $params['sort'] = '\\title asc';
-                } else {
-                    $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
-                }
+
+                //Solr does not sort properly on tokenized fields (e.g. title)
+                //Skip setting 'sort' param, as documents will be resorted anyway (see bellow)
+//                if(strpos($sort, ":") !== false){
+//                    $propertyName = substr($sort, 0,  strpos($sort,':'));
+//                    $sortWay = substr($sort,strpos($sort,':')+1);
+//                } else {
+//                    $propertyName = $sort;
+//                    $sortWay = 'asc';
+//                }
+//                if($propertyName == 'random') {
+//                    //$params['sort'] = "\\random_" . mt_rand(1, 10000);
+//                    //@TODO VP-187 Implement random sorting
+//                    $params['sort'] = '\\title asc';
+//                } else {
+//                    $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
+//                }
+
             }
 
             $items = $this->indexerApi->getEntitiesByQuery($query, $params);
@@ -211,6 +215,12 @@ class Overview extends Component
                     $documents[] = $item;
                 }
             }
+
+            //Solr does not sort properly on tokenized fields (e.g. title)
+            //See e.g. http://stackoverflow.com/questions/7790113/solr-sort-doesnt-work-expectedly
+            //Resort to be sure
+            $documents  = $this->documentApi->sortDocumentsByCriteria($documents, $sort);
+
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items  = $this->content->getOverviewItems();
             foreach ($items as $item) {
