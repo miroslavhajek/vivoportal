@@ -2,7 +2,7 @@
 namespace Vivo\IO;
 
 /**
- * Wrapper for input streams. It is usefull when you need include file from InputStream.
+ * Wrapper for input streams. It is useful when you need include file from InputStream.
  * @todo must be checked and refactored
  */
 class InputStreamWrapper {

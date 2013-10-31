@@ -280,7 +280,7 @@ return array(
             'Vivo\CMS\Api\Content\File'       => 'Vivo\CMS\Api\Content\FileFactory',
             'Vivo\CMS\Api\Content\Fileboard'  => 'Vivo\CMS\Api\Content\FileboardFactory',
             'Vivo\CMS\Api\Content\Gallery'    => 'Vivo\CMS\Api\Content\GalleryFactory',
-            'module_resource_manager'   => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
+            'Vivo\module_resource_manager'      => 'Vivo\Module\ResourceManager\ResourceManagerFactory',
             'module_install_manager'    => 'Vivo\Service\ModuleInstallManagerFactory',
             'path_builder'              => 'Vivo\Service\PathBuilderFactory',
             'component_factory'         => 'Vivo\CMS\ComponentFactoryFactory',
@@ -345,6 +345,8 @@ return array(
             'cache_manager'                     => 'Vivo\cache_manager',
             'Vivo\module_db_provider'           => 'module_db_provider',
             'Vivo\db_table_gateway_provider'    => 'db_table_gateway_provider',
+            'module_resource_manager'           => 'Vivo\module_resource_manager',
+
         ),
         'shared' => array(
             'view_model'                    => false,
@@ -413,16 +415,17 @@ return array(
             'highlight'                     => 'Vivo\View\Helper\Highlight',
         ),
         'factories' => array(
-            'url'               => 'Vivo\View\Helper\UrlFactory',
-            'icon_url'          => 'Vivo\View\Helper\IconUrlFactory',
-            'resource'          => 'Vivo\View\Helper\ResourceFactory',
-            'resourceInfo'      => 'Vivo\View\Helper\ResourceInfoFactory',
-            'document'          => 'Vivo\View\Helper\DocumentFactory',
-            'cms'               => 'Vivo\View\Helper\CmsFactory',
-            'vivo_head_title'   => 'Vivo\View\Helper\VivoHeadTitleFactory',
-            'render_document'   => 'Vivo\View\Helper\RenderDocumentFactory',
-            'user'              => 'Vivo\View\Helper\UserFactory',
-            'transliterate'     => 'Vivo\View\Helper\TransliterateFactory',
+            'url'                           => 'Vivo\View\Helper\UrlFactory',
+            'icon_url'                      => 'Vivo\View\Helper\IconUrlFactory',
+            'resource'                      => 'Vivo\View\Helper\ResourceFactory',
+            'resourceInfo'                  => 'Vivo\View\Helper\ResourceInfoFactory',
+            'document'                      => 'Vivo\View\Helper\DocumentFactory',
+            'cms'                           => 'Vivo\View\Helper\CmsFactory',
+            'vivo_head_title'               => 'Vivo\View\Helper\VivoHeadTitleFactory',
+            'render_document'               => 'Vivo\View\Helper\RenderDocumentFactory',
+            'user'                          => 'Vivo\View\Helper\UserFactory',
+            'transliterate'                 => 'Vivo\View\Helper\TransliterateFactory',
+            'vivo_head_script'              => 'Vivo\View\Helper\HeadScriptFactory',
         ),
     ),
     //Plugin manager configuration for navigation view helpers
@@ -963,8 +966,6 @@ return array(
             'backend'  => array(
                 'static'                => array(
                     'X-Generated-By'        => 'Vivo',
-                    //Backend cannot be displayed in an iframe
-                    'X-Frame-Options'       => 'DENY',
                 ),
                 'dynamic'               => array(
                     'X-Generated-At'        => true,
@@ -1535,6 +1536,27 @@ return array(
             'gc_maxlifetime'        => 3600,
             //'remember_me_seconds'   => ,
             //'cookie_lifetime'       => ,
+        ),
+    ),
+    
+    //Options passed to view helpers upon creation
+    'view_helper_options'    => array(
+        'Vivo\head_script'    => array(
+            //Disable merging of scripts for debugging
+            'enabled'       => true,
+            //When set to true, the merged js file will be regenerated upon every request (useful for debugging)
+            'always_regenerate'     => false,
+            //When set to true, .min.js file will be used instead of the defined one, if exists
+            'use_min_file'          => true,
+            //Name of the route for access to resources
+            'resource_route_name'   => 'vivo/resource',
+            //Params of the route used to access cached data resources
+            'cache_resource_route_params' => array(
+                'source'    => 'Vivo',
+                'type'      => 'cache',
+                //'path' contains %s placeholder for sprintf, which will be replaced with cache key
+                'path'      => 'head_script/%s',
+            ),
         ),
     ),
 );

@@ -4,7 +4,7 @@
         $this->headLink()->prepend($link);
     }
     foreach ($scripts as $script) {
-        $this->headScript()->prepend($script);
+        $this->vivoHeadScript()->prepend($script);
     }
     ?>
     <?=$this->doctype($doctype);?>
@@ -22,6 +22,6 @@
   </head>
   <body<? foreach ($bodyAttributes as $name => $value) echo " $name=\"".htmlspecialchars($value).'"'?>>
     <?= $main ?>
-    <?= $this->headScript() ?>
+    <?= $this->vivoHeadScript() ?>
   </body>
 </html>

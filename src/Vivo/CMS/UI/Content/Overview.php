@@ -3,17 +3,18 @@ namespace Vivo\CMS\UI\Content;
 
 use Vivo\CMS\Api\CMS;
 use Vivo\CMS\Api\Document as DocumentApi;
+use Vivo\CMS\Api\Indexer as IndexerApi;
+use Vivo\CMS\Model\Entity;
+use Vivo\CMS\Model\Document;
+use Vivo\CMS\Model\Site;
 use Vivo\CMS\Model\Content\Overview as OverviewModel;
 use Vivo\CMS\UI\Component;
 use Vivo\CMS\UI\Exception\Exception;
-use Vivo\CMS\Api\Indexer as IndexerApi;
-use Vivo\CMS\RefInt\SymRefConvertorInterface;
-use Vivo\CMS\Model\Entity;
-use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\CMS\UI\Exception\RuntimeException;
-use Vivo\CMS\Model\Site;
-
+use Vivo\CMS\RefInt\SymRefConvertorInterface;
+use Vivo\Repository\Exception\EntityNotFoundException;
 use Vivo\UI\ComponentEventInterface;
+
 use Zend\Cache\Storage\StorageInterface as Cache;
 
 /**
@@ -22,10 +23,8 @@ use Zend\Cache\Storage\StorageInterface as Cache;
  * Overview displays list of subpages (sub-documents) or other designated
  * documents. Typically is used to create reports and menus.
  */
-
 class Overview extends Component
 {
-
     /**
      * @var \Vivo\CMS\Api\CMS
      */
@@ -36,7 +35,7 @@ class Overview extends Component
      * @var IndexerApi
      */
     protected $indexerApi;
-    
+
     /**
      * Document API
      * @var DocumentApi
@@ -177,14 +176,14 @@ class Overview extends Component
             } else {
                 $path = $this->document->getPath();
             }
-            
+
             $query = $this->createQuery($path,$this->content->getOverviewCriteria());
 
             $params = array();
             if ($limit = $this->content->getOverviewLimit()) {
                 $params['page_size'] = $limit;
             }
-            if ($sort = $this->content->getOverviewSorting()) {      
+            if ($sort = $this->content->getOverviewSorting()) {
                 $currentDoc    = $this->cmsApi->getSiteEntity($this->content->getOverviewPath(), $this->site);
                 $parentSorting = $currentDoc->getSorting();
                 if(strpos($sort, "parent") !== false && $parentSorting != null) {
@@ -203,21 +202,31 @@ class Overview extends Component
                     $params['sort'] = '\\title asc';
                 } else {
                     $params['sort'] = '\\' . $propertyName . ' ' . $sortWay;
-                } 
-            }            
-            $documents = $this->indexerApi->getEntitiesByQuery($query, $params);
+                }
+            }
 
+            $items = $this->indexerApi->getEntitiesByQuery($query, $params);
+            foreach ($items as $item) { /* @var $item \Vivo\CMS\Model\Document */
+                if ($this->documentApi->isPublished($item)) {
+                    $documents[] = $item;
+                }
+            }
         } elseif ($type == OverviewModel::TYPE_STATIC) {
             $items  = $this->content->getOverviewItems();
             foreach ($items as $item) {
                 try {
+                    /* @var $item \Vivo\CMS\Model\Document */
                     $document = $this->cmsApi->getSiteEntity($item, $this->site);
-                    if ((bool) $document->getAllowListing() == true && $this->documentApi->isPublished($document)) {
+                    if ($document instanceof Document
+                        && $document->getAllowListingInOverview()
+                        && $this->documentApi->isPublished($document))
+                    {
                         $documents[] = $document;
                     }
                 } catch (EntityNotFoundException $e) {
                     $events = new \Zend\EventManager\EventManager();
-                    $events->trigger('log', $this, array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
+                    $events->trigger('log', $this,
+                            array ('message' => $e->getMessage(), 'level' => \Zend\Log\Logger::WARN));
                 }
             }
         } else {
@@ -238,14 +247,14 @@ class Overview extends Component
     protected function createQuery($path, $criteria)
     {
         $query = '\path:"'. $path . '/*" ';
-        $query .= ' AND \class:"Vivo\CMS\Model\Document"';
-        $query .= ' AND \publishedContents:"*"';  // search only documents with published content          
-        $query .= ' AND \allowListingInOverview:"1"';
+        $query.= ' AND \class:"Vivo\CMS\Model\Document"';
+        $query.= ' AND \publishedContents:"*"';  // search only documents with published content
+        $query.= ' AND \allowListingInOverview:"1"';
         if ($criteria) {
             $criteria   = $this->makePathsAbsolute($criteria);
-            $query .= " AND ($criteria)";
+            $query.= " AND ($criteria)";
         } else {
-            $query .= ' AND NOT \path:"' . $path . '/*/*" '; //exclude sub-documents
+            $query.= ' AND NOT \path:"' . $path . '/*/*" '; //exclude sub-documents
         }
         return $query;
     }

@@ -110,6 +110,24 @@ class ResourceManager
     }
 
     /**
+     * Checks if the specified resource exists
+     * @param string $moduleName
+     * @param string $pathToResource
+     * @param string|null $type
+     * @return bool
+     */
+    public function resourceExists($moduleName, $pathToResource, $type = null)
+    {
+        $exists = true;
+        try {
+            $this->getResource($moduleName, $pathToResource, $type);
+        } catch (Exception\ResourceNotFoundException $e) {
+            $exists = false;
+        }
+        return $exists;
+    }
+
+    /**
      * Returns an input stream for the resource
      * @param string $moduleName
      * @param string $pathToResource
