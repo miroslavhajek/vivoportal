@@ -231,9 +231,6 @@ abstract class AbstractManager
      */
     public function setUserPrincipal(Principal\UserInterface $principal = null)
     {
-        if ($principal) {
-            $this->session->getManager()->regenerateId();
-        }
         $this->session['security.principal'] = $principal;
         return $principal;
     }
