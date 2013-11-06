@@ -1,12 +1,24 @@
 <?php
 namespace Vivo\Form\Element;
 
+use Vivo\Form\ValidationResultAwareInterface;
+
 use Zend\Form\Element\File as ZendFile;
 use Zend\Form\ElementPrepareAwareInterface;
 use Zend\Form\FormInterface;
 
-class File extends ZendFile implements ElementPrepareAwareInterface
+/**
+ * File
+ * File form element
+ */
+class File extends ZendFile implements ElementPrepareAwareInterface, ValidationResultAwareInterface
 {
+    /**
+     * Flag indicating the last validation result, null means validation not performed
+     * @var bool|null
+     */
+    protected $validationResult;
+
     /**
      * Prepare the form element (mostly used for rendering purposes)
      * @param FormInterface $form
@@ -20,5 +32,27 @@ class File extends ZendFile implements ElementPrepareAwareInterface
             $id = str_replace('[', '-', $id);
             $this->setAttribute('id', $id);
         }
+    }
+
+    /**
+     * Sets result of the last validation, null means validation not performed
+     * @param bool|null $validationResult
+     * @return void
+     */
+    public function setValidationResult($validationResult)
+    {
+        if (!is_null($validationResult)) {
+            $validationResult   = (bool) $validationResult;
+        }
+        $this->validationResult = $validationResult;
+    }
+
+    /**
+     * Returns result of the last validation, null means validation not performed
+     * @return bool|null
+     */
+    public function getValidationResult()
+    {
+        return $this->validationResult;
     }
 }
