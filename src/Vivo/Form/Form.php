@@ -212,7 +212,7 @@ class Form extends ZendForm
         $classes = explode(' ', $this->getAttribute('class'));
         if(!in_array($class, $classes)) {
             $classes[] = $class;
-            $this->setAttribute('class', implode(' ', $classes));
+            $this->setAttribute('class', trim(implode(' ', $classes)));
         }
     }
 }
